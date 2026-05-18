@@ -1,0 +1,69 @@
+{
+  "name": "@mosend/sdk",
+  "version": "0.1.0",
+  "description": "Official TypeScript SDK for the Mosend API (WhatsApp Business, Web Chat, Bot, Billing, Webhooks).",
+  "license": "MIT",
+  "author": "Moshipp SAS",
+  "homepage": "https://developer.mosend.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Moshipp-Dev/mosend-sdk-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Moshipp-Dev/mosend-sdk-js/issues"
+  },
+  "keywords": [
+    "mosend",
+    "whatsapp",
+    "whatsapp-business",
+    "wabacloud",
+    "messaging",
+    "sdk",
+    "api"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^9.17.0",
+    "msw": "^2.7.0",
+    "prettier": "^3.4.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
