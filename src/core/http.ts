@@ -1,11 +1,13 @@
 import { resolveAuthHeader, type AuthConfig } from "./auth.js";
 import {
   buildApiError,
+  MosendApiError,
   MosendError,
   MosendNetworkError,
   MosendValidationError,
   type MosendApiErrorBody,
 } from "./errors.js";
+import type { TokenManager } from "./tokenManager.js";
 import type {
   ApiEnvelope,
   Paginated,
@@ -29,6 +31,7 @@ export interface HttpClientConfig extends AuthConfig {
   fetch: FetchLike;
   userAgent: string;
   defaultHeaders: Record<string, string>;
+  tokenManager?: TokenManager;
 }
 
 export interface RequestArgs {
@@ -37,6 +40,11 @@ export interface RequestArgs {
   query?: Record<string, string | number | boolean | null | undefined>;
   body?: unknown;
   options?: RequestOptions;
+  /**
+   * Internal flag: bypass the TokenManager (no proactive refresh, no auth
+   * header, no 401-retry). Used by /auth/refresh itself to avoid recursion.
+   */
+  skipAuth?: boolean;
 }
 
 export interface ResolvedResponse<T> {
@@ -59,10 +67,11 @@ export function createHttpClient(input: Partial<HttpClientConfig>): HttpClient {
     timeoutMs: input.timeoutMs ?? 30_000,
     retries: input.retries ?? null,
     fetch: fetchImpl,
-    userAgent: input.userAgent ?? `moshipp-mosend-sdk/0.1.0`,
+    userAgent: input.userAgent ?? `moshipp-mosend-sdk/0.2.0`,
     defaultHeaders: input.defaultHeaders ?? {},
     ...(input.apiKey !== undefined ? { apiKey: input.apiKey } : {}),
     ...(input.accessToken !== undefined ? { accessToken: input.accessToken } : {}),
+    ...(input.tokenManager ? { tokenManager: input.tokenManager } : {}),
   };
   return new HttpClient(cfg);
 }
@@ -86,26 +95,45 @@ export class HttpClient {
     }
   }
 
+  setTokenManager(tm: TokenManager | undefined): void {
+    if (tm === undefined) {
+      delete this.cfg.tokenManager;
+    } else {
+      this.cfg.tokenManager = tm;
+    }
+  }
+
   async request<T>(args: RequestArgs): Promise<ResolvedResponse<T>> {
     const url = this.buildUrl(args.path, args.query);
-    const isMultipart =
-      typeof FormData !== "undefined" && args.body instanceof FormData;
-    const headers = this.buildHeaders(args.options, args.body !== undefined, isMultipart);
-    const init: RequestInit = { method: args.method, headers };
-    if (args.body !== undefined) {
-      init.body = isMultipart ? (args.body as FormData) : JSON.stringify(args.body);
-    }
+    const isMultipart = typeof FormData !== "undefined" && args.body instanceof FormData;
 
+    // Auth refresh state: when tokenManager exists, we allow exactly one
+    // forced refresh + retry if the server returns 401.
+    let authRetriedOnce = false;
     const retries = this.cfg.retries;
     const maxAttempts = retries ? Math.max(1, retries.max + 1) : 1;
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const headers = await this.buildHeaders(
+        args.options,
+        args.body !== undefined,
+        isMultipart,
+        args.skipAuth ?? false,
+      );
+      const init: RequestInit = { method: args.method, headers };
+      if (args.body !== undefined) {
+        init.body = isMultipart ? (args.body as FormData) : JSON.stringify(args.body);
+      }
+
       const controller = new AbortController();
       const externalSignal = args.options?.signal;
       if (externalSignal) {
         if (externalSignal.aborted) controller.abort(externalSignal.reason);
-        else externalSignal.addEventListener("abort", () => controller.abort(externalSignal.reason), { once: true });
+        else
+          externalSignal.addEventListener("abort", () => controller.abort(externalSignal.reason), {
+            once: true,
+          });
       }
       const timeoutMs = args.options?.timeoutMs ?? this.cfg.timeoutMs;
       const timeout = setTimeout(() => controller.abort(new Error("Request timeout")), timeoutMs);
@@ -119,10 +147,7 @@ export class HttpClient {
           await sleep(backoffDelay(retries, attempt));
           continue;
         }
-        throw new MosendNetworkError(
-          err instanceof Error ? err.message : "Network error",
-          err,
-        );
+        throw new MosendNetworkError(err instanceof Error ? err.message : "Network error", err);
       }
       clearTimeout(timeout);
 
@@ -132,6 +157,29 @@ export class HttpClient {
       }
 
       const apiError = await buildErrorFromResponse(response, raw);
+
+      // 401 → try a forced token refresh (once) and retry the same request.
+      // We only kick in if a tokenManager is configured. Without one, 401 is final.
+      // skipAuth requests (the refresh call itself) never trigger this path.
+      if (
+        response.status === 401 &&
+        this.cfg.tokenManager &&
+        !authRetriedOnce &&
+        !args.skipAuth
+      ) {
+        authRetriedOnce = true;
+        try {
+          await this.cfg.tokenManager.refresh();
+          // Do not consume one of the configured retry attempts on auth refresh.
+          attempt -= 1;
+          continue;
+        } catch (refreshErr) {
+          // Refresh failed — surface the original 401 to the caller.
+          if (refreshErr instanceof MosendApiError) throw refreshErr;
+          throw apiError;
+        }
+      }
+
       const shouldRetry =
         retries && attempt < maxAttempts && retries.on.includes(response.status);
       if (shouldRetry) {
@@ -162,19 +210,29 @@ export class HttpClient {
     return url.toString();
   }
 
-  private buildHeaders(
+  private async buildHeaders(
     opts: RequestOptions | undefined,
     hasBody: boolean,
     isMultipart: boolean,
-  ): Record<string, string> {
+    skipAuth: boolean,
+  ): Promise<Record<string, string>> {
+    const authConfig: AuthConfig = skipAuth
+      ? {}
+      : {
+          ...(this.cfg.apiKey !== undefined ? { apiKey: this.cfg.apiKey } : {}),
+          ...(this.cfg.accessToken !== undefined ? { accessToken: this.cfg.accessToken } : {}),
+        };
+    // TokenManager wins over a static accessToken — it always reflects the
+    // freshest token (and may refresh proactively when expiry is near).
+    if (!skipAuth && this.cfg.tokenManager) {
+      const token = await this.cfg.tokenManager.getAccessToken();
+      if (token) authConfig.accessToken = token;
+    }
     const headers: Record<string, string> = {
       Accept: "application/json",
       "User-Agent": this.cfg.userAgent,
       ...this.cfg.defaultHeaders,
-      ...resolveAuthHeader({
-        ...(this.cfg.apiKey !== undefined ? { apiKey: this.cfg.apiKey } : {}),
-        ...(this.cfg.accessToken !== undefined ? { accessToken: this.cfg.accessToken } : {}),
-      }),
+      ...resolveAuthHeader(authConfig),
     };
     if (hasBody && !isMultipart) headers["Content-Type"] = "application/json";
     if (opts?.idempotencyKey) headers["Idempotency-Key"] = opts.idempotencyKey;
@@ -233,9 +291,7 @@ async function buildErrorFromResponse(response: Response, raw: RawResponse) {
   }
   const retryAfterHeader = response.headers.get("retry-after");
   const retryAfterSec =
-    retryAfterHeader !== null
-      ? Number(retryAfterHeader)
-      : raw.rateLimit.resetSec;
+    retryAfterHeader !== null ? Number(retryAfterHeader) : raw.rateLimit.resetSec;
   return buildApiError({
     status: response.status,
     body,
@@ -263,9 +319,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function toPaginated<T>(
-  payload: unknown,
-): Paginated<T> {
+export function toPaginated<T>(payload: unknown): Paginated<T> {
   if (
     payload &&
     typeof payload === "object" &&

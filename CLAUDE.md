@@ -159,7 +159,7 @@ await mosend.messages.send({ orgId: "<uuid>", phoneNumberId, to, ... });
 Dos modos. El SDK acepta ambos y los routea automáticamente:
 
 - **API key** (server-to-server). Formato `mk_live_<prefix>.<secret>` o `mk_test_...`. Se envía en `X-Api-Key` (preferido) o `Authorization: Bearer`. El backend distingue por prefijo, así que basta con setear `apiKey` en el constructor.
-- **Bearer JWT** (sesión interactiva). Obtenido vía `auth.login()` → `{ accessToken, refreshToken, expiresIn: 900 }`. Refrescar con `auth.refresh()`. El SDK provee `MosendClient.withTokens(...)` y refresh automático si pasamos `refreshToken`.
+- **Bearer JWT** (sesión interactiva). Obtenido vía `auth.login()` → `{ accessToken, refreshToken, expiresIn: 900 }`. Cuando pasás `tokens` en el constructor, el SDK activa el **`TokenManager`** (`src/core/tokenManager.ts`): refresh proactivo según `refreshSkewMs` (default 30s), refresh reactivo ante 401, mutex `inFlight` (10 requests concurrentes → 1 sola llamada a `/auth/refresh`), rotación de refresh token, callbacks `onTokenRefresh` y `onAuthFailure`. El refresh interno usa `skipAuth: true` en `RequestArgs` para no recursar.
 
 **Scopes** (cuando la key se crea con `scopes: [...]`): `conversations:read|write`, `messages:send|read`, `contacts:read|write`, `templates:read|write`, `phone-numbers:read|write`, `waba:read|write`, `webhooks:read|write`, `billing:read|write`, `integrations:read|write`. Si la key se creó con `scopes: []` tiene acceso total.
 

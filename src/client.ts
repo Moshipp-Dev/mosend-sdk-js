@@ -1,4 +1,7 @@
 import { createHttpClient, type FetchLike, type HttpClient, type RetryConfig } from "./core/http.js";
+import { MosendApiError, MosendAuthError, MosendValidationError } from "./core/errors.js";
+import { TokenManager } from "./core/tokenManager.js";
+import type { AuthTokens } from "./types/identity.js";
 import { AddonsResource } from "./resources/addons.js";
 import { ApiKeysResource } from "./resources/apiKeys.js";
 import { AuditResource } from "./resources/audit.js";
@@ -58,6 +61,27 @@ import { WhatsappLinksResource } from "./resources/whatsappLinks.js";
 export interface MosendClientOptions {
   apiKey?: string;
   accessToken?: string;
+  /**
+   * Initial JWT tokens. Enables auto-refresh: when accessToken is near
+   * expiration the SDK calls POST /auth/refresh, persists the rotated pair,
+   * and retries pending requests transparently.
+   */
+  tokens?: AuthTokens;
+  /**
+   * Fires every time the SDK refreshes the JWT pair. Persist the new tokens
+   * in your own storage (DB, encrypted cookie, secure storage) so they survive
+   * process restarts.
+   */
+  onTokenRefresh?: (tokens: AuthTokens) => Promise<void> | void;
+  /**
+   * Fires when the refresh token itself is rejected. Typical action: clear
+   * local session and redirect the user to login.
+   */
+  onAuthFailure?: (error: MosendAuthError) => Promise<void> | void;
+  /**
+   * Milliseconds before expiry to trigger a proactive refresh. Default 30000.
+   */
+  refreshSkewMs?: number;
   orgId?: string;
   baseUrl?: string;
   timeout?: number;
@@ -125,6 +149,7 @@ export class MosendClient {
   readonly whatsappLinks: WhatsappLinksResource;
 
   private readonly http: HttpClient;
+  private tokenManager: TokenManager | undefined;
 
   constructor(options: MosendClientOptions = {}) {
     this.http = createHttpClient({
@@ -134,9 +159,32 @@ export class MosendClient {
       timeoutMs: options.timeout ?? 30_000,
       retries: options.retries ?? null,
       fetch: options.fetch ?? globalThis.fetch,
-      userAgent: options.userAgent ?? "moshipp-mosend-sdk/0.1.0",
+      userAgent: options.userAgent ?? "moshipp-mosend-sdk/0.2.0",
       defaultHeaders: options.defaultHeaders ?? {},
     });
+
+    if (options.tokens) {
+      const tm = new TokenManager({
+        initialTokens: options.tokens,
+        ...(options.refreshSkewMs !== undefined ? { refreshSkewMs: options.refreshSkewMs } : {}),
+        ...(options.onTokenRefresh ? { onTokenRefresh: options.onTokenRefresh } : {}),
+        ...(options.onAuthFailure ? { onAuthFailure: options.onAuthFailure } : {}),
+        refresh: async (refreshToken: string): Promise<AuthTokens> => {
+          // skipAuth: true → HttpClient does not consult the TokenManager for
+          // this call (no recursion) and does not auto-retry on 401 (a 401
+          // here means the refresh token itself is rejected).
+          const res = await this.http.request<AuthTokens>({
+            method: "POST",
+            path: "/auth/refresh",
+            body: { refreshToken },
+            skipAuth: true,
+          });
+          return res.data;
+        },
+      });
+      this.tokenManager = tm;
+      this.http.setTokenManager(tm);
+    }
 
     const ctx = { http: this.http, defaultOrgId: options.orgId };
     this.addons = new AddonsResource(ctx);
@@ -203,4 +251,46 @@ export class MosendClient {
   setApiKey(key: string | undefined): void {
     this.http.setApiKey(key);
   }
+
+  /**
+   * Replace the JWT pair at runtime (e.g. after a fresh login). Calling this
+   * with `null` clears the in-memory tokens.
+   */
+  setTokens(tokens: AuthTokens | null): void {
+    if (!this.tokenManager) {
+      throw new MosendValidationError(
+        "Cannot setTokens() because the client was created without `tokens` in its options. Pass an initial AuthTokens object on construction.",
+      );
+    }
+    this.tokenManager.setTokens(tokens);
+  }
+
+  /**
+   * Returns the current in-memory tokens, or null if none are set. The
+   * accessToken returned here may be on the verge of expiry — use it for
+   * inspection / persistence only, the SDK always reads the freshest value
+   * before sending a request.
+   */
+  getTokens(): { accessToken: string; refreshToken: string; expiresAt: number } | null {
+    return this.tokenManager?.getTokensSnapshot() ?? null;
+  }
+
+  /**
+   * Force an immediate refresh, even if the current accessToken would still
+   * pass the proactive expiry check. Useful right after a sensitive operation
+   * that revokes the previous tokens server-side.
+   */
+  async refreshNow(): Promise<void> {
+    if (!this.tokenManager) {
+      throw new MosendValidationError(
+        "Cannot refreshNow() because the client was created without `tokens` in its options.",
+      );
+    }
+    await this.tokenManager.refresh();
+  }
 }
+
+// MosendApiError is re-exported by src/index.ts; the import above is for the
+// implementation detail above (refresh function recursion guard).
+void MosendApiError;
+

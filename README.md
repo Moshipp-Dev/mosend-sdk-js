@@ -68,18 +68,52 @@ new MosendClient({ apiKey: "mk_live_abcd.secret" });  // → X-Api-Key
 new MosendClient({ accessToken: "<jwt>" });           // → Authorization: Bearer
 ```
 
-Login interactivo y refresh de tokens:
+### Auto-refresh de JWT (recomendado para sesión interactiva)
+
+Pasá los tokens iniciales en el constructor y el SDK se encarga del resto: refresh proactivo cerca de la expiración, refresh reactivo ante un `401`, mutex para evitar refreshes concurrentes, y rotación del refresh token.
 
 ```ts
 const { user, tokens } = await mosend.auth.login({
   email: "info@empresa.com",
   password: "...",
-  twoFactorCode: "123456", // si el usuario tiene 2FA
+  twoFactorCode: "123456",
 });
 
-mosend.setAccessToken(tokens.accessToken);
+const session = new MosendClient({
+  tokens,                                  // { accessToken, refreshToken, expiresIn }
+  orgId: "<uuid>",
+  onTokenRefresh: async (next) => {
+    // Persistir en tu storage para sobrevivir reinicios.
+    await db.users.update({ id: user.id, tokens: next });
+  },
+  onAuthFailure: async (err) => {
+    // El refresh token también fue rechazado → forzar relogin.
+    redirectToLogin();
+  },
+  refreshSkewMs: 30_000,                   // refresh proactivo 30s antes (default)
+});
 
-// Más tarde…
+// Usalo normalmente, sin pensar en el ciclo de vida del JWT.
+await session.contacts.list();
+await session.messages.send({ /* ... */ });
+
+// API auxiliar (cuando la necesites):
+await session.refreshNow();                // forzar refresh manual
+session.setTokens({ /* ... */ });          // reemplazar la pareja en runtime
+session.getTokens();                       // leer la pareja en memoria
+```
+
+**Garantías del auto-refresh**:
+- Si 10 requests detectan expiración simultánea, **solo se dispara un** `POST /auth/refresh` (shared promise).
+- El SDK lee el access token fresco **antes de cada request**, así el header `Authorization` siempre coincide con el que está en memoria.
+- Tras un `401` el SDK intenta **un solo** refresh + retry. Si el segundo intento también falla, propaga el error sin más loops.
+- El callback `onTokenRefresh` recibe los tokens nuevos (con `refreshToken` rotado) — usalo para persistir.
+
+### Refresh manual (sin auto-refresh)
+
+Si preferís controlar el ciclo de vida vos mismo, usá la API base:
+
+```ts
 const fresh = await mosend.auth.refresh({ refreshToken: tokens.refreshToken });
 mosend.setAccessToken(fresh.accessToken);
 ```
@@ -356,7 +390,6 @@ El paquete está en **`0.x`** mientras la API REST está en **v0.9**. Cada minor
 
 Próximos hitos:
 
-- Auto-refresh de JWT con un `tokenStore` pluggable.
 - Helpers de OAuth/Embedded Signup para Meta.
 - Adapter para edge runtimes específicos (Cloudflare Workers, Deno).
 - Sintetizar DTOs reales cuando la doc oficial actualice los samples genéricos por shapes definitivos.
