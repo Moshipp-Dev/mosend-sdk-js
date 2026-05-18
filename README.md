@@ -1,8 +1,8 @@
-# @mosend/sdk
+# @moshipp/mosend-sdk
 
 > SDK oficial en TypeScript para la **API REST de Mosend** — WhatsApp Business, Web Chat, Bot con IA, Billing y Webhooks.
 
-[![npm](https://img.shields.io/npm/v/%40mosend%2Fsdk.svg)](https://www.npmjs.com/package/@mosend/sdk)
+[![npm](https://img.shields.io/npm/v/%40moshipp%2Fmosend-sdk.svg)](https://www.npmjs.com/package/@moshipp/mosend-sdk)
 [![types](https://img.shields.io/badge/types-TypeScript-blue.svg)](#)
 [![runtime](https://img.shields.io/badge/node-%E2%89%A518.17-brightgreen.svg)](#)
 
@@ -20,11 +20,11 @@ Documentación oficial de la API: **<https://developer.mosend.dev>**.
 ## Instalación
 
 ```bash
-npm install @mosend/sdk
+npm install @moshipp/mosend-sdk
 # o
-pnpm add @mosend/sdk
+pnpm add @moshipp/mosend-sdk
 # o
-yarn add @mosend/sdk
+yarn add @moshipp/mosend-sdk
 ```
 
 Requisitos: **Node ≥ 18.17** (necesitamos `fetch`, `AbortController` y Web Crypto nativos) o cualquier navegador moderno.
@@ -34,7 +34,7 @@ Requisitos: **Node ≥ 18.17** (necesitamos `fetch`, `AbortController` y Web Cry
 ## Quickstart
 
 ```ts
-import { MosendClient } from "@mosend/sdk";
+import { MosendClient } from "@moshipp/mosend-sdk";
 
 const mosend = new MosendClient({
   apiKey: process.env.MOSEND_API_KEY!,   // mk_live_<prefix>.<secret>
@@ -186,7 +186,7 @@ console.log(`${result.sent}/${result.total} enviados, ${result.failed} fallidos`
 Mosend dispara `POST` a tu URL con header `X-Mosend-Signature: sha256=<hex>`. Validá la firma con el secreto que recibís al crear el webhook.
 
 ```ts
-import { parseWebhookEvent, MosendWebhookSignatureError } from "@mosend/sdk";
+import { parseWebhookEvent, MosendWebhookSignatureError } from "@moshipp/mosend-sdk";
 
 app.post("/webhooks/mosend", express.raw({ type: "application/json" }), (req, res) => {
   try {
@@ -245,7 +245,7 @@ import {
   MosendRateLimitError,
   MosendUnprocessableError,
   MosendNetworkError,
-} from "@mosend/sdk";
+} from "@moshipp/mosend-sdk";
 
 try {
   await mosend.messages.send({ /* ... */ });

@@ -134,7 +134,7 @@ export class MosendClient {
       timeoutMs: options.timeout ?? 30_000,
       retries: options.retries ?? null,
       fetch: options.fetch ?? globalThis.fetch,
-      userAgent: options.userAgent ?? "mosend-sdk-js/0.1.0",
+      userAgent: options.userAgent ?? "moshipp-mosend-sdk/0.1.0",
       defaultHeaders: options.defaultHeaders ?? {},
     });
 

@@ -1,4 +1,4 @@
-# CLAUDE.md — @mosend/sdk
+# CLAUDE.md — @moshipp/mosend-sdk
 
 > Guía de proyecto para Claude Code. Este archivo es la fuente de verdad sobre **qué estamos construyendo**, **cómo lo construimos** y **qué convenciones seguimos**. Cualquier decisión nueva se refleja aquí.
 
@@ -6,7 +6,7 @@
 
 ## 1. Qué es este repo
 
-Estamos construyendo **`@mosend/sdk`**: el SDK oficial en TypeScript para la **API REST de Mosend** (`https://api.mosend.dev`, v0.9), distribuible vía npm.
+Estamos construyendo **`@moshipp/mosend-sdk`**: el SDK oficial en TypeScript para la **API REST de Mosend** (`https://api.mosend.dev`, v0.9), distribuible vía npm.
 
 Mosend es la plataforma de **Moshipp SAS** que orquesta WhatsApp Business Cloud, Web Chat, bot con IA, billing y webhooks. La API expone **258 endpoints en 55 módulos** documentados en https://developer.mosend.dev.
 
@@ -24,7 +24,7 @@ El paquete debe:
 
 | Decisión | Elección | Motivo |
 |---|---|---|
-| Nombre npm | `@mosend/sdk` | Scope oficial de Moshipp SAS |
+| Nombre npm | `@moshipp/mosend-sdk` | Scope oficial de Moshipp SAS |
 | Lenguaje | TypeScript estricto, dual build CJS + ESM | Tipado fuerte + compatibilidad amplia |
 | Cliente HTTP | `fetch` nativo (Node 18+ y browser) | Cero deps, isomorfo |
 | Estructura | Resource clients (`client.messages.send(...)`) | Estilo Stripe/OpenAI, descubrible |
@@ -214,7 +214,7 @@ Mosend dispara `POST` a tu URL con `X-Mosend-Signature: sha256=<hex>` calculado 
 El SDK expone:
 
 ```ts
-import { verifyWebhookSignature, type WebhookEvent } from "@mosend/sdk";
+import { verifyWebhookSignature, type WebhookEvent } from "@moshipp/mosend-sdk";
 
 // en el handler HTTP
 const rawBody = await readRawBody(req);
@@ -382,7 +382,7 @@ Por defecto **no** escribimos comentarios. Solo cuando el _por qué_ no es evide
 ## 7. Convención del cliente (API pública)
 
 ```ts
-import { MosendClient } from "@mosend/sdk";
+import { MosendClient } from "@moshipp/mosend-sdk";
 
 const mosend = new MosendClient({
   apiKey: process.env.MOSEND_API_KEY!,           // mk_live_<prefix>.<secret>

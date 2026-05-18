@@ -1,10 +1,10 @@
-# Publicar `@mosend/sdk` en npm
+# Publicar `@moshipp/mosend-sdk` en npm
 
-Esta guía explica cómo publicar una versión nueva. Asume que ya tenés cuenta de npm con acceso al scope `@mosend`.
+Esta guía explica cómo publicar una versión nueva. Asume que ya tenés cuenta de npm con acceso al scope `@moshipp`.
 
 ## Prerrequisitos (una sola vez)
 
-1. **Cuenta npm con scope `@mosend`** (organización o usuario):
+1. **Cuenta npm con scope `@moshipp`** (organización o usuario):
    - Logueate localmente: `npm login`.
    - Verificá: `npm whoami`.
 2. **(Opcional, recomendado) Habilitar 2FA** en tu cuenta npm.
@@ -45,19 +45,19 @@ Esta guía explica cómo publicar una versión nueva. Asume que ya tenés cuenta
 
 5. **Verificá la publicación**:
    ```bash
-   npm view @mosend/sdk versions --json
-   npm view @mosend/sdk@latest
+   npm view @moshipp/mosend-sdk versions --json
+   npm view @moshipp/mosend-sdk@latest
    ```
 
 ## Despublicar / deprecar
 
 - **Despublicar** (solo dentro de las primeras 72 h y si nadie depende del paquete):
   ```bash
-  npm unpublish @mosend/sdk@X.Y.Z
+  npm unpublish @moshipp/mosend-sdk@X.Y.Z
   ```
 - **Deprecar** una versión (preferible): publicás una nueva sin marcar la anterior como rota, pero avisás:
   ```bash
-  npm deprecate @mosend/sdk@X.Y.Z "Usar X.Y.Z+1 — fix de seguridad"
+  npm deprecate @moshipp/mosend-sdk@X.Y.Z "Usar X.Y.Z+1 — fix de seguridad"
   ```
 
 ## Versionado
