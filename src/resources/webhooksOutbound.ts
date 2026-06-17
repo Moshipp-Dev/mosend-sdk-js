@@ -1,4 +1,9 @@
-import type { CreateWebhookInput, OutboundWebhook, WebhookDelivery } from "../types/webhooks.js";
+import type {
+  CreateWebhookInput,
+  OutboundWebhook,
+  UpdateWebhookInput,
+  WebhookDelivery,
+} from "../types/webhooks.js";
 import type { Paginated, RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 import { toPaginated } from "../core/http.js";
@@ -24,6 +29,36 @@ export class WebhooksOutboundResource extends Resource {
       method: "POST",
       path: `/organizations/${orgId}/webhooks-outbound`,
       body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async update(
+    webhookId: string,
+    input: UpdateWebhookInput & { orgId?: string },
+    options?: RequestOptions,
+  ): Promise<OutboundWebhook> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<OutboundWebhook>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/webhooks-outbound/${webhookId}`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async getSecret(
+    webhookId: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<{ secret: string }> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<{ secret: string }>({
+      method: "GET",
+      path: `/organizations/${orgId}/webhooks-outbound/${webhookId}/secret`,
       ...(options ? { options } : {}),
     });
     return res.data;

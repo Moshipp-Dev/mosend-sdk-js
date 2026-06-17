@@ -48,6 +48,16 @@ export interface ReportBilling {
   [key: string]: unknown;
 }
 
+export interface TeamGoals {
+  weeklyConversationsCreated: number | null;
+  weeklyConversationsClosed: number | null;
+  weeklyMessagesOut: number | null;
+  closureRateTarget: number | null;
+  resolutionRateTarget: number | null;
+}
+
+export type UpdateTeamGoalsInput = Partial<TeamGoals>;
+
 export interface Notification {
   id: UUID;
   title: string;
@@ -65,8 +75,8 @@ export interface PushConfig {
 
 export interface PushSubscriptionInput {
   endpoint: string;
-  keys: { p256dh: string; auth: string };
-  userAgent?: string;
+  p256dh: string;
+  auth: string;
 }
 
 export interface PushSubscriptionRecord {
@@ -77,10 +87,11 @@ export interface PushSubscriptionRecord {
 }
 
 export interface LeadInput {
+  name: string;
   email: string;
+  message: string;
   phone?: string;
-  name?: string;
-  message?: string;
+  company?: string;
   source?: string;
   utm?: Record<string, string>;
 }
@@ -104,12 +115,24 @@ export interface IntegrationCatalogItem {
 }
 
 export interface InstallIntegrationInput {
-  integrationId: string;
+  slug: string;
   config?: Record<string, unknown>;
 }
 
 export interface UpdateIntegrationInput {
-  config: Record<string, unknown>;
+  config?: Record<string, unknown>;
+  enabled?: boolean;
+}
+
+export interface SystemNotice {
+  id: UUID;
+  severity: "INFO" | "WARNING" | "CRITICAL";
+  title: string;
+  body?: string;
+  linkUrl?: string;
+  linkLabel?: string;
+  dismissible: boolean;
+  updatedAt: ISODateString;
 }
 
 export interface MediaItem {

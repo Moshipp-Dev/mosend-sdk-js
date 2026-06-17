@@ -51,9 +51,9 @@ async function main() {
     templateId: MOSEND_TEMPLATE_ID!,
     templateLanguage: "es_CO",
     listId: list.id,
-    templateVariables: [
-      { type: "body", parameters: [{ type: "text", text: "Juan" }] },
-    ],
+    templateVariables: {
+      body: ["Juan"],
+    },
   });
   console.warn("Broadcast creado:", broadcast.id, "estado:", broadcast.status);
 

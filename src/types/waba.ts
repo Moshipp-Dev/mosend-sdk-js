@@ -10,6 +10,29 @@ export interface PhoneNumber {
   createdAt: ISODateString;
 }
 
+export interface CreatePhoneNumberInput {
+  wabaId: UUID;
+  /** Código de país, solo dígitos (1–4). */
+  cc: string;
+  /** Número sin código de país, solo dígitos (4–14). */
+  phoneNumber: string;
+  verifiedName: string;
+}
+
+export interface RequestRegistrationCodeInput {
+  method: "SMS" | "VOICE";
+  language?: string;
+}
+
+export interface VerifyRegistrationCodeInput {
+  code: string;
+}
+
+export interface RegisterPhoneInput {
+  /** PIN de 6 dígitos (two-step verification). */
+  pin: string;
+}
+
 export interface Waba {
   id: UUID;
   metaWabaId: string;
@@ -31,7 +54,6 @@ export interface BusinessProfile {
 }
 
 export interface UpdateBusinessProfileInput {
-  about?: string;
   address?: string;
   description?: string;
   email?: string;

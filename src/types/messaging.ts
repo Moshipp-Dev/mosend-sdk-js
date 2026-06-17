@@ -42,21 +42,24 @@ export type SendMessageInput =
       to: string;
       type: "text";
       payload: MessagePayloadText;
-      contextMessageId?: string;
+      replyToMessageId?: UUID;
+      clientId?: string;
     }
   | {
       phoneNumberId: UUID;
       to: string;
       type: "image" | "video" | "audio" | "document" | "sticker";
       payload: MessagePayloadMedia;
-      contextMessageId?: string;
+      replyToMessageId?: UUID;
+      clientId?: string;
     }
   | {
       phoneNumberId: UUID;
       to: string;
       type: "location";
       payload: MessagePayloadLocation;
-      contextMessageId?: string;
+      replyToMessageId?: UUID;
+      clientId?: string;
     }
   | SendTemplateInput;
 
@@ -96,7 +99,8 @@ export interface Message {
 }
 
 export interface EditMessageInput {
-  payload: Record<string, unknown>;
+  /** Nuevo texto del mensaje (web-chat). 1–4096 caracteres. */
+  body: string;
 }
 
 export interface Template {
@@ -116,6 +120,37 @@ export interface Template {
   updatedAt: ISODateString;
 }
 
+export interface TemplateButton {
+  type: string;
+  text?: string;
+  url?: string;
+  phone_number?: string;
+  example?: string[];
+  [key: string]: unknown;
+}
+
+export interface TemplateComponent {
+  type: string;
+  format?: string;
+  text?: string;
+  example?: Record<string, unknown>;
+  buttons?: TemplateButton[];
+  cards?: Array<{ components: TemplateComponent[] }>;
+  [key: string]: unknown;
+}
+
+export interface CreateTemplateInput {
+  wabaId: UUID;
+  name: string;
+  language: string;
+  category: "MARKETING" | "UTILITY" | "AUTHENTICATION";
+  components: TemplateComponent[];
+}
+
+export interface UpdateTemplateInput {
+  components: TemplateComponent[];
+}
+
 export interface Contact {
   id: UUID;
   waId: string;
@@ -131,8 +166,34 @@ export interface CreateContactInput {
   waId: string;
   name?: string;
   language?: string;
+  attributes?: Record<string, unknown>;
+}
+
+export interface UpdateContactInput {
+  name?: string;
+  language?: string;
   optInStatus?: "OPTED_IN" | "OPTED_OUT" | "UNKNOWN";
   attributes?: Record<string, unknown>;
+}
+
+export interface ContactNote {
+  id: UUID;
+  contactId: UUID;
+  body: string;
+  pinned: boolean;
+  authorUserId?: UUID;
+  createdAt: ISODateString;
+  updatedAt: ISODateString;
+}
+
+export interface CreateContactNoteInput {
+  body: string;
+  pinned?: boolean;
+}
+
+export interface UpdateContactNoteInput {
+  body?: string;
+  pinned?: boolean;
 }
 
 export interface ContactList {
@@ -177,10 +238,11 @@ export interface CreateBroadcastInput {
   templateLanguage: string;
   listId?: UUID;
   contactIds?: UUID[];
-  templateVariables?: Array<{
-    type: "header" | "body" | "button";
-    parameters: Array<Record<string, unknown>>;
-  }>;
+  templateVariables?: {
+    body?: TemplateVariableValue[];
+    header?: { type: string; link?: string; text?: string; [key: string]: unknown };
+    buttons?: Array<{ index: number; value: string }>;
+  };
   scheduledAt?: ISODateString;
 }
 
@@ -204,17 +266,25 @@ export interface Conversation {
 }
 
 export interface MessagingSettings {
-  windowExtensionHours?: number;
-  autoCloseAfterDays?: number;
-  defaultAssigneeId?: UUID;
+  sendReadReceipts?: boolean;
+  sendTypingIndicator?: boolean;
   [key: string]: unknown;
 }
 
+export interface UpdateMessagingSettingsInput {
+  sendReadReceipts?: boolean;
+  sendTypingIndicator?: boolean;
+}
+
 export interface WorkloadSettings {
-  enabled: boolean;
-  maxOpenPerAgent?: number;
-  strategy?: "ROUND_ROBIN" | "LEAST_BUSY" | "MANUAL";
+  slaResponseThresholdMin?: number;
+  staleConversationThresholdHours?: number;
   [key: string]: unknown;
+}
+
+export interface UpdateWorkloadSettingsInput {
+  slaResponseThresholdMin?: number;
+  staleConversationThresholdHours?: number;
 }
 
 export interface ConversationWorkload {
@@ -256,7 +326,7 @@ export interface Sticker {
 export interface SendStickerInput {
   phoneNumberId: UUID;
   to: string;
-  conversationId?: UUID;
+  replyToMessageId?: UUID;
 }
 
 export interface Tag {
@@ -274,19 +344,23 @@ export interface CreateTagInput {
 export interface OptIn {
   id: UUID;
   contactId: UUID;
-  phone: string;
-  source: string;
+  type: "IN" | "OUT";
+  source?: string;
+  channel?: string;
   createdAt: ISODateString;
 }
 
 export interface CreateOptInInput {
-  phone: string;
-  source: string;
+  type: "IN" | "OUT";
+  source?: string;
+  channel?: string;
+  payload?: Record<string, unknown>;
 }
 
 export interface QuickReply {
   id: UUID;
   shortcut: string;
+  title: string;
   body: string;
   useCount?: number;
   createdAt: ISODateString;
@@ -295,6 +369,7 @@ export interface QuickReply {
 
 export interface CreateQuickReplyInput {
   shortcut: string;
+  title: string;
   body: string;
 }
 
@@ -316,7 +391,8 @@ export interface CreateWhatsappLinkInput {
   name: string;
   phoneNumberId: UUID;
   prefilledMessage?: string;
-  slug?: string;
+  campaignTag?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export type UpdateWhatsappLinkInput = Partial<CreateWhatsappLinkInput>;

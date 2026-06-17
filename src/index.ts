@@ -45,3 +45,4 @@ export type * from "./types/bot.js";
 export type * from "./types/webChat.js";
 export type * from "./types/billing.js";
 export type * from "./types/misc.js";
+export type * from "./types/tasks.js";

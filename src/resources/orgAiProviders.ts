@@ -1,5 +1,6 @@
 import type {
   AiProviderName,
+  EffectiveAiProvider,
   OrgAiProvider,
   OrgAiProviderTestResult,
   UpsertOrgAiProviderInput,
@@ -13,6 +14,17 @@ export class OrgAiProvidersResource extends Resource {
     const res = await this.http.request<OrgAiProvider[]>({
       method: "GET",
       path: `/organizations/${orgId}/bot/ai-providers`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Proveedores efectivos resueltos (BYOK del cliente o fallback de Mosend). */
+  async effective(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<EffectiveAiProvider[]> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<EffectiveAiProvider[]>({
+      method: "GET",
+      path: `/organizations/${orgId}/bot/ai-providers/effective`,
       ...(options ? { options } : {}),
     });
     return res.data;

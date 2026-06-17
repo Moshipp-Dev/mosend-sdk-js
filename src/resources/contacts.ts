@@ -1,15 +1,23 @@
-import type { Contact, CreateContactInput } from "../types/messaging.js";
+import type {
+  Contact,
+  ContactNote,
+  CreateContactInput,
+  CreateContactNoteInput,
+  UpdateContactInput,
+  UpdateContactNoteInput,
+} from "../types/messaging.js";
+import type { Task } from "../types/tasks.js";
 import type { Paginated, RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 import { toPaginated } from "../core/http.js";
-import { iteratePages } from "../core/pagination.js";
 
 export interface ListContactsQuery {
   orgId?: string;
-  cursor?: string;
-  limit?: number;
-  search?: string;
+  page?: number;
+  pageSize?: number;
+  q?: string;
   tagId?: string;
+  channel?: "whatsapp" | "web" | "all";
   optInStatus?: "OPTED_IN" | "OPTED_OUT" | "UNKNOWN";
 }
 
@@ -26,11 +34,20 @@ export class ContactsResource extends Resource {
     return toPaginated<Contact>(res.data);
   }
 
-  iterate(query: ListContactsQuery = {}, options?: RequestOptions): AsyncIterableIterator<Contact> {
-    return iteratePages<Contact, ListContactsQuery>(
-      (params) => this.list(params, options),
-      query,
-    );
+  async *iterate(
+    query: ListContactsQuery = {},
+    options?: RequestOptions,
+  ): AsyncIterableIterator<Contact> {
+    // Contactos pagina por offset (`page`/`pageSize`), no por cursor: iteramos
+    // incrementando la página hasta recibir una página incompleta.
+    const pageSize = query.pageSize ?? 50;
+    let page = query.page ?? 1;
+    for (;;) {
+      const { data } = await this.list({ ...query, page, pageSize }, options);
+      for (const contact of data) yield contact;
+      if (data.length < pageSize) break;
+      page += 1;
+    }
   }
 
   async create(input: CreateContactInput & { orgId?: string }, options?: RequestOptions): Promise<Contact> {
@@ -57,7 +74,7 @@ export class ContactsResource extends Resource {
 
   async update(
     contactId: string,
-    input: Partial<CreateContactInput> & { orgId?: string },
+    input: UpdateContactInput & { orgId?: string },
     options?: RequestOptions,
   ): Promise<Contact> {
     const { orgId: scopedOrgId, ...body } = input;
@@ -104,6 +121,115 @@ export class ContactsResource extends Resource {
       method: "POST",
       path: `/organizations/${orgId}/contacts/bulk-tag`,
       body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async bulkDelete(
+    input: { contactIds: string[]; orgId?: string },
+    options?: RequestOptions,
+  ): Promise<{ deleted: number }> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<{ deleted: number }>({
+      method: "POST",
+      path: `/organizations/${orgId}/contacts/bulk-delete`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async bulkSetOptInStatus(
+    input: {
+      contactIds: string[];
+      status: "UNKNOWN" | "OPTED_IN" | "OPTED_OUT";
+      orgId?: string;
+    },
+    options?: RequestOptions,
+  ): Promise<{ updated: number }> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<{ updated: number }>({
+      method: "POST",
+      path: `/organizations/${orgId}/contacts/bulk-opt-in-status`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async listNotes(
+    contactId: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<ContactNote[]> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<ContactNote[]>({
+      method: "GET",
+      path: `/organizations/${orgId}/contacts/${contactId}/notes`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async addNote(
+    contactId: string,
+    input: CreateContactNoteInput & { orgId?: string },
+    options?: RequestOptions,
+  ): Promise<ContactNote> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<ContactNote>({
+      method: "POST",
+      path: `/organizations/${orgId}/contacts/${contactId}/notes`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async updateNote(
+    contactId: string,
+    noteId: string,
+    input: UpdateContactNoteInput & { orgId?: string },
+    options?: RequestOptions,
+  ): Promise<ContactNote> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<ContactNote>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/contacts/${contactId}/notes/${noteId}`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async deleteNote(
+    contactId: string,
+    noteId: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<void> {
+    const orgId = this.requireOrgId(scope.orgId);
+    await this.http.request<unknown>({
+      method: "DELETE",
+      path: `/organizations/${orgId}/contacts/${contactId}/notes/${noteId}`,
+      ...(options ? { options } : {}),
+    });
+  }
+
+  async listTasks(
+    contactId: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<Task[]> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<Task[]>({
+      method: "GET",
+      path: `/organizations/${orgId}/contacts/${contactId}/tasks`,
       ...(options ? { options } : {}),
     });
     return res.data;

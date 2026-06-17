@@ -18,7 +18,7 @@ export interface LoginInput {
   email: string;
   password: string;
   twoFactorCode?: string;
-  recoveryCode?: string;
+  captchaToken?: string;
 }
 
 export interface LoginResponse {
@@ -29,8 +29,8 @@ export interface LoginResponse {
 export interface SignupInput {
   email: string;
   password: string;
-  name?: string;
-  organizationName?: string;
+  name: string;
+  captchaToken?: string;
 }
 
 export interface ApiKey {
@@ -46,7 +46,7 @@ export interface ApiKey {
 export interface CreateApiKeyInput {
   name: string;
   scopes?: string[];
-  expiresAt?: ISODateString;
+  phoneNumberIds?: string[];
 }
 
 export interface CreateApiKeyResponse extends ApiKey {
@@ -55,9 +55,7 @@ export interface CreateApiKeyResponse extends ApiKey {
 
 export interface UpdateUserInput {
   name?: string;
-  avatarUrl?: string;
   locale?: string;
-  timezone?: string;
 }
 
 export interface ChangePasswordInput {
@@ -76,9 +74,22 @@ export interface Organization {
 export interface CreateOrganizationInput {
   name: string;
   slug: string;
+  billingEmail: string;
+  country?: string;
+  currency?: string;
+  timezone?: string;
 }
 
-export type UpdateOrganizationInput = Partial<CreateOrganizationInput>;
+export interface UpdateOrganizationInput {
+  name?: string;
+  billingEmail?: string;
+  country?: string;
+  currency?: string;
+  timezone?: string;
+  businessHoursSchedule?: Record<string, unknown>;
+  optOutEnabled?: boolean;
+  optOutKeywords?: string[];
+}
 
 export interface Membership {
   id: UUID;
@@ -97,8 +108,8 @@ export interface SetRoleInput {
 }
 
 export interface SetWabaScopeInput {
-  scope: "ALL" | "SELECTED";
-  wabaIds?: string[];
+  /** Lista de WABAs permitidas. Array vacío `[]` = acceso a todas (ALL). */
+  wabaIds: string[];
 }
 
 export interface Role {
@@ -107,6 +118,27 @@ export interface Role {
   description?: string;
   builtin: boolean;
   permissions?: string[];
+}
+
+export interface CreateRoleInput {
+  name: string;
+  description?: string;
+  key?: string;
+  /** Claves de permiso (no IDs). */
+  permissions?: string[];
+}
+
+export interface UpdateRoleInput {
+  name?: string;
+  description?: string;
+}
+
+export interface UpdateApiKeyInput {
+  name?: string;
+  /** Reemplazo completo del set de scopes (no es un patch parcial). */
+  scopes?: string[];
+  /** UUIDs; `[]` = acceso a todos los números. */
+  phoneNumberIds?: string[];
 }
 
 export interface Permission {
@@ -142,7 +174,7 @@ export interface TwoFactorEnrollResponse {
 }
 
 export interface TwoFactorVerifyInput {
-  code: string;
+  token: string;
 }
 
 export interface Passkey {

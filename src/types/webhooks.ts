@@ -21,10 +21,24 @@ export interface OutboundWebhook {
   createdAt: ISODateString;
 }
 
+export type WebhookFormat = "GENERIC" | "TEAMS";
+
 export interface CreateWebhookInput {
   url: string;
   events: WebhookEventName[];
+  format?: WebhookFormat;
+  /** Solo si `events` incluye 'conversation.unanswered'. 1–1440 min. */
+  unansweredThresholdMinutes?: number;
+  phoneNumberIds?: string[];
+}
+
+export interface UpdateWebhookInput {
+  url?: string;
+  events?: WebhookEventName[];
+  format?: WebhookFormat;
   active?: boolean;
+  unansweredThresholdMinutes?: number;
+  phoneNumberIds?: string[];
 }
 
 export interface WebhookDelivery {

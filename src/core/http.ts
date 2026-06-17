@@ -67,7 +67,7 @@ export function createHttpClient(input: Partial<HttpClientConfig>): HttpClient {
     timeoutMs: input.timeoutMs ?? 30_000,
     retries: input.retries ?? null,
     fetch: fetchImpl,
-    userAgent: input.userAgent ?? `moshipp-mosend-sdk/0.2.0`,
+    userAgent: input.userAgent ?? `moshipp-mosend-sdk/0.3.0`,
     defaultHeaders: input.defaultHeaders ?? {},
     ...(input.apiKey !== undefined ? { apiKey: input.apiKey } : {}),
     ...(input.accessToken !== undefined ? { accessToken: input.accessToken } : {}),

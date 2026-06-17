@@ -22,8 +22,8 @@ export interface PlanQuote {
 }
 
 export interface PreviewPlanChangeInput {
-  targetSlug: string;
-  coupon?: string;
+  toPlanSlug: string;
+  couponCode?: string;
 }
 
 export interface PreviewPlanChangeResponse {
@@ -35,8 +35,10 @@ export interface PreviewPlanChangeResponse {
 }
 
 export interface ChangePlanInput {
-  targetSlug: string;
-  coupon?: string;
+  toPlanSlug: string;
+  couponCode?: string;
+  extraSeats?: number;
+  reason?: "upgrade" | "downgrade" | "self-select";
 }
 
 export interface PlanLimits {
@@ -72,6 +74,7 @@ export interface EstimatedNextCharge {
 
 export interface CouponInput {
   code: string;
+  planSlug?: string;
 }
 
 export interface CouponValidation {
@@ -89,8 +92,10 @@ export interface Addon {
   unit?: string;
 }
 
+export type AddonType = "SEAT" | "WABA" | "STORAGE_BLOCK";
+
 export interface AddonChangeInput {
-  slug: string;
+  addonType: AddonType;
   quantity: number;
 }
 
@@ -134,14 +139,24 @@ export interface WalletTransaction {
 
 export interface WalletAlertSettings {
   lowBalanceThreshold?: number;
-  emailEnabled?: boolean;
+  autoRechargeEnabled?: boolean;
+  autoRechargeAmount?: number;
+  autoRechargeCurrency?: string;
   [key: string]: unknown;
+}
+
+export interface UpdateWalletAlertSettingsInput {
+  lowBalanceThreshold?: number;
+  autoRechargeEnabled?: boolean;
+  autoRechargeAmount?: number;
+  autoRechargeCurrency?: string;
 }
 
 export interface RechargeWalletInput {
   amount: number;
-  currency?: string;
-  paymentMethodId?: UUID;
+  currency: string;
+  /** Path relativo del front al que volver tras el pago de Mercado Pago. */
+  returnTo?: string;
 }
 
 export interface RechargeWalletResponse {
@@ -163,7 +178,9 @@ export interface PaymentMethod {
 
 export interface AddPaymentMethodInput {
   token: string;
-  setDefault?: boolean;
+  email: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface BillingPreferences {
@@ -174,6 +191,7 @@ export interface BillingPreferences {
 
 export interface SetAutoPayInput {
   enabled: boolean;
+  methodId?: UUID;
 }
 
 export interface CreditNote {
@@ -189,9 +207,12 @@ export interface CreditNote {
 }
 
 export interface CreateCreditNoteInput {
-  invoiceId: UUID;
+  organizationId: UUID;
   amount: number;
-  reason?: string;
+  currency: string;
+  reason: string;
+  applyToWallet: boolean;
+  invoiceId?: UUID;
 }
 
 export interface Pricing {

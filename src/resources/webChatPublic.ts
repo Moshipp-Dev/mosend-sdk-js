@@ -12,7 +12,7 @@ import { MosendValidationError } from "../core/errors.js";
 export class WebChatPublicResource extends Resource {
   async createSession(
     token: string,
-    input: CreateWebChatSessionInput = {},
+    input: CreateWebChatSessionInput,
     options?: RequestOptions,
   ): Promise<WebChatPublicSession> {
     const res = await this.http.request<WebChatPublicSession>({

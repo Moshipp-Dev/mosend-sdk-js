@@ -30,7 +30,7 @@ describe("identity resources — base paths verified vs developer.mosend.dev", (
 
   it("memberships.setWabaScope → PUT .../waba-scope", async () => {
     const { mosend, requests } = clientWithRecorder();
-    await mosend.memberships.setWabaScope("m-1", { scope: "ALL" });
+    await mosend.memberships.setWabaScope("m-1", { wabaIds: [] });
     expect(requests[0]!.method).toBe("PUT");
     expect(requests[0]!.url.endsWith(`/memberships/m-1/waba-scope`)).toBe(true);
   });
@@ -63,12 +63,12 @@ describe("identity resources — base paths verified vs developer.mosend.dev", (
 describe("messaging resources", () => {
   it("conversations.list → GET .../conversations with query", async () => {
     const { mosend, requests } = clientWithRecorder();
-    await mosend.conversations.list({ unreadOnly: true, limit: 10 });
+    await mosend.conversations.list({ unreadOnly: true, take: 10 });
     const req = requests[0]!;
     expect(req.method).toBe("GET");
     expect(req.url).toContain(`/organizations/${ORG_ID}/conversations`);
     expect(req.url).toContain("unreadOnly=true");
-    expect(req.url).toContain("limit=10");
+    expect(req.url).toContain("take=10");
   });
 
   it("conversations.addTag → POST .../conversations/:id/tags", async () => {
@@ -88,7 +88,7 @@ describe("messaging resources", () => {
 
   it("optIns are nested under contact", async () => {
     const { mosend, requests } = clientWithRecorder();
-    await mosend.optIns.create("contact-1", { phone: "+573000000000", source: "website" });
+    await mosend.optIns.create("contact-1", { type: "IN", source: "website" });
     expect(requests[0]!.url.endsWith(`/contacts/contact-1/opt-ins`)).toBe(true);
   });
 
@@ -146,7 +146,7 @@ describe("billing resources", () => {
 
   it("plans.previewChange → POST /plans/organizations/:orgId/preview-change", async () => {
     const { mosend, requests } = clientWithRecorder();
-    await mosend.plans.previewChange({ targetSlug: "pro" });
+    await mosend.plans.previewChange({ toPlanSlug: "pro" });
     expect(requests[0]!.url.endsWith(`/plans/organizations/${ORG_ID}/preview-change`)).toBe(true);
   });
 
@@ -216,31 +216,32 @@ describe("otros resources", () => {
     const { mosend, requests } = clientWithRecorder();
     await mosend.push.subscribe({
       endpoint: "https://example.com",
-      keys: { p256dh: "k", auth: "a" },
+      p256dh: "k",
+      auth: "a",
     });
     expect(requests[0]!.url.endsWith(`/push/subscribe`)).toBe(true);
   });
 });
 
 describe("MosendClient surface", () => {
-  it("exposes all 55 resources as properties", () => {
+  it("exposes all 57 resources as properties", () => {
     const mosend = new MosendClient({ apiKey: API_KEY, orgId: ORG_ID });
     const expected = [
-      "addons", "apiKeys", "audit", "auth", "autoReplies", "billing",
+      "addons", "aiCredits", "apiKeys", "audit", "auth", "autoReplies", "billing",
       "botConfig", "botEvents", "broadcasts", "contactLists", "contacts",
-      "conversations", "creditNotes", "flows", "handoffWebhook", "health",
+      "conversations", "creditNotes", "flows", "health",
       "integrations", "invitations", "invoices", "knowledge", "leads",
       "media", "memberships", "mercadoPago", "messages", "notifications",
       "optIns", "orgAiProviders", "organizations", "passkeys", "paymentMethods",
       "permissions", "phoneNumbers", "planLimits", "plans", "pricing",
       "profiles", "push", "quickReplies", "reactions", "reports", "roles",
-      "stickers", "tags", "templates", "twoFactor", "usage", "users",
+      "stickers", "systemNotices", "tags", "tasks", "templates", "twoFactor", "usage", "users",
       "waba", "wallet", "walletAlerts", "webChat", "webChatPublic",
       "webhooksOutbound", "whatsappLinks",
     ];
     for (const key of expected) {
       expect((mosend as unknown as Record<string, unknown>)[key]).toBeDefined();
     }
-    expect(expected).toHaveLength(55);
+    expect(expected).toHaveLength(57);
   });
 });

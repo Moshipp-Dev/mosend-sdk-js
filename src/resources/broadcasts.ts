@@ -68,4 +68,25 @@ export class BroadcastsResource extends Resource {
     });
     return res.data;
   }
+
+  async recipients(
+    broadcastId: string,
+    query: {
+      orgId?: string;
+      filter?: "replied" | "read" | "delivered" | "failed" | "sent";
+      cursor?: string;
+      limit?: number;
+    } = {},
+    options?: RequestOptions,
+  ): Promise<Paginated<Record<string, unknown>>> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "GET",
+      path: `/organizations/${orgId}/broadcasts/${broadcastId}/recipients`,
+      query: rest as Record<string, string | number | undefined>,
+      ...(options ? { options } : {}),
+    });
+    return toPaginated<Record<string, unknown>>(res.data);
+  }
 }

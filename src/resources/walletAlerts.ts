@@ -1,4 +1,4 @@
-import type { WalletAlertSettings } from "../types/billing.js";
+import type { UpdateWalletAlertSettingsInput, WalletAlertSettings } from "../types/billing.js";
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 
@@ -14,7 +14,7 @@ export class WalletAlertsResource extends Resource {
   }
 
   async update(
-    input: WalletAlertSettings & { orgId?: string },
+    input: UpdateWalletAlertSettingsInput & { orgId?: string },
     options?: RequestOptions,
   ): Promise<WalletAlertSettings> {
     const { orgId: scopedOrgId, ...body } = input;

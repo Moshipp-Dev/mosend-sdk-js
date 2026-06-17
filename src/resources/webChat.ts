@@ -1,11 +1,12 @@
 import type {
   CreateWebChatChannelInput,
   UpdateWebChatChannelInput,
+  SendWebChatMessageInput,
   WebChatChannel,
   WebChatIdentitySecret,
   WebChatSnippet,
 } from "../types/webChat.js";
-import type { Message, SendMessageInput } from "../types/messaging.js";
+import type { Message } from "../types/messaging.js";
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 import { MosendValidationError } from "../core/errors.js";
@@ -100,7 +101,7 @@ export class WebChatResource extends Resource {
 
   async sendToConversation(
     conversationId: string,
-    input: SendMessageInput & { orgId?: string },
+    input: SendWebChatMessageInput & { orgId?: string },
     options?: RequestOptions,
   ): Promise<Message> {
     const { orgId: scopedOrgId, ...body } = input;

@@ -176,39 +176,30 @@ describe("MosendClient — broadcasts", () => {
 });
 
 describe("MosendClient — pagination iterate", () => {
-  it("iterates across multiple pages until hasNextPage is false", async () => {
+  it("iterates page by page (offset) until a short page is received", async () => {
     let calls = 0;
-    const { fetch } = createMockFetch(() => {
+    const { fetch, requests } = createMockFetch(() => {
       calls += 1;
+      // Página completa (== pageSize) → sigue; página corta (< pageSize) → corta.
       if (calls === 1) {
         return {
           status: 200,
-          body: {
-            data: {
-              data: [{ id: "c1" }, { id: "c2" }],
-              pageInfo: { endCursor: "cur-1", hasNextPage: true },
-            },
-            timestamp: "",
-          },
+          body: { data: { data: [{ id: "c1" }, { id: "c2" }] }, timestamp: "" },
         };
       }
       return {
         status: 200,
-        body: {
-          data: {
-            data: [{ id: "c3" }],
-            pageInfo: { endCursor: null, hasNextPage: false },
-          },
-          timestamp: "",
-        },
+        body: { data: { data: [{ id: "c3" }] }, timestamp: "" },
       };
     });
     const mosend = new MosendClient({ apiKey: API_KEY, orgId: ORG_ID, fetch });
     const ids: string[] = [];
-    for await (const contact of mosend.contacts.iterate({ limit: 2 })) {
+    for await (const contact of mosend.contacts.iterate({ pageSize: 2 })) {
       ids.push(contact.id);
     }
     expect(ids).toEqual(["c1", "c2", "c3"]);
     expect(calls).toBe(2);
+    expect(new URL(requests[0]!.url).searchParams.get("page")).toBe("1");
+    expect(new URL(requests[1]!.url).searchParams.get("page")).toBe("2");
   });
 });
