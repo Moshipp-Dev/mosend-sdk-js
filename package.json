@@ -49,6 +49,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "gen": "node scripts/generate-types.mjs",
+    "gen:check": "node scripts/generate-types.mjs --check",
     "prepublishOnly": "npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {},

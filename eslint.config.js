@@ -24,6 +24,12 @@ export default [
     },
   },
   {
-    ignores: ["dist/**", "node_modules/**", "coverage/**", ".playwright-mcp/**"],
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "coverage/**",
+      ".playwright-mcp/**",
+      "src/generated/**",
+    ],
   },
 ];
