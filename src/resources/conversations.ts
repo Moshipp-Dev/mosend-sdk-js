@@ -3,6 +3,8 @@ import type {
   ConversationWorkload,
   MessagingSettings,
   UnreadCounts,
+  UpdateMessagingSettingsInput,
+  UpdateWorkloadSettingsInput,
   WorkloadSettings,
 } from "../types/messaging.js";
 import type { Paginated, RequestOptions } from "../core/types.js";
@@ -11,13 +13,15 @@ import { toPaginated } from "../core/http.js";
 
 export interface ListConversationsQuery {
   orgId?: string;
+  status?: "open" | "closed" | "snoozed";
   phoneNumberId?: string;
   assigneeUserId?: string;
   tagId?: string;
   unreadOnly?: boolean;
   handoffPending?: boolean;
-  limit?: number;
-  before?: string;
+  search?: string;
+  take?: number;
+  cursor?: string;
 }
 
 export interface SearchConversationsQuery {
@@ -26,10 +30,9 @@ export interface SearchConversationsQuery {
   phoneNumberId?: string;
   from?: string;
   to?: string;
+  direction?: "IN" | "OUT";
   hasAttachment?: boolean;
   sentByMe?: boolean;
-  limit?: number;
-  before?: string;
 }
 
 export class ConversationsResource extends Resource {
@@ -62,7 +65,7 @@ export class ConversationsResource extends Resource {
   }
 
   async updateMessagingSettings(
-    input: MessagingSettings & { orgId?: string },
+    input: UpdateMessagingSettingsInput & { orgId?: string },
     options?: RequestOptions,
   ): Promise<MessagingSettings> {
     const { orgId: scopedOrgId, ...body } = input;
@@ -128,7 +131,7 @@ export class ConversationsResource extends Resource {
   }
 
   async updateWorkloadSettings(
-    input: WorkloadSettings & { orgId?: string },
+    input: UpdateWorkloadSettingsInput & { orgId?: string },
     options?: RequestOptions,
   ): Promise<WorkloadSettings> {
     const { orgId: scopedOrgId, ...body } = input;
@@ -172,7 +175,7 @@ export class ConversationsResource extends Resource {
   }
 
   async activityHeatmap(
-    query: { orgId?: string; days?: number } = {},
+    query: { orgId?: string; days?: number; metric?: "volume" | "late" | "avgResponse" } = {},
     options?: RequestOptions,
   ): Promise<Array<{ dayOfWeek: number; hour: number; value: number }>> {
     const { orgId: scopedOrgId, ...rest } = query;
@@ -187,7 +190,7 @@ export class ConversationsResource extends Resource {
   }
 
   async bulkAssign(
-    input: { conversationIds: string[]; assigneeUserId: string | null; orgId?: string },
+    input: { conversationIds: string[]; userId: string | null; orgId?: string },
     options?: RequestOptions,
   ): Promise<{ updated: number }> {
     const { orgId: scopedOrgId, ...body } = input;
@@ -229,7 +232,12 @@ export class ConversationsResource extends Resource {
 
   async setStatus(
     id: string,
-    input: { status: "OPEN" | "CLOSED"; orgId?: string },
+    input: {
+      status: "open" | "closed" | "snoozed";
+      category?: string;
+      resolutionOutcome?: string;
+      orgId?: string;
+    },
     options?: RequestOptions,
   ): Promise<Conversation> {
     const { orgId: scopedOrgId, ...body } = input;
@@ -272,7 +280,7 @@ export class ConversationsResource extends Resource {
 
   async assign(
     id: string,
-    input: { assigneeUserId: string | null; orgId?: string },
+    input: { userId: string | null; orgId?: string },
     options?: RequestOptions,
   ): Promise<Conversation> {
     const { orgId: scopedOrgId, ...body } = input;
@@ -281,6 +289,91 @@ export class ConversationsResource extends Resource {
       method: "PATCH",
       path: `/organizations/${orgId}/conversations/${id}/assign`,
       body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async listMedia(
+    id: string,
+    query: {
+      orgId?: string;
+      category?: "image" | "video" | "audio" | "doc";
+      limit?: number;
+      before?: string;
+    } = {},
+    options?: RequestOptions,
+  ): Promise<Array<Record<string, unknown>>> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<Array<Record<string, unknown>>>({
+      method: "GET",
+      path: `/organizations/${orgId}/conversations/${id}/media`,
+      query: rest as Record<string, string | number | undefined>,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async mediaCounts(
+    id: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<Record<string, number>> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<Record<string, number>>({
+      method: "GET",
+      path: `/organizations/${orgId}/conversations/${id}/media/counts`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async listLinks(
+    id: string,
+    query: { orgId?: string; limit?: number; before?: string } = {},
+    options?: RequestOptions,
+  ): Promise<Array<Record<string, unknown>>> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<Array<Record<string, unknown>>>({
+      method: "GET",
+      path: `/organizations/${orgId}/conversations/${id}/links`,
+      query: rest as Record<string, string | number | undefined>,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async categorize(
+    id: string,
+    input: {
+      category?: "INQUIRY" | "SALE" | "SUPPORT" | "COMPLAINT" | "OTHER" | null;
+      resolutionOutcome?: "RESOLVED" | "UNRESOLVED" | "PENDING_FOLLOWUP" | "AUTO_CLOSED" | null;
+      orgId?: string;
+    },
+    options?: RequestOptions,
+  ): Promise<Conversation> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<Conversation>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/conversations/${id}/categorize`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async requestHandoff(
+    id: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<Conversation> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<Conversation>({
+      method: "POST",
+      path: `/organizations/${orgId}/conversations/${id}/request-handoff`,
       ...(options ? { options } : {}),
     });
     return res.data;

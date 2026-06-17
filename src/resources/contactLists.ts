@@ -1,4 +1,4 @@
-import type { ContactList } from "../types/messaging.js";
+import type { Contact, ContactList } from "../types/messaging.js";
 import type { Paginated, RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 import { toPaginated } from "../core/http.js";
@@ -13,6 +13,7 @@ export interface ListContactListsQuery {
 export interface CreateContactListInput {
   name: string;
   description?: string;
+  color?: string;
   orgId?: string;
 }
 
@@ -76,6 +77,20 @@ export class ContactListsResource extends Resource {
     });
   }
 
+  async listMembers(
+    listId: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<Contact[]> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<Contact[]>({
+      method: "GET",
+      path: `/organizations/${orgId}/contact-lists/${listId}/members`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
   async addMembers(
     listId: string,
     input: { contactIds: string[]; orgId?: string },
@@ -92,17 +107,16 @@ export class ContactListsResource extends Resource {
     return res.data;
   }
 
-  async removeMembers(
+  async removeMember(
     listId: string,
-    input: { contactIds: string[]; orgId?: string },
+    contactId: string,
+    scope: { orgId?: string } = {},
     options?: RequestOptions,
   ): Promise<{ removed: number }> {
-    const { orgId: scopedOrgId, ...body } = input;
-    const orgId = this.requireOrgId(scopedOrgId);
+    const orgId = this.requireOrgId(scope.orgId);
     const res = await this.http.request<{ removed: number }>({
       method: "DELETE",
-      path: `/organizations/${orgId}/contact-lists/${listId}/members`,
-      body,
+      path: `/organizations/${orgId}/contact-lists/${listId}/members/${contactId}`,
       ...(options ? { options } : {}),
     });
     return res.data;
@@ -110,7 +124,7 @@ export class ContactListsResource extends Resource {
 
   async addByTag(
     listId: string,
-    input: { tagId: string; orgId?: string },
+    input: { tagIds: string[]; orgId?: string },
     options?: RequestOptions,
   ): Promise<{ added: number; alreadyMembers: number }> {
     const { orgId: scopedOrgId, ...body } = input;

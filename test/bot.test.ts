@@ -24,7 +24,7 @@ describe("bot resources", () => {
     const mosend = new MosendClient({ apiKey: API_KEY, orgId: ORG_ID, fetch });
     const cfg = await mosend.botConfig.upsert("phone-1", {
       mode: "AI_AGENT",
-      systemPrompt: "you are kind",
+      aiSystemPrompt: "you are kind",
     });
     expect(cfg.mode).toBe("AI_AGENT");
     expect(requests).toHaveLength(1);
@@ -34,7 +34,7 @@ describe("bot resources", () => {
     );
     expect(JSON.parse(requests[0]!.body!)).toEqual({
       mode: "AI_AGENT",
-      systemPrompt: "you are kind",
+      aiSystemPrompt: "you are kind",
     });
   });
 
@@ -55,10 +55,11 @@ describe("bot resources", () => {
       body: {
         data: {
           id: "ar-1",
+          name: "Precio",
           trigger: "KEYWORD",
-          keyword: "precio",
-          action: "TEXT",
-          text: "ver mosend.dev/precios",
+          keywords: ["precio"],
+          actionType: "SEND_TEXT",
+          textBody: "ver mosend.dev/precios",
           createdAt: "",
           updatedAt: "",
         },
@@ -66,10 +67,11 @@ describe("bot resources", () => {
     }));
     const mosend = new MosendClient({ apiKey: API_KEY, orgId: ORG_ID, fetch });
     const ar = await mosend.autoReplies.create({
+      name: "Precio",
       trigger: "KEYWORD",
-      keyword: "precio",
-      action: "TEXT",
-      text: "ver mosend.dev/precios",
+      keywords: ["precio"],
+      actionType: "SEND_TEXT",
+      textBody: "ver mosend.dev/precios",
     });
     expect(ar.id).toBe("ar-1");
     expect(requests[0]!.url.endsWith(`/bot/auto-replies`)).toBe(true);
@@ -105,29 +107,15 @@ describe("bot resources", () => {
     expect(JSON.parse(requests[0]!.body!)).toEqual({ apiKey: "sk-test" });
   });
 
-  it("handoffWebhook uses /integrations/handoff-webhook (not /bot/...)", async () => {
+  it("conversations.requestHandoff hits POST .../request-handoff", async () => {
     const { fetch, requests } = createMockFetch(() => ({
       status: 200,
-      body: {
-        data: {
-          id: "h-1",
-          url: "https://x.com/wh",
-          events: ["message.new"],
-          active: true,
-          createdAt: "",
-          updatedAt: "",
-          secret: "whsec_xxx",
-        },
-      },
+      body: { data: { id: "c-1", status: "OPEN" } },
     }));
     const mosend = new MosendClient({ apiKey: API_KEY, orgId: ORG_ID, fetch });
-    const wh = await mosend.handoffWebhook.upsert({
-      url: "https://x.com/wh",
-      events: ["message.new"],
-    });
-    expect(wh.secret).toBe("whsec_xxx");
-    expect(requests[0]!.method).toBe("PUT");
-    expect(requests[0]!.url.endsWith(`/integrations/handoff-webhook`)).toBe(true);
+    await mosend.conversations.requestHandoff("c-1");
+    expect(requests[0]!.method).toBe("POST");
+    expect(requests[0]!.url.endsWith(`/conversations/c-1/request-handoff`)).toBe(true);
   });
 
   it("knowledge.upload sends multipart/form-data with file/title/tags", async () => {

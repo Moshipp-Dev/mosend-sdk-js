@@ -6,7 +6,7 @@
 [![types](https://img.shields.io/badge/types-TypeScript-blue.svg)](#)
 [![runtime](https://img.shields.io/badge/node-%E2%89%A518.17-brightgreen.svg)](#)
 
-- **258 endpoints en 55 módulos** organizados como resource clients (`mosend.messages.send(...)`).
+- **Más de 300 endpoints en 57 resources** organizados como resource clients (`mosend.messages.send(...)`), verificados 1:1 contra el OpenAPI del backend.
 - **Isomorfo**: corre en Node 18+ y navegadores modernos sobre `fetch` nativo.
 - **Cero dependencias** en runtime.
 - **Tipado estricto** end-to-end (request, response, errores tipados por código HTTP).
@@ -120,9 +120,9 @@ mosend.setAccessToken(fresh.accessToken);
 
 ---
 
-## Resources disponibles (55)
+## Resources disponibles (57)
 
-El SDK cubre **toda** la API documentada en `https://developer.mosend.dev` — 258 endpoints en 55 módulos. Todos los base paths fueron verificados contra la doc oficial.
+El SDK cubre la API REST de Mosend (más de 300 endpoints), verificados 1:1 contra el OpenAPI del backend.
 
 ### Identidad y organización
 
@@ -130,7 +130,7 @@ El SDK cubre **toda** la API documentada en `https://developer.mosend.dev` — 2
 
 ### Mensajería
 
-`mosend.conversations` · `mosend.messages` · `mosend.reactions` · `mosend.stickers` · `mosend.templates` · `mosend.contacts` · `mosend.contactLists` · `mosend.tags` · `mosend.optIns` · `mosend.quickReplies` · `mosend.broadcasts` · `mosend.whatsappLinks`
+`mosend.conversations` · `mosend.messages` · `mosend.reactions` · `mosend.stickers` · `mosend.templates` · `mosend.contacts` · `mosend.contactLists` · `mosend.tags` · `mosend.optIns` · `mosend.quickReplies` · `mosend.broadcasts` · `mosend.whatsappLinks` · `mosend.tasks`
 
 ### WhatsApp Business
 
@@ -138,7 +138,7 @@ El SDK cubre **toda** la API documentada en `https://developer.mosend.dev` — 2
 
 ### Bot
 
-`mosend.botConfig` · `mosend.autoReplies` · `mosend.botEvents` · `mosend.flows` · `mosend.orgAiProviders` · `mosend.handoffWebhook` · `mosend.knowledge`
+`mosend.botConfig` · `mosend.autoReplies` · `mosend.botEvents` · `mosend.flows` · `mosend.orgAiProviders` · `mosend.aiCredits` · `mosend.knowledge`
 
 ### Web Chat
 
@@ -154,7 +154,7 @@ El SDK cubre **toda** la API documentada en `https://developer.mosend.dev` — 2
 
 ### Otros
 
-`mosend.audit` · `mosend.health` · `mosend.reports` · `mosend.notifications` · `mosend.push` · `mosend.leads` · `mosend.integrations` · `mosend.media`
+`mosend.audit` · `mosend.health` · `mosend.reports` · `mosend.notifications` · `mosend.push` · `mosend.leads` · `mosend.integrations` · `mosend.media` · `mosend.systemNotices`
 
 Ver el mapa detallado con todos los base paths y notas en [`CLAUDE.md`](./CLAUDE.md).
 

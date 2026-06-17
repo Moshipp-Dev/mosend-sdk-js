@@ -1,5 +1,6 @@
 import { createHttpClient, type FetchLike, type HttpClient, type RetryConfig } from "./core/http.js";
-import { MosendApiError, MosendAuthError, MosendValidationError } from "./core/errors.js";
+import type { MosendAuthError} from "./core/errors.js";
+import { MosendApiError, MosendValidationError } from "./core/errors.js";
 import { TokenManager } from "./core/tokenManager.js";
 import type { AuthTokens } from "./types/identity.js";
 import { AddonsResource } from "./resources/addons.js";
@@ -16,7 +17,6 @@ import { ContactsResource } from "./resources/contacts.js";
 import { ConversationsResource } from "./resources/conversations.js";
 import { CreditNotesResource } from "./resources/creditNotes.js";
 import { FlowsResource } from "./resources/flows.js";
-import { HandoffWebhookResource } from "./resources/handoffWebhook.js";
 import { HealthResource } from "./resources/health.js";
 import { IntegrationsResource } from "./resources/integrations.js";
 import { InvitationsResource } from "./resources/invitations.js";
@@ -57,6 +57,9 @@ import { WebChatPublicResource } from "./resources/webChatPublic.js";
 import { WebChatResource } from "./resources/webChat.js";
 import { WebhooksOutboundResource } from "./resources/webhooksOutbound.js";
 import { WhatsappLinksResource } from "./resources/whatsappLinks.js";
+import { TasksResource } from "./resources/tasks.js";
+import { AiCreditsResource } from "./resources/aiCredits.js";
+import { SystemNoticesResource } from "./resources/systemNotices.js";
 
 export interface MosendClientOptions {
   apiKey?: string;
@@ -106,7 +109,6 @@ export class MosendClient {
   readonly conversations: ConversationsResource;
   readonly creditNotes: CreditNotesResource;
   readonly flows: FlowsResource;
-  readonly handoffWebhook: HandoffWebhookResource;
   readonly health: HealthResource;
   readonly integrations: IntegrationsResource;
   readonly invitations: InvitationsResource;
@@ -147,6 +149,9 @@ export class MosendClient {
   readonly webChatPublic: WebChatPublicResource;
   readonly webhooksOutbound: WebhooksOutboundResource;
   readonly whatsappLinks: WhatsappLinksResource;
+  readonly tasks: TasksResource;
+  readonly aiCredits: AiCreditsResource;
+  readonly systemNotices: SystemNoticesResource;
 
   private readonly http: HttpClient;
   private tokenManager: TokenManager | undefined;
@@ -159,7 +164,7 @@ export class MosendClient {
       timeoutMs: options.timeout ?? 30_000,
       retries: options.retries ?? null,
       fetch: options.fetch ?? globalThis.fetch,
-      userAgent: options.userAgent ?? "moshipp-mosend-sdk/0.2.0",
+      userAgent: options.userAgent ?? "moshipp-mosend-sdk/0.3.0",
       defaultHeaders: options.defaultHeaders ?? {},
     });
 
@@ -201,7 +206,6 @@ export class MosendClient {
     this.conversations = new ConversationsResource(ctx);
     this.creditNotes = new CreditNotesResource(ctx);
     this.flows = new FlowsResource(ctx);
-    this.handoffWebhook = new HandoffWebhookResource(ctx);
     this.health = new HealthResource(ctx);
     this.integrations = new IntegrationsResource(ctx);
     this.invitations = new InvitationsResource(ctx);
@@ -242,6 +246,9 @@ export class MosendClient {
     this.webChatPublic = new WebChatPublicResource(ctx);
     this.webhooksOutbound = new WebhooksOutboundResource(ctx);
     this.whatsappLinks = new WhatsappLinksResource(ctx);
+    this.tasks = new TasksResource(ctx);
+    this.aiCredits = new AiCreditsResource(ctx);
+    this.systemNotices = new SystemNoticesResource(ctx);
   }
 
   setAccessToken(token: string | undefined): void {

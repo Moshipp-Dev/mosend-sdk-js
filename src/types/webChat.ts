@@ -5,10 +5,13 @@ export interface WebChatChannel {
   name: string;
   token: string;
   phoneNumberId?: UUID;
-  brandColor?: string;
+  color?: string;
   welcomeMessage?: string;
-  requireOtp?: boolean;
-  requireHmac?: boolean;
+  allowedDomains?: string[];
+  precaptureEnabled?: boolean;
+  requireEmailUpfront?: boolean;
+  botEnabled?: boolean;
+  enabled?: boolean;
   hasIdentitySecret?: boolean;
   createdAt: ISODateString;
   updatedAt: ISODateString;
@@ -16,14 +19,40 @@ export interface WebChatChannel {
 
 export interface CreateWebChatChannelInput {
   name: string;
-  phoneNumberId?: UUID;
-  brandColor?: string;
+  color?: string;
   welcomeMessage?: string;
-  requireOtp?: boolean;
-  requireHmac?: boolean;
+  allowedDomains?: string[];
+  precaptureEnabled?: boolean;
+  requireEmailUpfront?: boolean;
+  botEnabled?: boolean;
+  enabled?: boolean;
 }
 
-export type UpdateWebChatChannelInput = Partial<CreateWebChatChannelInput>;
+export interface UpdateWebChatChannelInput {
+  name?: string;
+  color?: string;
+  welcomeMessage?: string;
+  allowedDomains?: string[];
+  precaptureEnabled?: boolean;
+  requireEmailUpfront?: boolean;
+  botEnabled?: boolean;
+  enabled?: boolean;
+  identityRequired?: boolean;
+  operatingHours?: Record<string, unknown>;
+  offlineAction?: Record<string, unknown>;
+  offlineMessage?: string;
+  prechatFields?: Array<Record<string, unknown>>;
+  departments?: Array<Record<string, unknown>>;
+  proactiveTriggers?: Array<Record<string, unknown>>;
+  linkEmailBannerEnabled?: boolean;
+}
+
+export interface SendWebChatMessageInput {
+  type?: "text" | "image" | "video" | "audio" | "document";
+  body?: string;
+  mediaAssetId?: UUID;
+  replyToMessageId?: UUID;
+}
 
 export interface WebChatSnippet {
   html: string;
@@ -41,12 +70,26 @@ export interface WebChatPublicSession {
   expiresAt: ISODateString;
 }
 
+export type WebChatSessionMode = "anonymous" | "identified" | "verify-otp" | "host-identified";
+
 export interface CreateWebChatSessionInput {
-  visitorId?: string;
-  email?: string;
+  visitorId: string;
+  mode: WebChatSessionMode;
   name?: string;
+  email?: string;
+  phone?: string;
+  otp?: string;
   userId?: string;
-  identityHash?: string;
+  /** HMAC de identidad (modo host-identified). */
+  hash?: string;
+  attributes?: Record<string, unknown>;
+  departmentId?: string;
+  prechat?: Record<string, string>;
+  url?: string;
+  referer?: string;
+  title?: string;
+  lang?: string;
+  utm?: Record<string, unknown>;
 }
 
 export interface WebChatMessage {
@@ -59,11 +102,15 @@ export interface WebChatMessage {
 }
 
 export interface SendWebChatPublicMessageInput {
-  type: string;
-  payload: Record<string, unknown>;
+  caption?: string;
+  attachment: {
+    mediaAssetId: UUID;
+    kind: "image" | "video" | "document";
+    filename?: string;
+  };
 }
 
 export interface LinkEmailInput {
   email: string;
-  otp: string;
+  name?: string;
 }
