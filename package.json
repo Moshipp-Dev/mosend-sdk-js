@@ -1,6 +1,6 @@
 {
   "name": "@moshipp/mosend-sdk",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Official TypeScript SDK for the Mosend API (WhatsApp Business, Web Chat, Bot, Billing, Webhooks).",
   "license": "MIT",
   "author": "Moshipp SAS",
