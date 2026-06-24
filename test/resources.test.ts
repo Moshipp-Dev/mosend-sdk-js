@@ -224,24 +224,25 @@ describe("otros resources", () => {
 });
 
 describe("MosendClient surface", () => {
-  it("exposes all 57 resources as properties", () => {
+  it("exposes all 65 resources as properties", () => {
     const mosend = new MosendClient({ apiKey: API_KEY, orgId: ORG_ID });
     const expected = [
-      "addons", "aiCredits", "apiKeys", "audit", "auth", "autoReplies", "billing",
+      "addons", "aiCredits", "apiKeys", "attendance", "audit", "auth", "autoReplies", "billing",
       "botConfig", "botEvents", "broadcasts", "contactLists", "contacts",
-      "conversations", "creditNotes", "flows", "health",
+      "conversations", "creditNotes", "documents", "flows", "health",
       "integrations", "invitations", "invoices", "knowledge", "leads",
-      "media", "memberships", "mercadoPago", "messages", "notifications",
+      "linkPages", "media", "memberships", "mercadoPago", "messages", "notifications",
       "optIns", "orgAiProviders", "organizations", "passkeys", "paymentMethods",
       "permissions", "phoneNumbers", "planLimits", "plans", "pricing",
       "profiles", "push", "quickReplies", "reactions", "reports", "roles",
-      "stickers", "systemNotices", "tags", "tasks", "templates", "twoFactor", "usage", "users",
+      "schedule", "shiftReminders", "solutions", "stickers", "storeConnections",
+      "storeTemplates", "systemNotices", "tags", "tasks", "templates", "twoFactor", "usage", "users",
       "waba", "wallet", "walletAlerts", "webChat", "webChatPublic",
       "webhooksOutbound", "whatsappLinks",
     ];
     for (const key of expected) {
       expect((mosend as unknown as Record<string, unknown>)[key]).toBeDefined();
     }
-    expect(expected).toHaveLength(57);
+    expect(expected).toHaveLength(65);
   });
 });

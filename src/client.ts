@@ -60,6 +60,14 @@ import { WhatsappLinksResource } from "./resources/whatsappLinks.js";
 import { TasksResource } from "./resources/tasks.js";
 import { AiCreditsResource } from "./resources/aiCredits.js";
 import { SystemNoticesResource } from "./resources/systemNotices.js";
+import { DocumentsResource } from "./resources/documents.js";
+import { LinkPagesResource } from "./resources/linkPages.js";
+import { SolutionsResource } from "./resources/solutions.js";
+import { ShiftRemindersResource } from "./resources/shiftReminders.js";
+import { StoreConnectionsResource } from "./resources/storeConnections.js";
+import { StoreTemplatesResource } from "./resources/storeTemplates.js";
+import { AttendanceResource } from "./resources/attendance.js";
+import { ScheduleResource } from "./resources/schedule.js";
 
 export interface MosendClientOptions {
   apiKey?: string;
@@ -152,6 +160,14 @@ export class MosendClient {
   readonly tasks: TasksResource;
   readonly aiCredits: AiCreditsResource;
   readonly systemNotices: SystemNoticesResource;
+  readonly documents: DocumentsResource;
+  readonly linkPages: LinkPagesResource;
+  readonly solutions: SolutionsResource;
+  readonly shiftReminders: ShiftRemindersResource;
+  readonly storeConnections: StoreConnectionsResource;
+  readonly storeTemplates: StoreTemplatesResource;
+  readonly attendance: AttendanceResource;
+  readonly schedule: ScheduleResource;
 
   private readonly http: HttpClient;
   private tokenManager: TokenManager | undefined;
@@ -164,7 +180,7 @@ export class MosendClient {
       timeoutMs: options.timeout ?? 30_000,
       retries: options.retries ?? null,
       fetch: options.fetch ?? globalThis.fetch,
-      userAgent: options.userAgent ?? "moshipp-mosend-sdk/1.0.0",
+      userAgent: options.userAgent ?? "moshipp-mosend-sdk/1.1.0",
       defaultHeaders: options.defaultHeaders ?? {},
     });
 
@@ -249,6 +265,14 @@ export class MosendClient {
     this.tasks = new TasksResource(ctx);
     this.aiCredits = new AiCreditsResource(ctx);
     this.systemNotices = new SystemNoticesResource(ctx);
+    this.documents = new DocumentsResource(ctx);
+    this.linkPages = new LinkPagesResource(ctx);
+    this.solutions = new SolutionsResource(ctx);
+    this.shiftReminders = new ShiftRemindersResource(ctx);
+    this.storeConnections = new StoreConnectionsResource(ctx);
+    this.storeTemplates = new StoreTemplatesResource(ctx);
+    this.attendance = new AttendanceResource(ctx);
+    this.schedule = new ScheduleResource(ctx);
   }
 
   setAccessToken(token: string | undefined): void {

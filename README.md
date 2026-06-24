@@ -6,7 +6,7 @@
 [![types](https://img.shields.io/badge/types-TypeScript-blue.svg)](#)
 [![runtime](https://img.shields.io/badge/node-%E2%89%A518.17-brightgreen.svg)](#)
 
-- **Más de 300 endpoints en 57 resources** organizados como resource clients (`mosend.messages.send(...)`), verificados 1:1 contra el OpenAPI del backend.
+- **Más de 300 endpoints en 65 resources** organizados como resource clients (`mosend.messages.send(...)`), verificados 1:1 contra el OpenAPI del backend.
 - **Isomorfo**: corre en Node 18+ y navegadores modernos sobre `fetch` nativo.
 - **Cero dependencias** en runtime.
 - **Tipado estricto** end-to-end (request, response, errores tipados por código HTTP).
@@ -120,7 +120,7 @@ mosend.setAccessToken(fresh.accessToken);
 
 ---
 
-## Resources disponibles (57)
+## Resources disponibles (65)
 
 El SDK cubre la API REST de Mosend (más de 300 endpoints), verificados 1:1 contra el OpenAPI del backend.
 
@@ -147,6 +147,14 @@ El SDK cubre la API REST de Mosend (más de 300 endpoints), verificados 1:1 cont
 ### Billing
 
 `mosend.plans` · `mosend.planLimits` · `mosend.billing` · `mosend.addons` · `mosend.invoices` · `mosend.wallet` · `mosend.walletAlerts` · `mosend.mercadoPago` · `mosend.paymentMethods` · `mosend.creditNotes` · `mosend.pricing` · `mosend.usage`
+
+### Integraciones · Tiendas (e-commerce)
+
+`mosend.storeConnections` · `mosend.storeTemplates`
+
+### Operación
+
+`mosend.documents` · `mosend.linkPages` · `mosend.solutions` · `mosend.attendance` · `mosend.schedule` · `mosend.shiftReminders`
 
 ### Webhooks y eventos
 

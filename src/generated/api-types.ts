@@ -2,7 +2,7 @@
  * AUTO-GENERADO por scripts/generate-types.mjs — NO EDITAR A MANO.
  *
  * Tipos del contrato de la API derivados de spec/openapi.json
- * (OpenAPI 3.0.0 · Mosend WB API 0.9.0).
+ * (OpenAPI 3.0.0 · Mosend WB API 1.0.0).
  *
  * Son la fuente de verdad de los request DTOs del backend. Comparar los
  * `*Input` del SDK contra estos para evitar drift. Regenerar con `npm run gen`.
@@ -10,6 +10,17 @@
 
 export interface AcceptInvitationDto {
   token: string;
+}
+
+export interface AcceptSignupDto {
+  token: string;
+  name: string;
+  password: string;
+}
+
+export interface ActivateDto {
+  token: string;
+  password: string;
 }
 
 export interface AddCardDto {
@@ -32,6 +43,12 @@ export interface AdjustWalletDto {
 
 export type AdminSetAddonDto = Record<string, unknown>;
 
+export interface BulkInvitationDto {
+  emails: Array<string>;
+  roleId: string;
+  wabaIds?: Array<string>;
+}
+
 export interface CallbackDto {
   sessionId: string;
   code: string;
@@ -43,6 +60,10 @@ export interface CallbackDto {
 export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;
+}
+
+export interface ChangeStatusDto {
+  status: ("ONLINE" | "LUNCH" | "BREAK" | "MEETING" | "TRAINING");
 }
 
 export interface CompleteImportDto {
@@ -73,6 +94,11 @@ export interface ConversationToolsDto {
   persistentMenu?: Array<PersistentMenuItemDto>;
 }
 
+export interface CorrectSessionDto {
+  /** Nuevo instante de cierre (epoch en milisegundos). */
+  endedAt: number;
+}
+
 export interface CreateApiKeyDto {
   name: string;
   scopes?: Array<string>;
@@ -89,6 +115,10 @@ export interface CreateChannelDto {
   allowedDomains?: Array<string>;
   precaptureEnabled?: boolean;
   requireEmailUpfront?: boolean;
+  prechatFields?: Array<Record<string, unknown>> | null;
+  typingIndicatorEnabled?: boolean;
+  readReceiptEnabled?: boolean;
+  voiceNotesEnabled?: boolean;
   botEnabled?: boolean;
   enabled?: boolean;
 }
@@ -108,6 +138,8 @@ export interface CreateFolderDto {
 export interface CreateInvitationDto {
   email: string;
   roleId: string;
+  /** WABAs a las que se scopeará al aceptar. Vacío/omitido = acceso a todas. */
+  wabaIds?: Array<string>;
 }
 
 export interface CreateItemDto {
@@ -162,6 +194,8 @@ export interface CreateSessionDto {
   email?: string;
   phone?: string;
   otp?: string;
+  /** El visitante confirmó "dejar mensaje de todos modos" fuera de horario. Solo surte efecto si el canal usa offlineAction = MESSAGE_ALLOW. */
+  acceptOffline?: boolean;
   userId?: string;
   /** HMAC-SHA256 hex de `userId || email`, firmado con `WebChatChannel.identitySecret`. */
   hash?: string;
@@ -216,6 +250,10 @@ export interface CreateTemplateDto {
 }
 
 export type EditMessageDto = Record<string, unknown>;
+
+export interface EndJornadaDto {
+  note?: string;
+}
 
 export interface ForgotPasswordDto {
   email: string;
@@ -274,6 +312,23 @@ export interface PersistentMenuItemDto {
   value: string;
 }
 
+export interface PreregisterDto {
+  members: Array<PreregisterMemberDto>;
+  roleId: string;
+  wabaIds?: Array<string>;
+}
+
+export interface PreregisterMemberDto {
+  email: string;
+  /** Nombre del agente. Si se omite, se deriva del correo. */
+  name?: string;
+}
+
+export interface ReactivateDto {
+  /** Si true, además de devolver el enlace, reenvía el correo de activación. */
+  notify?: boolean;
+}
+
 export type RecordOptInDto = Record<string, unknown>;
 
 export type RedeemCouponDto = Record<string, unknown>;
@@ -281,6 +336,8 @@ export type RedeemCouponDto = Record<string, unknown>;
 export interface RefreshDto {
   refreshToken: string;
 }
+
+export type RegisterDeviceDto = Record<string, unknown>;
 
 export type RegisterDto = Record<string, unknown>;
 
@@ -340,6 +397,10 @@ export interface SetAutoPayDto {
 export interface SetCaptchaDto {
   /** true = desactivar el captcha globalmente; false = reactivarlo. */
   disabled: boolean;
+}
+
+export interface SetOvertimeDto {
+  enabled: boolean;
 }
 
 export interface SetReactionDto {
@@ -409,6 +470,8 @@ export interface TemplateComponentDto {
 
 export type TestRunDto = Record<string, unknown>;
 
+export type UnregisterDeviceDto = Record<string, unknown>;
+
 export type UnsubscribeDto = Record<string, unknown>;
 
 export interface UpdateAlertSettingsDto {
@@ -426,6 +489,16 @@ export interface UpdateApiKeyDto {
   name?: string;
   scopes?: Array<string>;
   phoneNumberIds?: Array<string>;
+}
+
+export interface UpdateAttendanceSettingsDto {
+  enabled?: boolean;
+  autoCloseEnabled?: boolean;
+  inactivityMinutes?: number;
+  closeAtShiftEnd?: boolean;
+  requireJornadaForInbox?: boolean;
+  allowOvertime?: boolean;
+  requireActiveToAttend?: boolean;
 }
 
 export interface UpdateAuthPolicyDto {
@@ -446,7 +519,13 @@ export interface UpdateChannelDto {
   allowedDomains?: Array<string>;
   precaptureEnabled?: boolean;
   requireEmailUpfront?: boolean;
+  typingIndicatorEnabled?: boolean;
+  readReceiptEnabled?: boolean;
+  /** Notas de voz en el widget (botón de micrófono). */
+  voiceNotesEnabled?: boolean;
   botEnabled?: boolean;
+  /** Aviso por correo al visitante cuando el agente responde estando él offline. */
+  offlineReplyEmailEnabled?: boolean;
   enabled?: boolean;
   /** Si true, exige firma HMAC al recibir identidad pasada por el host site. */
   identityRequired?: boolean;
@@ -457,6 +536,11 @@ export interface UpdateChannelDto {
   departments?: Array<Record<string, unknown>> | null;
   proactiveTriggers?: Array<Record<string, unknown>> | null;
   linkEmailBannerEnabled?: boolean;
+  bubblePosition?: ("left" | "right");
+  /** Distancia desde abajo en px (null = default del widget: 24/16). */
+  bubbleOffsetBottom?: number | null;
+  /** Distancia lateral en px desde el borde del lado elegido (null = default). */
+  bubbleOffsetX?: number | null;
 }
 
 export interface UpdateContactDto {
@@ -523,6 +607,8 @@ export type UpdatePolicyDto = Record<string, unknown>;
 
 export type UpdatePricingRuleDto = Record<string, unknown>;
 
+export type UpdateShiftRemindersDto = Record<string, unknown>;
+
 export interface UpdateStoreConnectionDto {
   name?: string;
   phoneNumberId?: string;
@@ -541,6 +627,8 @@ export interface UpdateSystemNoticeDto {
   startsAt?: string;
   endsAt?: string;
 }
+
+export type UpdateTagDto = Record<string, unknown>;
 
 export type UpdateTagsDto = Record<string, unknown>;
 
@@ -591,6 +679,17 @@ export type UpsertPlanPriceDto = Record<string, unknown>;
 
 export type UpsertProfileDto = Record<string, unknown>;
 
+export interface UpsertScheduleDto {
+  isoYear: number;
+  isoWeek: number;
+  /** Matriz por día en TZ de la org: { "mon": ["09:00-13:00","14:00-18:00"], ... }. */
+  days: Record<string, unknown>;
+  /** Almuerzo fijo por día (informativo): { "mon": "13:00-14:00", ... }. */
+  lunch?: Record<string, unknown>;
+  /** Copiar el mismo horario a las próximas N semanas (turnos estables). */
+  copyToWeeks?: number;
+}
+
 export type VerifyCodeDto = Record<string, unknown>;
 
 export type VerifyDto = Record<string, unknown>;
@@ -606,7 +705,7 @@ export interface VisibilityDto {
 
 /*
  * NOTAS
- * - 116 schemas generados desde components.schemas.
+ * - 132 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa

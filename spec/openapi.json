@@ -1269,6 +1269,131 @@
         ]
       }
     },
+    "/organizations/{orgId}/invitations/bulk": {
+      "post": {
+        "operationId": "InvitationsController_bulk",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkInvitationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Invita a varios correos a la vez con un mismo rol (y alcance de WABA opcional). Deduplica y omite los que ya son miembros o ya tienen invitación pendiente.",
+        "tags": [
+          "Invitaciones"
+        ]
+      }
+    },
+    "/organizations/{orgId}/invitations/preregister": {
+      "post": {
+        "operationId": "InvitationsController_preregister",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreregisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Preregistra agentes: crea sus cuentas (estado pendiente) y membresías al invitar, ocupando asiento. El agente solo define su contraseña para activarse.",
+        "tags": [
+          "Invitaciones"
+        ]
+      }
+    },
+    "/organizations/{orgId}/invitations/activation/{membershipId}": {
+      "post": {
+        "operationId": "InvitationsController_reactivate",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "membershipId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReactivateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Regenera el enlace de activación de un miembro pendiente. Con `notify` además reenvía el correo. Devuelve el token nuevo para copiar.",
+        "tags": [
+          "Invitaciones"
+        ]
+      }
+    },
     "/organizations/{orgId}/invitations/{id}": {
       "delete": {
         "operationId": "InvitationsController_cancel",
@@ -1343,6 +1468,79 @@
         ]
       }
     },
+    "/organizations/{orgId}/invitations/{id}/link": {
+      "post": {
+        "operationId": "InvitationsController_link",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Genera un enlace de aceptación fresco (rota el token) SIN enviar email, para copiar y compartir por otro canal. Falla si ya fue aceptada.",
+        "tags": [
+          "Invitaciones"
+        ]
+      }
+    },
+    "/invitations/lookup": {
+      "get": {
+        "operationId": "InvitationsController_lookup",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Datos públicos de una invitación por token (org, rol, email, si ya tiene cuenta). Sin auth — lo usa la página de aceptación.",
+        "tags": [
+          "Invitaciones"
+        ]
+      }
+    },
     "/invitations/accept": {
       "post": {
         "operationId": "InvitationsController_accept",
@@ -1368,6 +1566,134 @@
           }
         ],
         "summary": "Aceptar invitación con el token recibido",
+        "tags": [
+          "Invitaciones"
+        ]
+      }
+    },
+    "/invitations/accept-signup": {
+      "post": {
+        "operationId": "InvitationsController_acceptSignup",
+        "parameters": [
+          {
+            "name": "user-agent",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptSignupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Acepta la invitación creando la cuenta en el mismo paso (email tomado del token). Devuelve una sesión lista para usar.",
+        "tags": [
+          "Invitaciones"
+        ]
+      }
+    },
+    "/invitations/activate-lookup": {
+      "get": {
+        "operationId": "InvitationsController_activateLookup",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Datos públicos de una activación por token (org, rol, email, nombre). Sin auth — lo usa la página de activar cuenta.",
+        "tags": [
+          "Invitaciones"
+        ]
+      }
+    },
+    "/invitations/activate": {
+      "post": {
+        "operationId": "InvitationsController_activate",
+        "parameters": [
+          {
+            "name": "user-agent",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Activa una cuenta preregistrada definiendo su contraseña. Devuelve una sesión lista para usar.",
         "tags": [
           "Invitaciones"
         ]
@@ -3917,6 +4243,64 @@
         ]
       }
     },
+    "/push/device": {
+      "post": {
+        "operationId": "PushController_registerDevice",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDeviceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Registra el token de push nativo (Expo) del dispositivo.",
+        "tags": [
+          "Notificaciones push"
+        ]
+      },
+      "delete": {
+        "operationId": "PushController_unregisterDevice",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnregisterDeviceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Da de baja un token de push nativo (logout en el device).",
+        "tags": [
+          "Notificaciones push"
+        ]
+      }
+    },
     "/push/config": {
       "get": {
         "operationId": "PushController_config",
@@ -5560,6 +5944,51 @@
       }
     },
     "/organizations/{orgId}/tags/{id}": {
+      "patch": {
+        "operationId": "TagsController_update",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTagDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Edita el nombre y/o color de una etiqueta.",
+        "tags": [
+          "Etiquetas"
+        ]
+      },
       "delete": {
         "operationId": "TagsController_remove",
         "parameters": [
@@ -5756,6 +6185,14 @@
           },
           {
             "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "resolutionOutcome",
             "required": false,
             "in": "query",
             "schema": {
@@ -7942,6 +8379,82 @@
         ]
       }
     },
+    "/organizations/{orgId}/web-chat/channels/{id}/avatar": {
+      "post": {
+        "operationId": "WebChatController_uploadAvatar",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Sube la foto de perfil del canal (PNG/JPG/WebP, máx 8 MB).",
+        "tags": [
+          "WebChat"
+        ]
+      },
+      "delete": {
+        "operationId": "WebChatController_deleteAvatar",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Quita la foto de perfil del canal.",
+        "tags": [
+          "WebChat"
+        ]
+      }
+    },
     "/organizations/{orgId}/web-chat/channels/{id}/snippet": {
       "get": {
         "operationId": "WebChatController_getSnippet",
@@ -8185,6 +8698,102 @@
         ]
       }
     },
+    "/web-chat/{token}/presence": {
+      "post": {
+        "operationId": "WebChatPublicController_presence",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Público (widget): presencia del visitante (sendBeacon).",
+        "tags": [
+          "WebChatPublic"
+        ]
+      }
+    },
+    "/web-chat/{token}/push/vapid": {
+      "get": {
+        "operationId": "WebChatPublicController_getVapidKey",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Público: clave VAPID pública para Web Push.",
+        "tags": [
+          "WebChatPublic"
+        ]
+      }
+    },
+    "/web-chat/{token}/push/subscribe": {
+      "post": {
+        "operationId": "WebChatPublicController_pushSubscribe",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Público (widget): registra la suscripción Web Push del visitante.",
+        "tags": [
+          "WebChatPublic"
+        ]
+      }
+    },
+    "/web-chat/{token}/push/unsubscribe": {
+      "post": {
+        "operationId": "WebChatPublicController_pushUnsubscribe",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Público (widget): elimina la suscripción Web Push.",
+        "tags": [
+          "WebChatPublic"
+        ]
+      }
+    },
     "/web-chat/{token}/history": {
       "get": {
         "operationId": "WebChatPublicController_getHistory",
@@ -8245,6 +8854,30 @@
           }
         },
         "summary": "Público (widget): vincula un email al visitante (requiere visitor JWT).",
+        "tags": [
+          "WebChatPublic"
+        ]
+      }
+    },
+    "/web-chat/{token}/client-error": {
+      "post": {
+        "operationId": "WebChatPublicController_clientError",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Público (widget): reporta un error de runtime del widget.",
         "tags": [
           "WebChatPublic"
         ]
@@ -14500,6 +15133,970 @@
         ]
       }
     },
+    "/organizations/{orgId}/attendance/me": {
+      "get": {
+        "operationId": "AttendanceController_me",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Estado de jornada del agente autenticado (null = sin jornada en curso).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/start": {
+      "post": {
+        "operationId": "AttendanceController_start",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Inicia la jornada. Idempotente: si ya hay una en curso, la devuelve.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/status": {
+      "post": {
+        "operationId": "AttendanceController_changeStatus",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cambia el estado de la jornada (Activo, Almuerzo, Pausa, Reunión, Capacitación).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/end": {
+      "post": {
+        "operationId": "AttendanceController_end",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndJornadaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Finaliza la jornada y congela el informe del día (con resumen opcional).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/today": {
+      "get": {
+        "operationId": "AttendanceController_today",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Jornada de hoy del agente: totales en vivo, timeline, métricas y horario esperado.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/settings": {
+      "get": {
+        "operationId": "AttendanceController_getSettings",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Configuración de auto-cierre de jornadas de la org (admin).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      },
+      "patch": {
+        "operationId": "AttendanceController_updateSettings",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAttendanceSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la configuración de auto-cierre de jornadas (admin).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/overtime": {
+      "get": {
+        "operationId": "AttendanceController_overtimeToday",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Agentes con turno extra concedido para hoy (admin).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/overtime/{agentId}": {
+      "post": {
+        "operationId": "AttendanceController_setOvertime",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetOvertimeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Concede o revoca el turno extra de un agente para hoy (admin).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/team-status": {
+      "get": {
+        "operationId": "AttendanceController_teamStatus",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Estado en vivo de todos los miembros de la org (admin): qué hace cada agente ahora.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/day": {
+      "get": {
+        "operationId": "AttendanceController_attendanceDay",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tablero de asistencia de un día (admin): presente / tarde / ausente / extra por agente.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/report": {
+      "get": {
+        "operationId": "AttendanceController_attendanceReport",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reporte de horas por agente sobre un rango (admin → nómina). Default: 30 días.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/sessions": {
+      "get": {
+        "operationId": "AttendanceController_mySessions",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Historial de jornadas del agente autenticado (default: últimos 30 días).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/sessions/agent/{agentId}": {
+      "get": {
+        "operationId": "AttendanceController_agentSessions",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Historial de jornadas de un agente con su informe (admin).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/sessions/{sessionId}": {
+      "patch": {
+        "operationId": "AttendanceController_correctSession",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorrectSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Corrige el cierre de una jornada finalizada (admin): mueve endedAt y recalcula.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      },
+      "delete": {
+        "operationId": "AttendanceController_deleteSession",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Elimina una jornada y sus eventos (admin): registros erróneos.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/current-week": {
+      "get": {
+        "operationId": "ScheduleController_currentWeek",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Semana ISO actual según la TZ de la organización.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/schedules": {
+      "get": {
+        "operationId": "ScheduleController_listWeek",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isoYear",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isoWeek",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Horarios del equipo para una semana (admin). Sin semana → la actual.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/schedules/{agentId}": {
+      "get": {
+        "operationId": "ScheduleController_getForAgent",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isoYear",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isoWeek",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Horario de un agente para una semana (admin).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      },
+      "put": {
+        "operationId": "ScheduleController_upsert",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertScheduleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Asigna/actualiza el horario de un agente (admin), con copia opcional a próximas semanas.",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/attendance/my-schedule": {
+      "get": {
+        "operationId": "ScheduleController_mySchedule",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isoYear",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isoWeek",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Horario del agente autenticado (semana actual si no se pasa).",
+        "tags": [
+          "Asistencia / jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/shift-reminders": {
+      "get": {
+        "operationId": "ShiftRemindersController_get",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lee los recordatorios de jornada de los agentes.",
+        "tags": [
+          "Recordatorios de jornada"
+        ]
+      },
+      "put": {
+        "operationId": "ShiftRemindersController_update",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShiftRemindersDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza los recordatorios de jornada (parcial).",
+        "tags": [
+          "Recordatorios de jornada"
+        ]
+      }
+    },
     "/plans": {
       "get": {
         "operationId": "PlansController_list",
@@ -16040,7 +17637,7 @@
   "info": {
     "title": "Mosend WB API",
     "description": "Tech Provider de Meta para WhatsApp Business Cloud API",
-    "version": "0.9.0",
+    "version": "1.0.0",
     "contact": {
       "name": "Mosend",
       "url": "https://developer.mosend.dev",
@@ -16399,12 +17996,106 @@
           "roleId": {
             "type": "string",
             "format": "uuid"
+          },
+          "wabaIds": {
+            "description": "WABAs a las que se scopeará al aceptar. Vacío/omitido = acceso a todas.",
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         },
         "required": [
           "email",
           "roleId"
         ]
+      },
+      "BulkInvitationDto": {
+        "type": "object",
+        "properties": {
+          "emails": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          "roleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "wabaIds": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "emails",
+          "roleId"
+        ]
+      },
+      "PreregisterMemberDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string",
+            "description": "Nombre del agente. Si se omite, se deriva del correo.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "PreregisterDto": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreregisterMemberDto"
+            }
+          },
+          "roleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "wabaIds": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "members",
+          "roleId"
+        ]
+      },
+      "ReactivateDto": {
+        "type": "object",
+        "properties": {
+          "notify": {
+            "type": "boolean",
+            "description": "Si true, además de devolver el enlace, reenvía el correo de activación."
+          }
+        }
       },
       "AcceptInvitationDto": {
         "type": "object",
@@ -16415,6 +18106,43 @@
         },
         "required": [
           "token"
+        ]
+      },
+      "AcceptSignupDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "token",
+          "name",
+          "password"
+        ]
+      },
+      "ActivateDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "token",
+          "password"
         ]
       },
       "VerifyDto": {
@@ -16816,6 +18544,14 @@
           }
         }
       },
+      "RegisterDeviceDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UnregisterDeviceDto": {
+        "type": "object",
+        "properties": {}
+      },
       "SubscribeDto": {
         "type": "object",
         "properties": {}
@@ -17085,6 +18821,10 @@
         "type": "object",
         "properties": {}
       },
+      "UpdateTagDto": {
+        "type": "object",
+        "properties": {}
+      },
       "RecordOptInDto": {
         "type": "object",
         "properties": {}
@@ -17184,6 +18924,22 @@
           "requireEmailUpfront": {
             "type": "boolean"
           },
+          "prechatFields": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "typingIndicatorEnabled": {
+            "type": "boolean"
+          },
+          "readReceiptEnabled": {
+            "type": "boolean"
+          },
+          "voiceNotesEnabled": {
+            "type": "boolean"
+          },
           "botEnabled": {
             "type": "boolean"
           },
@@ -17221,8 +18977,22 @@
           "requireEmailUpfront": {
             "type": "boolean"
           },
+          "typingIndicatorEnabled": {
+            "type": "boolean"
+          },
+          "readReceiptEnabled": {
+            "type": "boolean"
+          },
+          "voiceNotesEnabled": {
+            "type": "boolean",
+            "description": "Notas de voz en el widget (botón de micrófono)."
+          },
           "botEnabled": {
             "type": "boolean"
+          },
+          "offlineReplyEmailEnabled": {
+            "type": "boolean",
+            "description": "Aviso por correo al visitante cuando el agente responde estando él offline."
           },
           "enabled": {
             "type": "boolean"
@@ -17266,6 +19036,27 @@
           },
           "linkEmailBannerEnabled": {
             "type": "boolean"
+          },
+          "bubblePosition": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ]
+          },
+          "bubbleOffsetBottom": {
+            "type": "number",
+            "nullable": true,
+            "description": "Distancia desde abajo en px (null = default del widget: 24/16).",
+            "minimum": 0,
+            "maximum": 400
+          },
+          "bubbleOffsetX": {
+            "type": "number",
+            "nullable": true,
+            "description": "Distancia lateral en px desde el borde del lado elegido (null = default).",
+            "minimum": 0,
+            "maximum": 400
           }
         }
       },
@@ -17297,6 +19088,10 @@
           },
           "otp": {
             "type": "string"
+          },
+          "acceptOffline": {
+            "type": "boolean",
+            "description": "El visitante confirmó \"dejar mensaje de todos modos\" fuera de horario.\n Solo surte efecto si el canal usa offlineAction = MESSAGE_ALLOW."
           },
           "userId": {
             "type": "string",
@@ -17756,6 +19551,124 @@
         "properties": {}
       },
       "InstallSolutionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ChangeStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ONLINE",
+              "LUNCH",
+              "BREAK",
+              "MEETING",
+              "TRAINING"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "EndJornadaDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
+      },
+      "UpdateAttendanceSettingsDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "autoCloseEnabled": {
+            "type": "boolean"
+          },
+          "inactivityMinutes": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 1440
+          },
+          "closeAtShiftEnd": {
+            "type": "boolean"
+          },
+          "requireJornadaForInbox": {
+            "type": "boolean"
+          },
+          "allowOvertime": {
+            "type": "boolean"
+          },
+          "requireActiveToAttend": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetOvertimeDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "CorrectSessionDto": {
+        "type": "object",
+        "properties": {
+          "endedAt": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Nuevo instante de cierre (epoch en milisegundos).",
+            "example": 1718650800000
+          }
+        },
+        "required": [
+          "endedAt"
+        ]
+      },
+      "UpsertScheduleDto": {
+        "type": "object",
+        "properties": {
+          "isoYear": {
+            "type": "number",
+            "minimum": 2020,
+            "maximum": 2100
+          },
+          "isoWeek": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 53
+          },
+          "days": {
+            "type": "object",
+            "description": "Matriz por día en TZ de la org: { \"mon\": [\"09:00-13:00\",\"14:00-18:00\"], ... }."
+          },
+          "lunch": {
+            "type": "object",
+            "description": "Almuerzo fijo por día (informativo): { \"mon\": \"13:00-14:00\", ... }."
+          },
+          "copyToWeeks": {
+            "type": "number",
+            "description": "Copiar el mismo horario a las próximas N semanas (turnos estables).",
+            "minimum": 0,
+            "maximum": 52
+          }
+        },
+        "required": [
+          "isoYear",
+          "isoWeek",
+          "days"
+        ]
+      },
+      "UpdateShiftRemindersDto": {
         "type": "object",
         "properties": {}
       },
