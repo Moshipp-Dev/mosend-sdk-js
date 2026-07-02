@@ -41,7 +41,11 @@ export interface AdjustWalletDto {
   reason: string;
 }
 
+export type AdminCreateOrganizationDto = Record<string, unknown>;
+
 export type AdminSetAddonDto = Record<string, unknown>;
+
+export type AdminSetExtraOrganizationsDto = Record<string, unknown>;
 
 export interface BulkInvitationDto {
   emails: Array<string>;
@@ -66,6 +70,13 @@ export interface ChangeStatusDto {
   status: ("ONLINE" | "LUNCH" | "BREAK" | "MEETING" | "TRAINING");
 }
 
+export interface CommerceSettingsDto {
+  /** Habilitar el carrito de compras en las conversaciones. */
+  isCartEnabled?: boolean;
+  /** Hacer visible el catálogo en el perfil del negocio. */
+  isCatalogVisible?: boolean;
+}
+
 export interface CompleteImportDto {
   wabaMetaIds: Array<string>;
   phoneMetaIds?: Array<string>;
@@ -85,6 +96,31 @@ export interface ConnectTestNumberDto {
   phoneNumberId: string;
   accessToken: string;
   wabaName?: string;
+}
+
+export interface ContactEntity {
+  /** Identificador único del contacto (UUID). */
+  id: string;
+  /** Identificador del canal. Para WhatsApp es el número en E.164 sin "+" (p.ej. 573001112233). Para el chat web es "webchat:{visitorId}". */
+  waId: string;
+  /** Nombre del contacto (editable por el agente). Null si no se ha definido. */
+  name?: Record<string, unknown> | null;
+  /** Email del contacto. Llega principalmente vía identify del widget de chat web. No es único dentro de la org. Null si no se conoce. */
+  email?: Record<string, unknown> | null;
+  /** Nombre de perfil reportado por la plataforma (WhatsApp/Instagram). Null si no aplica. */
+  profileName?: Record<string, unknown> | null;
+  /** Código de idioma del contacto (ISO, p.ej. "es", "en", "pt-BR"). Null si no se conoce. */
+  language?: Record<string, unknown> | null;
+  /** Atributos personalizados del contacto como objeto clave/valor. Objeto vacío {} cuando no hay atributos. */
+  attributes: Record<string, unknown>;
+  /** Estado de opt-in (consentimiento) del contacto. */
+  optInStatus: ("UNKNOWN" | "OPTED_IN" | "OPTED_OUT");
+  /** Fecha/hora de la última actividad del contacto (último mensaje IN/OUT), en ISO 8601. Null si nunca ha tenido actividad. */
+  lastSeenAt?: string | null;
+  /** Fecha/hora de creación del contacto, en ISO 8601. */
+  createdAt: string;
+  /** URL pública de la foto de perfil del contacto; Instagram (cacheada en S3/CDN) o avatar del chat web; null si no hay. */
+  avatarUrl?: string | null;
 }
 
 export interface ConversationToolsDto {
@@ -121,6 +157,8 @@ export interface CreateChannelDto {
   voiceNotesEnabled?: boolean;
   botEnabled?: boolean;
   enabled?: boolean;
+  /** Modo de color del widget: 'light' | 'dark' | 'auto'. */
+  theme?: ("light" | "dark" | "auto");
 }
 
 export type CreateCouponDto = Record<string, unknown>;
@@ -179,6 +217,7 @@ export interface CreateOrganizationDto {
   country?: string;
   currency?: string;
   timezone?: string;
+  billingParentId?: string;
 }
 
 export type CreateOutboundDto = Record<string, unknown>;
@@ -193,6 +232,8 @@ export interface CreateSessionDto {
   name?: string;
   email?: string;
   phone?: string;
+  /** Foto del visitante que el sitio host puede pasar por identify (p.ej. data-user-avatar). Se cachea en S3 y se expone en el inbox. */
+  avatarUrl?: string;
   otp?: string;
   /** El visitante confirmó "dejar mensaje de todos modos" fuera de horario. Solo surte efecto si el canal usa offlineAction = MESSAGE_ALLOW. */
   acceptOffline?: boolean;
@@ -249,6 +290,8 @@ export interface CreateTemplateDto {
   components: Array<TemplateComponentDto>;
 }
 
+export type DisableDto = Record<string, unknown>;
+
 export type EditMessageDto = Record<string, unknown>;
 
 export interface EndJornadaDto {
@@ -283,6 +326,10 @@ export type InstallSolutionDto = Record<string, unknown>;
 
 export type InstallStoreTemplateDto = Record<string, unknown>;
 
+export interface LinkBillingGroupDto {
+  parentOrgId: string;
+}
+
 export interface LinkEmailDto {
   email: string;
   name?: string;
@@ -293,6 +340,10 @@ export interface LoginDto {
   password: string;
   twoFactorCode?: string;
   captchaToken?: string;
+}
+
+export interface LogoutDto {
+  refreshToken?: string;
 }
 
 export interface MarkInvoicePaidDto {
@@ -324,6 +375,11 @@ export interface PreregisterMemberDto {
   name?: string;
 }
 
+export interface ProductSectionDto {
+  title: string;
+  productRetailerIds: Array<string>;
+}
+
 export interface ReactivateDto {
   /** Si true, además de devolver el enlace, reenvía el correo de activación. */
   notify?: boolean;
@@ -334,12 +390,18 @@ export type RecordOptInDto = Record<string, unknown>;
 export type RedeemCouponDto = Record<string, unknown>;
 
 export interface RefreshDto {
-  refreshToken: string;
+  /** Refresh token. OPCIONAL tras M10: las sesiones migradas lo envían por la cookie HttpOnly `mosend_rt`, no en el body. Se conserva opcional para las sesiones legacy que aún lo tienen en localStorage (transición). */
+  refreshToken?: string;
 }
 
 export type RegisterDeviceDto = Record<string, unknown>;
 
 export type RegisterDto = Record<string, unknown>;
+
+export interface RejectDeletionDto {
+  /** Notas internas del staff sobre por qué se rechaza. */
+  notes?: string;
+}
 
 export interface RenameDto {
   name: string;
@@ -353,6 +415,13 @@ export interface ReorderItemsDto {
 export type ReprocessPaymentDto = Record<string, unknown>;
 
 export type RequestCodeDto = Record<string, unknown>;
+
+export interface RequestDeletionDto {
+  /** Nombre EXACTO de la organización, como confirmación. Debe coincidir. */
+  confirmOrgName: string;
+  /** Motivo opcional de la baja (para feedback interno). */
+  reason?: string;
+}
 
 export interface ResendOtpDto {
   email: string;
@@ -387,6 +456,27 @@ export interface SendMessageDto {
   replyToMessageId?: string;
 }
 
+export interface SendProductDto {
+  phoneNumberId: string;
+  to: string;
+  /** ID del catálogo conectado a la WABA. */
+  catalogId: string;
+  bodyText?: string;
+  footerText?: string;
+  headerText?: string;
+  /** SPM: un solo producto. */
+  productRetailerId?: string;
+  /** MPM (simple): lista plana de SKUs → una sección. */
+  products?: Array<string>;
+  /** MPM (con secciones): título + SKUs por sección. */
+  sections?: Array<ProductSectionDto>;
+  /** Catalog message: muestra el catálogo completo. */
+  catalogMessage?: boolean;
+  thumbnailProductRetailerId?: string;
+  /** Cita a otro mensaje (context). */
+  replyToMessageId?: string;
+}
+
 export type SendStickerDto = Record<string, unknown>;
 
 export interface SetAutoPayDto {
@@ -417,6 +507,25 @@ export interface SignupDto {
   password: string;
   name: string;
   captchaToken?: string;
+}
+
+export interface SignupRequestCodeDto {
+  email: string;
+  password: string;
+  name: string;
+  phone: string;
+  captchaToken?: string;
+}
+
+export interface SignupResendCodeDto {
+  email: string;
+  phone: string;
+}
+
+export interface SignupVerifyCodeDto {
+  email: string;
+  phone: string;
+  code: string;
 }
 
 export interface StepUp2faDto {
@@ -469,6 +578,11 @@ export interface TemplateComponentDto {
 }
 
 export type TestRunDto = Record<string, unknown>;
+
+export interface TestSendDto {
+  /** E.164 (con o sin '+'); se normaliza al enviar. */
+  toPhone: string;
+}
 
 export type UnregisterDeviceDto = Record<string, unknown>;
 
@@ -541,6 +655,7 @@ export interface UpdateChannelDto {
   bubbleOffsetBottom?: number | null;
   /** Distancia lateral en px desde el borde del lado elegido (null = default). */
   bubbleOffsetX?: number | null;
+  theme?: ("light" | "dark" | "auto");
 }
 
 export interface UpdateContactDto {
@@ -609,6 +724,21 @@ export type UpdatePricingRuleDto = Record<string, unknown>;
 
 export type UpdateShiftRemindersDto = Record<string, unknown>;
 
+export interface UpdateSignupVerificationDto {
+  enabled?: boolean;
+  verifyTiming?: ("before" | "after");
+  requireEmailVerification?: boolean;
+  phoneUnique?: boolean;
+  scope?: ("self_service" | "all");
+  senderOrgId?: string | null;
+  senderPhoneNumberId?: string | null;
+  templateId?: string | null;
+  otpLength?: number;
+  otpTtlSeconds?: number;
+  maxAttempts?: number;
+  resendCooldownSeconds?: number;
+}
+
 export interface UpdateStoreConnectionDto {
   name?: string;
   phoneNumberId?: string;
@@ -645,6 +775,8 @@ export type UpdateTitleDto = Record<string, unknown>;
 export interface UpdateUserDto {
   name?: string;
   locale?: string;
+  email?: string;
+  phone?: string;
 }
 
 export type UploadOptsDto = Record<string, unknown>;
@@ -698,6 +830,10 @@ export interface VerifyEmailDto {
   token: string;
 }
 
+export interface VerifyPhoneCodeDto {
+  code: string;
+}
+
 export interface VisibilityDto {
   visibility: ("ORG" | "PRIVATE");
 }
@@ -705,7 +841,7 @@ export interface VisibilityDto {
 
 /*
  * NOTAS
- * - 132 schemas generados desde components.schemas.
+ * - 149 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa

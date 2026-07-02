@@ -88,6 +88,103 @@
         ]
       }
     },
+    "/auth/signup/config": {
+      "get": {
+        "operationId": "AuthController_signupConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Flags públicos del signup (verificación de teléfono / email).",
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
+    "/auth/signup/request-code": {
+      "post": {
+        "operationId": "AuthController_signupRequestCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequestCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Solicita un código OTP para verificar el teléfono en el registro.",
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
+    "/auth/signup/verify-code": {
+      "post": {
+        "operationId": "AuthController_signupVerifyCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupVerifyCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Verifica el código OTP, crea la cuenta y emite tokens.",
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
+    "/auth/signup/resend-code": {
+      "post": {
+        "operationId": "AuthController_signupResendCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupResendCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Reenvía el código OTP del registro pendiente.",
+        "tags": [
+          "Autenticación"
+        ]
+      }
+    },
     "/auth/login": {
       "post": {
         "operationId": "AuthController_login",
@@ -161,7 +258,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshDto"
+                "$ref": "#/components/schemas/LogoutDto"
               }
             }
           }
@@ -283,14 +380,7 @@
         },
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
+            "description": ""
           }
         },
         "summary": "Canjea un ImpersonationToken (creado por staff via /admin/impersonate) por una sesión válida del target user. El JWT resultante lleva el flag `impersonatedBy` para que el frontend muestre banner persistente.",
@@ -344,6 +434,113 @@
         "summary": "Activa/desactiva el captcha globalmente (runtime).",
         "tags": [
           "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/signup-verification": {
+      "get": {
+        "operationId": "SignupVerificationController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Devuelve la config de verificación por OTP.",
+        "tags": [
+          "Admin · Verificación de registro"
+        ]
+      },
+      "put": {
+        "operationId": "SignupVerificationController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSignupVerificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la config de verificación por OTP.",
+        "tags": [
+          "Admin · Verificación de registro"
+        ]
+      }
+    },
+    "/admin/signup-verification/options": {
+      "get": {
+        "operationId": "SignupVerificationController_options",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista números y plantillas APPROVED de una org.",
+        "tags": [
+          "Admin · Verificación de registro"
+        ]
+      }
+    },
+    "/admin/signup-verification/test": {
+      "post": {
+        "operationId": "SignupVerificationController_test",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestSendDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Envía un OTP de prueba al teléfono indicado.",
+        "tags": [
+          "Admin · Verificación de registro"
         ]
       }
     },
@@ -420,6 +617,56 @@
           }
         ],
         "summary": "Cambiar contraseña (revoca sesiones existentes)",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/users/me/phone/request-code": {
+      "post": {
+        "operationId": "UsersController_requestPhoneCode",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enviar un código OTP por WhatsApp para verificar mi teléfono",
+        "tags": [
+          "Usuarios"
+        ]
+      }
+    },
+    "/users/me/phone/verify-code": {
+      "post": {
+        "operationId": "UsersController_verifyPhoneCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPhoneCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Confirmar el código OTP y marcar mi teléfono como verificado",
         "tags": [
           "Usuarios"
         ]
@@ -513,6 +760,26 @@
           }
         ],
         "summary": "Crear organización (queda como owner)",
+        "tags": [
+          "Organizaciones"
+        ]
+      }
+    },
+    "/organizations/quota": {
+      "get": {
+        "operationId": "OrganizationsController_quota",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Estado de cupo del usuario para crear organizaciones",
         "tags": [
           "Organizaciones"
         ]
@@ -642,6 +909,103 @@
         ]
       }
     },
+    "/organizations/{orgId}/billing-group": {
+      "get": {
+        "operationId": "OrganizationsController_billingGroup",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Estado del grupo de facturación de la organización",
+        "tags": [
+          "Organizaciones"
+        ]
+      }
+    },
+    "/organizations/{orgId}/billing-group/link": {
+      "post": {
+        "operationId": "OrganizationsController_billingGroupLink",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkBillingGroupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Compartir facturación: enlazar la org como hija de una matriz (solo owner)",
+        "tags": [
+          "Organizaciones"
+        ]
+      }
+    },
+    "/organizations/{orgId}/billing-group/unlink": {
+      "post": {
+        "operationId": "OrganizationsController_billingGroupUnlink",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Independizar: desenlazar la org de su matriz, pasa a plan free (solo owner)",
+        "tags": [
+          "Organizaciones"
+        ]
+      }
+    },
     "/organizations/{orgId}/memberships": {
       "get": {
         "operationId": "MembershipsController_list",
@@ -743,7 +1107,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1596,14 +1967,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -1678,14 +2042,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -1753,6 +2110,16 @@
       "post": {
         "operationId": "TwoFactorController_disable",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisableDto"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": ""
@@ -1763,7 +2130,7 @@
             "bearer": []
           }
         ],
-        "summary": "Desactiva el 2FA del usuario.",
+        "summary": "Desactiva el 2FA del usuario (requiere código TOTP actual).",
         "tags": [
           "Doble factor (2FA)"
         ]
@@ -5007,7 +5374,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactEntity"
+                  }
                 }
               }
             }
@@ -5223,7 +5593,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactEntity"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -6495,6 +6872,76 @@
         ]
       }
     },
+    "/organizations/{orgId}/conversations/notification-settings": {
+      "get": {
+        "operationId": "ConversationsController_getNotificationSettings",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Obtiene la configuración de notificaciones por correo (retraso de conversación).",
+        "tags": [
+          "Conversaciones"
+        ]
+      },
+      "patch": {
+        "operationId": "ConversationsController_patchNotificationSettings",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza parcialmente la configuración de notificaciones por correo (retraso de conversación).",
+        "tags": [
+          "Conversaciones"
+        ]
+      }
+    },
     "/organizations/{orgId}/conversations/workload/agent/{userId}": {
       "get": {
         "operationId": "ConversationsController_agentWorkloadDetail",
@@ -6517,6 +6964,22 @@
           },
           {
             "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
             "required": false,
             "in": "query",
             "schema": {
@@ -7392,6 +7855,45 @@
           }
         ],
         "summary": "Envía un mensaje de WhatsApp (texto, media o plantilla) a un contacto.",
+        "tags": [
+          "Mensajes"
+        ]
+      }
+    },
+    "/organizations/{orgId}/messages/product": {
+      "post": {
+        "operationId": "MessagesController_sendProduct",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Envía un mensaje de producto de WhatsApp Commerce (single / multi / catálogo).",
         "tags": [
           "Mensajes"
         ]
@@ -10829,14 +11331,7 @@
         },
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -10910,14 +11405,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -10955,6 +11443,35 @@
           }
         ],
         "summary": "Resumen general del dashboard de la organización.",
+        "tags": [
+          "Reportes"
+        ]
+      }
+    },
+    "/organizations/{orgId}/reports/channels-summary": {
+      "get": {
+        "operationId": "ReportsController_channelsSummary",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Señal unificada de canales conectados (WhatsApp, Instagram, Web Chat) para onboarding y empty-states.",
         "tags": [
           "Reportes"
         ]
@@ -11200,6 +11717,82 @@
         ]
       }
     },
+    "/organizations/{orgId}/reports/team/series": {
+      "get": {
+        "operationId": "ReportsController_teamSeries",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "compare",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "channel",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Serie del equipo por día/semana/mes en un rango, con comparación, canal/etiqueta y SLA.",
+        "tags": [
+          "Reportes"
+        ]
+      }
+    },
     "/organizations/{orgId}/reports/team/by-agent": {
       "get": {
         "operationId": "ReportsController_teamByAgent",
@@ -11425,6 +12018,34 @@
         "tags": [
           "Administración (staff Mosend)"
         ]
+      },
+      "post": {
+        "operationId": "AdminController_createOrganization",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateOrganizationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crea una organización + la cuenta del cliente dueño (staff).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
       }
     },
     "/admin/organizations/{id}": {
@@ -11631,6 +12252,45 @@
           }
         ],
         "summary": "Override de staff de los add-ons de una organización (cortesía/soporte, sin cargo al wallet).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/organizations/{id}/extra-organizations": {
+      "patch": {
+        "operationId": "AdminController_setOrgExtraOrganizations",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminSetExtraOrganizationsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Override de staff del cupo de organizaciones extra de una org (cortesía/soporte, sin cargo al wallet).",
         "tags": [
           "Administración (staff Mosend)"
         ]
@@ -16097,6 +16757,228 @@
         ]
       }
     },
+    "/organizations/{orgId}/shift-reminders/test": {
+      "post": {
+        "operationId": "ShiftRemindersController_test",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Envía un recordatorio de jornada de PRUEBA al usuario actual por los canales habilitados.",
+        "tags": [
+          "Recordatorios de jornada"
+        ]
+      }
+    },
+    "/organizations/{orgId}/catalog/waba/{wabaId}/connect": {
+      "post": {
+        "operationId": "CatalogsController_connect",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wabaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Detecta el catálogo conectado a la WABA (Commerce Manager), lo guarda y sincroniza productos.",
+        "tags": [
+          "Catálogos (Commerce)"
+        ]
+      }
+    },
+    "/organizations/{orgId}/catalog/waba/{wabaId}/sync": {
+      "post": {
+        "operationId": "CatalogsController_sync",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wabaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Re-sincroniza los productos del catálogo conectado.",
+        "tags": [
+          "Catálogos (Commerce)"
+        ]
+      }
+    },
+    "/organizations/{orgId}/catalog/products": {
+      "get": {
+        "operationId": "CatalogsController_products",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "catalogId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista los productos cacheados del catálogo.",
+        "tags": [
+          "Catálogos (Commerce)"
+        ]
+      }
+    },
+    "/organizations/{orgId}/catalog/commerce-settings": {
+      "get": {
+        "operationId": "CatalogsController_getSettings",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phoneNumberId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lee la configuración comercial de un número.",
+        "tags": [
+          "Catálogos (Commerce)"
+        ]
+      },
+      "patch": {
+        "operationId": "CatalogsController_updateSettings",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phoneNumberId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommerceSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la configuración comercial de un número.",
+        "tags": [
+          "Catálogos (Commerce)"
+        ]
+      }
+    },
     "/plans": {
       "get": {
         "operationId": "PlansController_list",
@@ -17313,6 +18195,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "download",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -17632,6 +18522,218 @@
           "OnlyOfficeCallback"
         ]
       }
+    },
+    "/organizations/{orgId}/deletion-request": {
+      "post": {
+        "operationId": "AccountDeletionController_request",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestDeletionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Solicitar la eliminación de la organización (solo owner; periodo de gracia 30 días).",
+        "tags": [
+          "Eliminación de cuenta"
+        ]
+      },
+      "delete": {
+        "operationId": "AccountDeletionController_cancel",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancelar la eliminación durante el periodo de gracia (solo owner).",
+        "tags": [
+          "Eliminación de cuenta"
+        ]
+      },
+      "get": {
+        "operationId": "AccountDeletionController_status",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Estado de la solicitud de eliminación para el banner (cualquier miembro).",
+        "tags": [
+          "Eliminación de cuenta"
+        ]
+      }
+    },
+    "/admin/deletion-requests": {
+      "get": {
+        "operationId": "AccountDeletionAdminController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cola de solicitudes de eliminación (filtro por status).",
+        "tags": [
+          "Admin · Eliminación de cuenta"
+        ]
+      }
+    },
+    "/admin/deletion-requests/{id}/confirm": {
+      "post": {
+        "operationId": "AccountDeletionAdminController_confirm",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Confirmar y EJECUTAR la purga de la organización (destructivo, irreversible).",
+        "tags": [
+          "Admin · Eliminación de cuenta"
+        ]
+      }
+    },
+    "/admin/deletion-requests/{id}/reject": {
+      "post": {
+        "operationId": "AccountDeletionAdminController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectDeletionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Rechazar la solicitud y reactivar la organización.",
+        "tags": [
+          "Admin · Eliminación de cuenta"
+        ]
+      }
+    },
+    "/webhooks/meta/data-deletion": {
+      "post": {
+        "operationId": "MetaDataDeletionController_handle",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Callback de eliminación de datos de Meta (valida signed_request HMAC-SHA256).",
+        "tags": [
+          "Webhooks (Meta)"
+        ]
+      }
     }
   },
   "info": {
@@ -17707,6 +18809,84 @@
           "name"
         ]
       },
+      "SignupRequestCodeDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 20
+          },
+          "captchaToken": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "name",
+          "phone"
+        ]
+      },
+      "SignupVerifyCodeDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 20
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^\\d{4,10}$"
+          }
+        },
+        "required": [
+          "email",
+          "phone",
+          "code"
+        ]
+      },
+      "SignupResendCodeDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "email",
+          "phone"
+        ]
+      },
       "LoginDto": {
         "type": "object",
         "properties": {
@@ -17737,12 +18917,18 @@
         "type": "object",
         "properties": {
           "refreshToken": {
+            "type": "string",
+            "description": "Refresh token. OPCIONAL tras M10: las sesiones migradas lo envían por la\ncookie HttpOnly `mosend_rt`, no en el body. Se conserva opcional para las\nsesiones legacy que aún lo tienen en localStorage (transición)."
+          }
+        }
+      },
+      "LogoutDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
             "type": "string"
           }
-        },
-        "required": [
-          "refreshToken"
-        ]
+        }
       },
       "ForgotPasswordDto": {
         "type": "object",
@@ -17813,6 +18999,82 @@
           "disabled"
         ]
       },
+      "UpdateSignupVerificationDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "verifyTiming": {
+            "type": "string",
+            "enum": [
+              "before",
+              "after"
+            ]
+          },
+          "requireEmailVerification": {
+            "type": "boolean"
+          },
+          "phoneUnique": {
+            "type": "boolean"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "self_service",
+              "all"
+            ]
+          },
+          "senderOrgId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "senderPhoneNumberId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "templateId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "otpLength": {
+            "type": "number",
+            "minimum": 4,
+            "maximum": 10
+          },
+          "otpTtlSeconds": {
+            "type": "number",
+            "minimum": 60,
+            "maximum": 3600
+          },
+          "maxAttempts": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "resendCooldownSeconds": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 600
+          }
+        }
+      },
+      "TestSendDto": {
+        "type": "object",
+        "properties": {
+          "toPhone": {
+            "type": "string",
+            "description": "E.164 (con o sin '+'); se normaliza al enviar.",
+            "pattern": "^\\+?\\d{7,15}$"
+          }
+        },
+        "required": [
+          "toPhone"
+        ]
+      },
       "UpdateUserDto": {
         "type": "object",
         "properties": {
@@ -17824,6 +19086,16 @@
           "locale": {
             "type": "string",
             "maxLength": 8
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 20
           }
         }
       },
@@ -17844,6 +19116,18 @@
         "required": [
           "currentPassword",
           "newPassword"
+        ]
+      },
+      "VerifyPhoneCodeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^\\d{4,10}$"
+          }
+        },
+        "required": [
+          "code"
         ]
       },
       "CreateOrganizationDto": {
@@ -17874,6 +19158,10 @@
           "timezone": {
             "type": "string",
             "maxLength": 64
+          },
+          "billingParentId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -17923,6 +19211,18 @@
             }
           }
         }
+      },
+      "LinkBillingGroupDto": {
+        "type": "object",
+        "properties": {
+          "parentOrgId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "parentOrgId"
+        ]
       },
       "SetRoleDto": {
         "type": "object",
@@ -18146,6 +19446,10 @@
         ]
       },
       "VerifyDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "DisableDto": {
         "type": "object",
         "properties": {}
       },
@@ -18755,6 +20059,92 @@
           "components"
         ]
       },
+      "ContactEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador único del contacto (UUID).",
+            "format": "uuid",
+            "example": "a3f1c2d4-5b6e-7f80-91a2-b3c4d5e6f708"
+          },
+          "waId": {
+            "type": "string",
+            "description": "Identificador del canal. Para WhatsApp es el número en E.164 sin \"+\" (p.ej. 573001112233). Para el chat web es \"webchat:{visitorId}\".",
+            "example": "573001112233"
+          },
+          "name": {
+            "type": "object",
+            "description": "Nombre del contacto (editable por el agente). Null si no se ha definido.",
+            "nullable": true,
+            "example": "María Gómez"
+          },
+          "email": {
+            "type": "object",
+            "description": "Email del contacto. Llega principalmente vía identify del widget de chat web. No es único dentro de la org. Null si no se conoce.",
+            "nullable": true,
+            "example": "maria@ejemplo.com"
+          },
+          "profileName": {
+            "type": "object",
+            "description": "Nombre de perfil reportado por la plataforma (WhatsApp/Instagram). Null si no aplica.",
+            "nullable": true,
+            "example": "María G."
+          },
+          "language": {
+            "type": "object",
+            "description": "Código de idioma del contacto (ISO, p.ej. \"es\", \"en\", \"pt-BR\"). Null si no se conoce.",
+            "nullable": true,
+            "example": "es"
+          },
+          "attributes": {
+            "type": "object",
+            "description": "Atributos personalizados del contacto como objeto clave/valor. Objeto vacío {} cuando no hay atributos.",
+            "additionalProperties": true,
+            "example": {
+              "Teléfono": "+57 300 111 2233",
+              "Ubicación": "Bogotá, CO"
+            }
+          },
+          "optInStatus": {
+            "type": "string",
+            "description": "Estado de opt-in (consentimiento) del contacto.",
+            "enum": [
+              "UNKNOWN",
+              "OPTED_IN",
+              "OPTED_OUT"
+            ],
+            "example": "OPTED_IN"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "description": "Fecha/hora de la última actividad del contacto (último mensaje IN/OUT), en ISO 8601. Null si nunca ha tenido actividad.",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-06-23T14:35:00.000Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Fecha/hora de creación del contacto, en ISO 8601.",
+            "format": "date-time",
+            "example": "2026-01-10T09:00:00.000Z"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "URL pública de la foto de perfil del contacto; Instagram (cacheada en S3/CDN) o avatar del chat web; null si no hay.",
+            "format": "uri",
+            "nullable": true,
+            "example": "https://media.mosend.dev/org-abc123/avatars/9f86d081884c7d65..."
+          }
+        },
+        "required": [
+          "id",
+          "waId",
+          "attributes",
+          "optInStatus",
+          "createdAt"
+        ]
+      },
       "UpsertContactDto": {
         "type": "object",
         "properties": {
@@ -18859,6 +20249,90 @@
           }
         }
       },
+      "ProductSectionDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "productRetailerIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "productRetailerIds"
+        ]
+      },
+      "SendProductDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^(\\d{8,15}|[A-Z]{2}\\.(?:ENT\\.)?[A-Za-z0-9]{1,128}|ig:\\d{6,24})$"
+          },
+          "catalogId": {
+            "type": "string",
+            "description": "ID del catálogo conectado a la WABA.",
+            "maxLength": 64
+          },
+          "bodyText": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "footerText": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "headerText": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "productRetailerId": {
+            "type": "string",
+            "description": "SPM: un solo producto."
+          },
+          "products": {
+            "description": "MPM (simple): lista plana de SKUs → una sección.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sections": {
+            "description": "MPM (con secciones): título + SKUs por sección.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductSectionDto"
+            }
+          },
+          "catalogMessage": {
+            "type": "boolean",
+            "description": "Catalog message: muestra el catálogo completo."
+          },
+          "thumbnailProductRetailerId": {
+            "type": "string"
+          },
+          "replyToMessageId": {
+            "type": "string",
+            "description": "Cita a otro mensaje (context).",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "phoneNumberId",
+          "to",
+          "catalogId"
+        ]
+      },
       "EditMessageDto": {
         "type": "object",
         "properties": {}
@@ -18945,6 +20419,15 @@
           },
           "enabled": {
             "type": "boolean"
+          },
+          "theme": {
+            "type": "string",
+            "description": "Modo de color del widget: 'light' | 'dark' | 'auto'.",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
+            ]
           }
         },
         "required": [
@@ -19057,6 +20540,14 @@
             "description": "Distancia lateral en px desde el borde del lado elegido (null = default).",
             "minimum": 0,
             "maximum": 400
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "auto"
+            ]
           }
         }
       },
@@ -19085,6 +20576,12 @@
           },
           "phone": {
             "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "Foto del visitante que el sitio host puede pasar por identify\n (p.ej. data-user-avatar). Se cachea en S3 y se expone en el inbox.",
+            "maxLength": 2048,
+            "format": "uri"
           },
           "otp": {
             "type": "string"
@@ -19409,7 +20906,15 @@
         "type": "object",
         "properties": {}
       },
+      "AdminCreateOrganizationDto": {
+        "type": "object",
+        "properties": {}
+      },
       "AdminSetAddonDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AdminSetExtraOrganizationsDto": {
         "type": "object",
         "properties": {}
       },
@@ -19672,6 +21177,19 @@
         "type": "object",
         "properties": {}
       },
+      "CommerceSettingsDto": {
+        "type": "object",
+        "properties": {
+          "isCartEnabled": {
+            "type": "boolean",
+            "description": "Habilitar el carrito de compras en las conversaciones."
+          },
+          "isCatalogVisible": {
+            "type": "boolean",
+            "description": "Hacer visible el catálogo en el perfil del negocio."
+          }
+        }
+      },
       "AddonChangeDto": {
         "type": "object",
         "properties": {}
@@ -19820,6 +21338,36 @@
         "required": [
           "conversationId"
         ]
+      },
+      "RequestDeletionDto": {
+        "type": "object",
+        "properties": {
+          "confirmOrgName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Nombre EXACTO de la organización, como confirmación. Debe coincidir.",
+            "example": "Mi Empresa SAS"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Motivo opcional de la baja (para feedback interno)."
+          }
+        },
+        "required": [
+          "confirmOrgName"
+        ]
+      },
+      "RejectDeletionDto": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Notas internas del staff sobre por qué se rechaza."
+          }
+        }
       }
     }
   }
