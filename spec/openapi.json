@@ -7899,6 +7899,45 @@
         ]
       }
     },
+    "/organizations/{orgId}/messages/interactive": {
+      "post": {
+        "operationId": "MessagesController_sendInteractive",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendInteractiveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Envía un mensaje de servicio interactivo (lista / botón CTA URL / pedir ubicación).",
+        "tags": [
+          "Mensajes"
+        ]
+      }
+    },
     "/organizations/{orgId}/messages/{messageId}/edit": {
       "patch": {
         "operationId": "MessagesController_edit",
@@ -20429,6 +20468,104 @@
           "phoneNumberId",
           "to",
           "catalogId"
+        ]
+      },
+      "ListRowDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 72
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ]
+      },
+      "ListSectionDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListRowDto"
+            }
+          }
+        },
+        "required": [
+          "rows"
+        ]
+      },
+      "SendInteractiveDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^(\\d{8,15}|[A-Z]{2}\\.(?:ENT\\.)?[A-Za-z0-9]{1,128}|ig:\\d{6,24})$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "list",
+              "cta_url",
+              "location_request"
+            ]
+          },
+          "bodyText": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "headerText": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "footerText": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "buttonText": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListSectionDto"
+            }
+          },
+          "displayText": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "url": {
+            "type": "string"
+          },
+          "replyToMessageId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "phoneNumberId",
+          "to",
+          "kind"
         ]
       },
       "EditMessageDto": {

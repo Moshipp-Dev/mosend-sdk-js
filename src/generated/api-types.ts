@@ -335,6 +335,17 @@ export interface LinkEmailDto {
   name?: string;
 }
 
+export interface ListRowDto {
+  id: string;
+  title: string;
+  description?: string;
+}
+
+export interface ListSectionDto {
+  title?: string;
+  rows: Array<ListRowDto>;
+}
+
 export interface LoginDto {
   email: string;
   password: string;
@@ -443,6 +454,20 @@ export interface SdkSessionInfoDto {
 export interface SendDocumentDto {
   conversationId: string;
   caption?: string;
+}
+
+export interface SendInteractiveDto {
+  phoneNumberId: string;
+  to: string;
+  kind: ("list" | "cta_url" | "location_request");
+  bodyText?: string;
+  headerText?: string;
+  footerText?: string;
+  buttonText?: string;
+  sections?: Array<ListSectionDto>;
+  displayText?: string;
+  url?: string;
+  replyToMessageId?: string;
 }
 
 export interface SendMessageDto {
@@ -845,7 +870,7 @@ export interface VisibilityDto {
 
 /*
  * NOTAS
- * - 150 schemas generados desde components.schemas.
+ * - 153 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa
