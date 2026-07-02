@@ -703,6 +703,10 @@ export interface UpdateLinkPageDto {
 
 export type UpdateNoteDto = Record<string, unknown>;
 
+export interface UpdateOrderStatusDto {
+  status: Record<string, unknown>;
+}
+
 export interface UpdateOrganizationDto {
   name?: string;
   billingEmail?: string;
@@ -841,7 +845,7 @@ export interface VisibilityDto {
 
 /*
  * NOTAS
- * - 149 schemas generados desde components.schemas.
+ * - 150 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa

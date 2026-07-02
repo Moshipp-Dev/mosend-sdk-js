@@ -16979,6 +16979,104 @@
         ]
       }
     },
+    "/organizations/{orgId}/orders/by-message/{messageId}": {
+      "get": {
+        "operationId": "OrdersController_getByMessage",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "messageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Pedido asociado a un mensaje del inbox.",
+        "tags": [
+          "Pedidos (Commerce)"
+        ]
+      }
+    },
+    "/organizations/{orgId}/orders/{orderId}": {
+      "patch": {
+        "operationId": "OrdersController_updateStatus",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cambia el estado de un pedido (en proceso / completado / cancelado).",
+        "tags": [
+          "Pedidos (Commerce)"
+        ]
+      }
+    },
     "/plans": {
       "get": {
         "operationId": "PlansController_list",
@@ -21189,6 +21287,17 @@
             "description": "Hacer visible el catálogo en el perfil del negocio."
           }
         }
+      },
+      "UpdateOrderStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "status"
+        ]
       },
       "AddonChangeDto": {
         "type": "object",
