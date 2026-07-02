@@ -61,6 +61,14 @@ export interface CallbackDto {
   coexistence?: boolean;
 }
 
+export interface CarouselCardDto {
+  headerType: ("image" | "video");
+  headerLink: string;
+  bodyText?: string;
+  ctaUrl?: CtaUrlDto;
+  quickReplies?: Array<QuickReplyDto>;
+}
+
 export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;
@@ -165,7 +173,13 @@ export type CreateCouponDto = Record<string, unknown>;
 
 export type CreateCreditNoteDto = Record<string, unknown>;
 
-export type CreateFlowDto = Record<string, unknown>;
+export interface CreateFlowDto {
+  wabaId: string;
+  name: string;
+  categories: Array<string>;
+  /** flow.json serializado (opcional al crear; se puede subir después). */
+  flowJson?: string;
+}
 
 export interface CreateFolderDto {
   name: string;
@@ -290,6 +304,11 @@ export interface CreateTemplateDto {
   components: Array<TemplateComponentDto>;
 }
 
+export interface CtaUrlDto {
+  displayText: string;
+  url: string;
+}
+
 export type DisableDto = Record<string, unknown>;
 
 export type EditMessageDto = Record<string, unknown>;
@@ -391,6 +410,11 @@ export interface ProductSectionDto {
   productRetailerIds: Array<string>;
 }
 
+export interface QuickReplyDto {
+  id: string;
+  title: string;
+}
+
 export interface ReactivateDto {
   /** Si true, además de devolver el enlace, reenvía el correo de activación. */
   notify?: boolean;
@@ -451,9 +475,32 @@ export interface SdkSessionInfoDto {
   phone_number_id?: string;
 }
 
+export interface SendCarouselDto {
+  phoneNumberId: string;
+  to: string;
+  bodyText: string;
+  cards: Array<CarouselCardDto>;
+  replyToMessageId?: string;
+}
+
 export interface SendDocumentDto {
   conversationId: string;
   caption?: string;
+}
+
+export interface SendFlowDto {
+  phoneNumberId: string;
+  to: string;
+  /** Id local del WhatsAppFlow (nuestra tabla). */
+  flowId: string;
+  bodyText: string;
+  ctaText: string;
+  headerText?: string;
+  footerText?: string;
+  screen?: string;
+  data?: Record<string, unknown>;
+  flowAction?: ("navigate" | "data_exchange");
+  replyToMessageId?: string;
 }
 
 export interface SendInteractiveDto {
@@ -694,6 +741,15 @@ export type UpdateCouponDto = Record<string, unknown>;
 
 export type UpdateFlowDto = Record<string, unknown>;
 
+export interface UpdateFlowJsonDto {
+  flowJson: string;
+}
+
+export interface UpdateFlowMetaDto {
+  name?: string;
+  categories?: Array<string>;
+}
+
 export interface UpdateInstallationDto {
   config?: Record<string, unknown>;
   enabled?: boolean;
@@ -870,7 +926,7 @@ export interface VisibilityDto {
 
 /*
  * NOTAS
- * - 153 schemas generados desde components.schemas.
+ * - 160 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa

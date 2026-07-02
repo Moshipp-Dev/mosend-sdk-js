@@ -7938,6 +7938,84 @@
         ]
       }
     },
+    "/organizations/{orgId}/messages/flow": {
+      "post": {
+        "operationId": "MessagesController_sendFlow",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendFlowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Envía un mensaje de WhatsApp Flow (formulario nativo).",
+        "tags": [
+          "Mensajes"
+        ]
+      }
+    },
+    "/organizations/{orgId}/messages/carousel": {
+      "post": {
+        "operationId": "MessagesController_sendCarousel",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendCarouselDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Envía un carrusel multimedia interactivo (hasta 10 tarjetas).",
+        "tags": [
+          "Mensajes"
+        ]
+      }
+    },
     "/organizations/{orgId}/messages/{messageId}/edit": {
       "patch": {
         "operationId": "MessagesController_edit",
@@ -17116,6 +17194,355 @@
         ]
       }
     },
+    "/organizations/{orgId}/whatsapp-flows": {
+      "get": {
+        "operationId": "WhatsAppFlowsController_list",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wabaId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista los Flows de la organización.",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      },
+      "post": {
+        "operationId": "WhatsAppFlowsController_create",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFlowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crea un Flow (opcionalmente con su flow.json).",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      }
+    },
+    "/organizations/{orgId}/whatsapp-flows/sync/{wabaId}": {
+      "post": {
+        "operationId": "WhatsAppFlowsController_sync",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wabaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reconcilia los Flows locales con los de Meta.",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      }
+    },
+    "/organizations/{orgId}/whatsapp-flows/{id}": {
+      "get": {
+        "operationId": "WhatsAppFlowsController_get",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Detalle del Flow + estado/preview/validación de Meta.",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      },
+      "patch": {
+        "operationId": "WhatsAppFlowsController_updateMeta",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFlowMetaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza nombre / categorías del Flow.",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      },
+      "delete": {
+        "operationId": "WhatsAppFlowsController_remove",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Borra un Flow en borrador.",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      }
+    },
+    "/organizations/{orgId}/whatsapp-flows/{id}/json": {
+      "patch": {
+        "operationId": "WhatsAppFlowsController_updateJson",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFlowJsonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza el contenido (flow.json) del Flow.",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      }
+    },
+    "/organizations/{orgId}/whatsapp-flows/{id}/publish": {
+      "post": {
+        "operationId": "WhatsAppFlowsController_publish",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publica el Flow.",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      }
+    },
+    "/organizations/{orgId}/whatsapp-flows/{id}/deprecate": {
+      "post": {
+        "operationId": "WhatsAppFlowsController_deprecate",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Marca el Flow como obsoleto.",
+        "tags": [
+          "WhatsApp Flows"
+        ]
+      }
+    },
     "/plans": {
       "get": {
         "operationId": "PlansController_list",
@@ -20552,7 +20979,7 @@
           },
           "displayText": {
             "type": "string",
-            "maxLength": 30
+            "maxLength": 20
           },
           "url": {
             "type": "string"
@@ -20566,6 +20993,163 @@
           "phoneNumberId",
           "to",
           "kind"
+        ]
+      },
+      "SendFlowDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^(\\d{8,15}|[A-Z]{2}\\.(?:ENT\\.)?[A-Za-z0-9]{1,128}|ig:\\d{6,24})$"
+          },
+          "flowId": {
+            "type": "string",
+            "description": "Id local del WhatsAppFlow (nuestra tabla).",
+            "format": "uuid"
+          },
+          "bodyText": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "ctaText": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "headerText": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "footerText": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "screen": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "data": {
+            "type": "object"
+          },
+          "flowAction": {
+            "type": "string",
+            "enum": [
+              "navigate",
+              "data_exchange"
+            ]
+          },
+          "replyToMessageId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "phoneNumberId",
+          "to",
+          "flowId",
+          "bodyText",
+          "ctaText"
+        ]
+      },
+      "CtaUrlDto": {
+        "type": "object",
+        "properties": {
+          "displayText": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "displayText",
+          "url"
+        ]
+      },
+      "QuickReplyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ]
+      },
+      "CarouselCardDto": {
+        "type": "object",
+        "properties": {
+          "headerType": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video"
+            ]
+          },
+          "headerLink": {
+            "type": "string"
+          },
+          "bodyText": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "ctaUrl": {
+            "$ref": "#/components/schemas/CtaUrlDto"
+          },
+          "quickReplies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuickReplyDto"
+            }
+          }
+        },
+        "required": [
+          "headerType",
+          "headerLink"
+        ]
+      },
+      "SendCarouselDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^(\\d{8,15}|[A-Z]{2}\\.(?:ENT\\.)?[A-Za-z0-9]{1,128}|ig:\\d{6,24})$"
+          },
+          "bodyText": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CarouselCardDto"
+            }
+          },
+          "replyToMessageId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "phoneNumberId",
+          "to",
+          "bodyText",
+          "cards"
         ]
       },
       "EditMessageDto": {
@@ -21243,7 +21827,31 @@
       },
       "CreateFlowDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "wabaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flowJson": {
+            "type": "string",
+            "description": "flow.json serializado (opcional al crear; se puede subir después)."
+          }
+        },
+        "required": [
+          "wabaId",
+          "name",
+          "categories"
+        ]
       },
       "UpdateFlowDto": {
         "type": "object",
@@ -21435,6 +22043,32 @@
         "required": [
           "status"
         ]
+      },
+      "UpdateFlowJsonDto": {
+        "type": "object",
+        "properties": {
+          "flowJson": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "flowJson"
+        ]
+      },
+      "UpdateFlowMetaDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "AddonChangeDto": {
         "type": "object",
