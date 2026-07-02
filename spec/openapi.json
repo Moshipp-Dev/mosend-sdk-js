@@ -12080,6 +12080,324 @@
         ]
       }
     },
+    "/admin/metrics/timeseries": {
+      "get": {
+        "operationId": "AdminController_metricsTimeseries",
+        "parameters": [
+          {
+            "name": "metric",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Serie diaria global de un métrica de uso (para gráficas).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/metrics/usage": {
+      "get": {
+        "operationId": "AdminController_metricsUsage",
+        "parameters": [
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Todas las métricas de uso fusionadas por día (para gráficas).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/metrics/messages": {
+      "get": {
+        "operationId": "AdminController_metricsMessages",
+        "parameters": [
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mensajes por día y estado (enviados/entregados/leídos/fallidos).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/alerts/config": {
+      "get": {
+        "operationId": "AdminController_alertsConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Configuración de alertas de plataforma (Teams).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminController_alertsUpdate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza la configuración de alertas.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/alerts/test": {
+      "post": {
+        "operationId": "AdminController_alertsTest",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Envía una alerta de prueba al Teams configurado.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/alerts/log": {
+      "get": {
+        "operationId": "AdminController_alertsLog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Historial de alertas disparadas.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/errors/messages": {
+      "get": {
+        "operationId": "AdminController_errorsMessages",
+        "parameters": [
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mensajes fallidos con código de error de Meta, org, número y motivo.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/errors/webhooks": {
+      "get": {
+        "operationId": "AdminController_errorsWebhooks",
+        "parameters": [
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Fallos de webhooks entrantes y salientes.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/metrics/system": {
+      "get": {
+        "operationId": "AdminController_metricsSystem",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Recursos en vivo: proceso API y worker, DB, Redis, colas.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/metrics/system/history": {
+      "get": {
+        "operationId": "AdminController_metricsSystemHistory",
+        "parameters": [
+          {
+            "name": "hours",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Histórico de recursos (snapshots) para graficar en el tiempo.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
     "/admin/health": {
       "get": {
         "operationId": "AdminController_health",
