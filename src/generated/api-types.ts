@@ -519,7 +519,7 @@ export interface SendFlowDto {
 export interface SendInteractiveDto {
   phoneNumberId: string;
   to: string;
-  kind: ("list" | "cta_url" | "location_request");
+  kind: ("list" | "cta_url" | "location_request" | "request_contact_info");
   bodyText?: string;
   headerText?: string;
   footerText?: string;
@@ -584,6 +584,8 @@ export interface SetReactionDto {
 }
 
 export type SetRoleDto = Record<string, unknown>;
+
+export type SetUsernameDto = Record<string, unknown>;
 
 export type SetWabaScopeDto = Record<string, unknown>;
 
@@ -948,7 +950,7 @@ export interface VisibilityDto {
 
 /*
  * NOTAS
- * - 162 schemas generados desde components.schemas.
+ * - 163 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa

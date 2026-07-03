@@ -3242,6 +3242,53 @@
         ]
       }
     },
+    "/organizations/{orgId}/phone-numbers/{id}/username": {
+      "post": {
+        "operationId": "PhoneNumbersController_setUsername",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUsernameDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reserva o cambia el username de negocio del número (WhatsApp usernames). force_transfer lo mueve desde otro número del portfolio.",
+        "tags": [
+          "Números de teléfono"
+        ]
+      }
+    },
     "/organizations/{orgId}/phone-numbers/{id}/restore": {
       "post": {
         "operationId": "PhoneNumbersController_restore",
@@ -20672,6 +20719,10 @@
         "type": "object",
         "properties": {}
       },
+      "SetUsernameDto": {
+        "type": "object",
+        "properties": {}
+      },
       "RequestCodeDto": {
         "type": "object",
         "properties": {}
@@ -21499,7 +21550,8 @@
             "enum": [
               "list",
               "cta_url",
-              "location_request"
+              "location_request",
+              "request_contact_info"
             ]
           },
           "bodyText": {

@@ -131,6 +131,28 @@ export class PhoneNumbersResource extends Resource {
     });
   }
 
+  /**
+   * Reserva o cambia el username de negocio del número (WhatsApp usernames,
+   * jun 2026). Meta responde status 'approved' | 'reserved'. Si el username
+   * ya está en otro número del portfolio, reintenta con
+   * transferAction: 'force_transfer' para moverlo.
+   */
+  async setUsername(
+    phoneId: string,
+    input: { username: string; transferAction?: "none" | "force_transfer"; orgId?: string },
+    options?: RequestOptions,
+  ): Promise<{ id: string; businessUsername: string; businessUsernameStatus: string }> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<{ id: string; businessUsername: string; businessUsernameStatus: string }>({
+      method: "POST",
+      path: `/organizations/${orgId}/phone-numbers/${phoneId}/username`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
   async deregister(phoneId: string, scope: { orgId?: string } = {}, options?: RequestOptions): Promise<void> {
     const orgId = this.requireOrgId(scope.orgId);
     await this.http.request<unknown>({
