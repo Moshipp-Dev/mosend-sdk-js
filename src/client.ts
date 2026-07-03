@@ -57,6 +57,7 @@ import { WebChatPublicResource } from "./resources/webChatPublic.js";
 import { WebChatResource } from "./resources/webChat.js";
 import { WebhooksOutboundResource } from "./resources/webhooksOutbound.js";
 import { WhatsappLinksResource } from "./resources/whatsappLinks.js";
+import { SignupLinksResource } from "./resources/signupLinks.js";
 import { TasksResource } from "./resources/tasks.js";
 import { AiCreditsResource } from "./resources/aiCredits.js";
 import { SystemNoticesResource } from "./resources/systemNotices.js";
@@ -157,6 +158,7 @@ export class MosendClient {
   readonly webChatPublic: WebChatPublicResource;
   readonly webhooksOutbound: WebhooksOutboundResource;
   readonly whatsappLinks: WhatsappLinksResource;
+  readonly signupLinks: SignupLinksResource;
   readonly tasks: TasksResource;
   readonly aiCredits: AiCreditsResource;
   readonly systemNotices: SystemNoticesResource;
@@ -262,6 +264,7 @@ export class MosendClient {
     this.webChatPublic = new WebChatPublicResource(ctx);
     this.webhooksOutbound = new WebhooksOutboundResource(ctx);
     this.whatsappLinks = new WhatsappLinksResource(ctx);
+    this.signupLinks = new SignupLinksResource(ctx);
     this.tasks = new TasksResource(ctx);
     this.aiCredits = new AiCreditsResource(ctx);
     this.systemNotices = new SystemNoticesResource(ctx);

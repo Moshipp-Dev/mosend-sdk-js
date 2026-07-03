@@ -273,6 +273,19 @@ export interface CreateSessionDto {
     };
 }
 
+export interface CreateSignupLinkDto {
+  wabaId: string;
+  /** Texto de la pantalla de consentimiento que Meta muestra al abrir el link. */
+  signupMessage: string;
+  /** Mensaje que recibe el usuario al aceptar. Admite {{promo_code}}. */
+  confirmationMessage: string;
+  privacyPolicyUrl: string;
+  websiteUrl?: string;
+  promoCode?: string;
+  /** Apodo interno; no lo ven los usuarios de WhatsApp. */
+  displayName?: string;
+}
+
 export interface CreateStoreConnectionDto {
   platform: Record<string, unknown>;
   name: string;
@@ -809,6 +822,15 @@ export type UpdatePricingRuleDto = Record<string, unknown>;
 
 export type UpdateShiftRemindersDto = Record<string, unknown>;
 
+export interface UpdateSignupLinkDto {
+  status?: ("ACTIVE" | "DISABLED");
+  signupMessage?: string;
+  confirmationMessage?: string;
+  promoCode?: string;
+  displayName?: string;
+  websiteUrl?: string;
+}
+
 export interface UpdateSignupVerificationDto {
   enabled?: boolean;
   verifyTiming?: ("before" | "after");
@@ -926,7 +948,7 @@ export interface VisibilityDto {
 
 /*
  * NOTAS
- * - 160 schemas generados desde components.schemas.
+ * - 162 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa

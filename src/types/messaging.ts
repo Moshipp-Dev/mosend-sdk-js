@@ -397,6 +397,48 @@ export interface CreateWhatsappLinkInput {
 
 export type UpdateWhatsappLinkInput = Partial<CreateWhatsappLinkInput>;
 
+/** Enlace de suscripción (In-App Signup): opt-in verificado por Meta. */
+export interface SignupLink {
+  id: UUID;
+  wabaId: UUID;
+  metaSignupId: string;
+  displayName?: string | null;
+  signupMessage: string;
+  confirmationMessage: string;
+  privacyPolicyUrl: string;
+  websiteUrl?: string | null;
+  promoCode?: string | null;
+  status: "ACTIVE" | "DISABLED";
+  wabaName?: string;
+  /** Deep links wa.me/<tel>/signup/<id>, uno por número REGISTERED de la WABA. */
+  deepLinks?: string[];
+  createdAt: ISODateString;
+  updatedAt: ISODateString;
+}
+
+export interface CreateSignupLinkInput {
+  wabaId: UUID;
+  /** Pantalla de consentimiento de Meta (1-300 chars). */
+  signupMessage: string;
+  /** Mensaje post-aceptación; admite {{promo_code}} (1-300 chars). */
+  confirmationMessage: string;
+  /** INMUTABLE después de crear. */
+  privacyPolicyUrl: string;
+  websiteUrl?: string;
+  /** Alfanumérico 1-50; requerido si usas {{promo_code}}. */
+  promoCode?: string;
+  displayName?: string;
+}
+
+export interface UpdateSignupLinkInput {
+  status?: "ACTIVE" | "DISABLED";
+  signupMessage?: string;
+  confirmationMessage?: string;
+  promoCode?: string;
+  displayName?: string;
+  websiteUrl?: string;
+}
+
 export interface WhatsappLinkStats {
   totalClicks: number;
   uniqueClicks?: number;

@@ -3835,6 +3835,162 @@
         ]
       }
     },
+    "/organizations/{orgId}/signup-links": {
+      "get": {
+        "operationId": "WhatsAppSignupsController_list",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wabaId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lista los enlaces de suscripción (opt-in) de la organización, con sus deep links wa.me por número.",
+        "tags": [
+          "Enlaces de suscripción (In-App Signup)"
+        ]
+      },
+      "post": {
+        "operationId": "WhatsAppSignupsController_create",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSignupLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crea un enlace de suscripción con opt-in verificado por Meta (In-App Signup).",
+        "tags": [
+          "Enlaces de suscripción (In-App Signup)"
+        ]
+      }
+    },
+    "/organizations/{orgId}/signup-links/{id}": {
+      "get": {
+        "operationId": "WhatsAppSignupsController_getOne",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Detalle de un enlace de suscripción; reconcilia el estado en vivo con Meta.",
+        "tags": [
+          "Enlaces de suscripción (In-App Signup)"
+        ]
+      },
+      "patch": {
+        "operationId": "WhatsAppSignupsController_update",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSignupLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza mensajes/promo o activa/desactiva (status ACTIVE|DISABLED). privacyPolicyUrl es inmutable.",
+        "tags": [
+          "Enlaces de suscripción (In-App Signup)"
+        ]
+      }
+    },
     "/organizations/{orgId}/link-pages": {
       "get": {
         "operationId": "LinkPagesController_list",
@@ -12142,17 +12298,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -20583,6 +20729,89 @@
           },
           "metadata": {
             "type": "object"
+          }
+        }
+      },
+      "CreateSignupLinkDto": {
+        "type": "object",
+        "properties": {
+          "wabaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "signupMessage": {
+            "type": "string",
+            "description": "Texto de la pantalla de consentimiento que Meta muestra al abrir el link.",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "confirmationMessage": {
+            "type": "string",
+            "description": "Mensaje que recibe el usuario al aceptar. Admite {{promo_code}}.",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "privacyPolicyUrl": {
+            "type": "string",
+            "maxLength": 2048,
+            "format": "uri"
+          },
+          "websiteUrl": {
+            "type": "string",
+            "maxLength": 2048,
+            "format": "uri"
+          },
+          "promoCode": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9]{1,50}$"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Apodo interno; no lo ven los usuarios de WhatsApp.",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "wabaId",
+          "signupMessage",
+          "confirmationMessage",
+          "privacyPolicyUrl"
+        ]
+      },
+      "UpdateSignupLinkDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "DISABLED"
+            ]
+          },
+          "signupMessage": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "confirmationMessage": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "promoCode": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9]{1,50}$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "websiteUrl": {
+            "type": "string",
+            "maxLength": 2048,
+            "format": "uri"
           }
         }
       },
