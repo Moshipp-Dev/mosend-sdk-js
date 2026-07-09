@@ -3110,17 +3110,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
+            "description": ""
           }
         },
         "security": [
@@ -3879,6 +3869,42 @@
         "summary": "Redirect público de Click-to-WhatsApp. Resuelve el slug, registra el click y responde 302 hacia wa.me con el mensaje pre-llenado.",
         "tags": [
           "Enlaces de WhatsApp"
+        ]
+      }
+    },
+    "/organizations/{orgId}/plan-limits": {
+      "get": {
+        "operationId": "PlanLimitsController_get",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Plan actual + uso vs cuotas. Frontend lo usa para barras de progreso.",
+        "tags": [
+          "Plan & límites"
         ]
       }
     },
@@ -6958,6 +6984,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "conversationId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -7362,6 +7396,14 @@
           },
           {
             "name": "before",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "around",
             "required": false,
             "in": "query",
             "schema": {
@@ -8816,6 +8858,26 @@
         ]
       }
     },
+    "/ai-credits/public-policy": {
+      "get": {
+        "operationId": "AiCreditsController_publicPolicy",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Política pública del crédito de IA (crédito de bienvenida y packs) para el sitio de marketing.",
+        "tags": [
+          "Créditos de IA"
+        ]
+      }
+    },
     "/organizations/{orgId}/ai-credits/summary": {
       "get": {
         "operationId": "AiCreditsController_summary",
@@ -9627,6 +9689,22 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "before",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -9972,42 +10050,6 @@
         "summary": "Revela el secret de firma del webhook (no aparece en el listado).",
         "tags": [
           "Webhooks (salientes)"
-        ]
-      }
-    },
-    "/organizations/{orgId}/plan-limits": {
-      "get": {
-        "operationId": "PlanLimitsController_get",
-        "parameters": [
-          {
-            "name": "orgId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Plan actual + uso vs cuotas. Frontend lo usa para barras de progreso.",
-        "tags": [
-          "Plan & límites"
         ]
       }
     },
@@ -12542,6 +12584,58 @@
         ]
       }
     },
+    "/admin/platform-config": {
+      "get": {
+        "operationId": "AdminController_getPlatformConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Flags de presentación del sitio (landing).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminController_updatePlatformConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Actualiza flags de presentación del sitio.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
     "/admin/metrics/system": {
       "get": {
         "operationId": "AdminController_metricsSystem",
@@ -12557,6 +12651,117 @@
           }
         ],
         "summary": "Recursos en vivo: proceso API y worker, DB, Redis, colas.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/queues/{name}/failed": {
+      "get": {
+        "operationId": "AdminController_queueFailed",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Jobs fallidos de una cola (drill-down de Salud).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/queues/{name}/retry": {
+      "post": {
+        "operationId": "AdminController_queueRetry",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reintenta jobs fallidos de una cola (uno con ?jobId o todos).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/queues/{name}/clear": {
+      "post": {
+        "operationId": "AdminController_queueClear",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Descarta jobs fallidos de una cola (uno con ?jobId o todos).",
         "tags": [
           "Administración (staff Mosend)"
         ]
@@ -13349,6 +13554,190 @@
         ]
       }
     },
+    "/admin/system/org-resources": {
+      "get": {
+        "operationId": "AdminController_orgResources",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Uso de recursos por organización (mensajes, storage, IA, cuota).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/billing/health": {
+      "get": {
+        "operationId": "AdminController_billingHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Salud del motor de facturación: periodos atascados (CLOSING), periodos vencidos sin cerrar y cargos que no pudieron registrarse.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/billing/margin": {
+      "get": {
+        "operationId": "AdminController_billingMargin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Margen real de los últimos 30 días: ingreso facturado vs costo Meta (snapshot metaUnitCost), desglosado por unidad y categoría. Cargos previos a F1 (sin metaUnitCost) se listan aparte como \"sin costo base\".",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/billing/periods/{id}/release": {
+      "post": {
+        "operationId": "AdminController_releaseStuckPeriod",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Libera un periodo atascado en CLOSING (cierre que murió a mitad de camino) devolviéndolo a OPEN para que el cron lo reintente.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/billing/charge-failures/{id}/resolve": {
+      "post": {
+        "operationId": "AdminController_resolveChargeFailure",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Marca un cargo fallido como resuelto (regla creada, cargo backfilleado o descartado con criterio).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/billing/revenue-series": {
+      "get": {
+        "operationId": "AdminController_billingRevenueSeries",
+        "parameters": [
+          {
+            "name": "months",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Series mensuales (UTC, stats globales): facturado, recaudado (pagos aprobados) y recargas de saldo. Para las gráficas del overview.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/admin/billing/export.csv": {
+      "get": {
+        "operationId": "AdminController_billingExportCsv",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export contable CSV de facturas del rango [from, to] (fecha de emisión), con montos, estado, dunning y organización.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
     "/admin/organizations/{id}/billing/close": {
       "post": {
         "operationId": "AdminController_forceClosePeriod",
@@ -13692,6 +14081,54 @@
         ]
       }
     },
+    "/admin/billing/collection-config": {
+      "get": {
+        "operationId": "AdminController_getCollectionConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Config global de cobranza: plazo de pago, días de recordatorios (5/15/30 default) y días de gracia antes del corte.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminController_updateCollectionConfig",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCollectionConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Edita la config global de cobranza. Las orgs pueden tener overrides individuales de dueDays/suspendAfterDays.",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      }
+    },
     "/admin/plans": {
       "get": {
         "operationId": "AdminController_listPlans",
@@ -13717,6 +14154,34 @@
           }
         ],
         "summary": "Lista todos los planes (incluye internos/no-públicos).",
+        "tags": [
+          "Administración (staff Mosend)"
+        ]
+      },
+      "post": {
+        "operationId": "AdminController_createPlan",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crea un plan nuevo (el admin lo llamaba sin endpoint).",
         "tags": [
           "Administración (staff Mosend)"
         ]
@@ -14519,6 +14984,28 @@
         "summary": "Edita el máximo global de sesiones por usuario.",
         "tags": [
           "Administración (staff Mosend)"
+        ]
+      }
+    },
+    "/platform-config": {
+      "get": {
+        "operationId": "PlatformConfigController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Público: flags de presentación del sitio (landing).",
+        "tags": [
+          "platform-config"
         ]
       }
     },
@@ -20234,6 +20721,10 @@
             "type": "string",
             "maxLength": 64
           },
+          "planSlug": {
+            "type": "string",
+            "maxLength": 60
+          },
           "billingParentId": {
             "type": "string",
             "format": "uuid"
@@ -20740,7 +21231,13 @@
         "properties": {
           "phoneNumberId": {
             "type": "string",
+            "description": "Número conectado (Cloud API). Excluyente con externalPhone.",
             "format": "uuid"
+          },
+          "externalPhone": {
+            "type": "string",
+            "description": "Número externo en formato internacional (cualquier WhatsApp, sin WABA).\n Se normaliza a solo dígitos. Excluyente con phoneNumberId.",
+            "maxLength": 20
           },
           "name": {
             "type": "string",
@@ -20759,7 +21256,6 @@
           }
         },
         "required": [
-          "phoneNumberId",
           "name"
         ]
       },
@@ -21832,6 +22328,10 @@
           "voiceNotesEnabled": {
             "type": "boolean"
           },
+          "offlineReplyEmailEnabled": {
+            "type": "boolean",
+            "description": "Email al visitante cuando el agente responde y él ya no está en la página."
+          },
           "botEnabled": {
             "type": "boolean"
           },
@@ -22385,8 +22885,76 @@
           "markupOverride": {
             "type": "number",
             "nullable": true
+          },
+          "taxPercent": {
+            "type": "number",
+            "nullable": true,
+            "description": "Impuesto sobre el subtotal (0.19 = IVA 19%). null/0 = sin impuesto.",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "dueDays": {
+            "type": "number",
+            "nullable": true,
+            "description": "Plazo de pago en días (null = usar el default global).",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "suspendAfterDays": {
+            "type": "number",
+            "nullable": true,
+            "description": "Días de gracia tras vencer antes del corte (null = default global).",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "billingInterval": {
+            "type": "string",
+            "description": "Ciclo de la suscripción del plan: MONTHLY (default) o YEARLY.",
+            "enum": [
+              "MONTHLY",
+              "YEARLY"
+            ]
+          },
+          "nextPlanRenewalAt": {
+            "type": "string",
+            "nullable": true,
+            "description": "Fecha de la próxima renovación anual (solo YEARLY). ISO date."
           }
         }
+      },
+      "UpdateCollectionConfigDto": {
+        "type": "object",
+        "properties": {
+          "dueDays": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "reminderDays": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "warningDays": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "finalDays": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "suspendAfterDays": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 365
+          }
+        }
+      },
+      "CreatePlanDto": {
+        "type": "object",
+        "properties": {}
       },
       "UpdatePlanDto": {
         "type": "object",

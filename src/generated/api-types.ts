@@ -163,6 +163,8 @@ export interface CreateChannelDto {
   typingIndicatorEnabled?: boolean;
   readReceiptEnabled?: boolean;
   voiceNotesEnabled?: boolean;
+  /** Email al visitante cuando el agente responde y él ya no está en la página. */
+  offlineReplyEmailEnabled?: boolean;
   botEnabled?: boolean;
   enabled?: boolean;
   /** Modo de color del widget: 'light' | 'dark' | 'auto'. */
@@ -206,7 +208,10 @@ export interface CreateItemDto {
 export type CreateLeadDto = Record<string, unknown>;
 
 export interface CreateLinkDto {
-  phoneNumberId: string;
+  /** Número conectado (Cloud API). Excluyente con externalPhone. */
+  phoneNumberId?: string;
+  /** Número externo en formato internacional (cualquier WhatsApp, sin WABA). Se normaliza a solo dígitos. Excluyente con phoneNumberId. */
+  externalPhone?: string;
   name: string;
   campaignTag?: string;
   prefilledMessage?: string;
@@ -231,10 +236,13 @@ export interface CreateOrganizationDto {
   country?: string;
   currency?: string;
   timezone?: string;
+  planSlug?: string;
   billingParentId?: string;
 }
 
 export type CreateOutboundDto = Record<string, unknown>;
+
+export type CreatePlanDto = Record<string, unknown>;
 
 export type CreatePricingRuleDto = Record<string, unknown>;
 
@@ -711,6 +719,16 @@ export type UpdateAutoReplyDto = Record<string, unknown>;
 export interface UpdateBillingConfigDto {
   billingCycleDay?: (1 | 15);
   markupOverride?: number | null;
+  /** Impuesto sobre el subtotal (0.19 = IVA 19%). null/0 = sin impuesto. */
+  taxPercent?: number | null;
+  /** Plazo de pago en días (null = usar el default global). */
+  dueDays?: number | null;
+  /** Días de gracia tras vencer antes del corte (null = default global). */
+  suspendAfterDays?: number | null;
+  /** Ciclo de la suscripción del plan: MONTHLY (default) o YEARLY. */
+  billingInterval?: ("MONTHLY" | "YEARLY");
+  /** Fecha de la próxima renovación anual (solo YEARLY). ISO date. */
+  nextPlanRenewalAt?: string | null;
 }
 
 export interface UpdateChannelDto {
@@ -743,6 +761,14 @@ export interface UpdateChannelDto {
   /** Distancia lateral en px desde el borde del lado elegido (null = default). */
   bubbleOffsetX?: number | null;
   theme?: ("light" | "dark" | "auto");
+}
+
+export interface UpdateCollectionConfigDto {
+  dueDays?: number;
+  reminderDays?: number;
+  warningDays?: number;
+  finalDays?: number;
+  suspendAfterDays?: number;
 }
 
 export interface UpdateContactDto {
@@ -950,7 +976,7 @@ export interface VisibilityDto {
 
 /*
  * NOTAS
- * - 163 schemas generados desde components.schemas.
+ * - 165 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa
