@@ -9,3 +9,6 @@ coverage
 .playwright-mcp
 .idea
 .vscode
+
+# Worktrees de sesiones de Claude Code — nunca se versionan
+.claude/worktrees/
