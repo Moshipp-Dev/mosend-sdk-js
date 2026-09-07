@@ -47,6 +47,10 @@ export interface AddCardDto {
   lastName?: string;
 }
 
+export interface AddConversationTagDto {
+  tagId: string;
+}
+
 export interface AddExceptionDto {
   /** Día local de la org, formato YYYY-MM-DD. */
   date: string;
@@ -132,6 +136,11 @@ export interface AdminSuspendOrgDto {
   reason: string;
 }
 
+export interface AssignConversationDto {
+  /** Usuario al que se asigna; null la libera. */
+  userId: string | null;
+}
+
 export interface AvailabilityRuleDto {
   weekday: number;
   startMinute: number;
@@ -148,6 +157,16 @@ export interface BookAppointmentDto {
   notes?: string;
   /** Profesional con el que se reserva. Vacío = agenda general. */
   staffUserId?: string;
+}
+
+export interface BulkAssignConversationsDto {
+  conversationIds: Array<string>;
+  /** Usuario destino; null libera las conversaciones. */
+  userId: string | null;
+}
+
+export interface BulkDeleteContactsDto {
+  contactIds: Array<string>;
 }
 
 export interface BulkImportProductsDto {
@@ -447,6 +466,13 @@ export interface CreateConectorDto {
   customActions?: Array<Record<string, unknown>>;
 }
 
+export interface CreateContactListDto {
+  name: string;
+  description?: string;
+  /** Color en hexadecimal (#RRGGBB). */
+  color?: string;
+}
+
 export interface CreateCouponDto {
   code: string;
   name?: string;
@@ -701,6 +727,14 @@ export interface CreatePricingRuleDto {
   metaCost: number;
   markupPercent: number;
   effectiveFrom?: string;
+}
+
+export interface CreateQuickReplyDto {
+  /** Atajo con el que se invoca (p. ej. «/saludo»). */
+  shortcut: string;
+  title: string;
+  /** Texto que se inserta en el mensaje. */
+  body: string;
 }
 
 export interface CreateRechargeDto {
@@ -1069,6 +1103,13 @@ export interface NoteDto {
 
 export type Object = Record<string, unknown>;
 
+export interface PasskeyRegistrationVerifyDto {
+  /** Nombre con el que el usuario reconoce la passkey («Mi iPhone»). */
+  name: string;
+  /** Respuesta de WebAuthn tal como la devuelve el navegador o la app. */
+  response: Record<string, unknown>;
+}
+
 export interface PersistentMenuItemDto {
   title: string;
   /** `postback` (registra lo que tocó el usuario) o `web_url` (abre un enlace). */
@@ -1099,6 +1140,12 @@ export interface PreregisterMemberDto {
   name?: string;
 }
 
+export interface PreviewPlanChangeDto {
+  /** Slug del plan al que se quiere cambiar. */
+  toPlanSlug: string;
+  couponCode?: string;
+}
+
 export interface ProbarDto {
   mensajes: Array<TurnoDePruebaDto>;
   /** Instrucciones a probar sin haberlas guardado todavía. */
@@ -1121,6 +1168,16 @@ export interface ProductoDeTiendaDto {
   stock?: number;
   activo?: boolean;
   precios: Array<PrecioDeProductoDto>;
+}
+
+export interface PurgePhoneNumberDto {
+  /** Debe venir en true para confirmar el borrado definitivo. */
+  confirm?: boolean;
+}
+
+export interface PurgeWabaDto {
+  /** Debe venir en true para confirmar el borrado definitivo. */
+  confirm?: boolean;
 }
 
 export interface QuickReplyDto {
@@ -1210,6 +1267,10 @@ export interface RenameDto {
   name: string;
 }
 
+export interface RenamePasskeyDto {
+  name: string;
+}
+
 export interface ReorderItemsDto {
   /** Ids de los items en el nuevo orden. */
   itemIds: Array<string>;
@@ -1239,6 +1300,13 @@ export interface RequestDeletionDto {
   confirmOrgName: string;
   /** Motivo opcional de la baja (para feedback interno). */
   reason?: string;
+}
+
+export interface RequestHandoffDto {
+  /** Se acepta por compatibilidad; el origen queda registrado como «api». */
+  reason?: string;
+  /** Texto libre para el registro y el webhook («cliente pidió hablar con ventas»). */
+  detail?: string;
 }
 
 export interface RequestRegistrationCodeDto {
@@ -1443,6 +1511,11 @@ export interface SetCaptchaDto {
   disabled: boolean;
 }
 
+export interface SetConversationAgentDto {
+  /** Agente del bot que atiende; null deja decidir al enrutador. */
+  agentId: string | null;
+}
+
 export interface SetIntervalDto {
   interval: ("MONTHLY" | "YEARLY");
 }
@@ -1459,6 +1532,10 @@ export interface SetPaidAddonDto {
   enabled: boolean;
 }
 
+export interface SetPinnedDto {
+  pinned: boolean;
+}
+
 export interface SetPriceListItemDto {
   productId: string;
   variantId?: string | null;
@@ -1472,6 +1549,11 @@ export interface SetReactionDto {
 
 export interface SetRoleDto {
   roleId: string;
+}
+
+export interface SetRolePermissionsDto {
+  /** Claves de permiso (ver GET /permissions). Reemplaza el conjunto completo. */
+  permissions?: Array<string>;
 }
 
 export interface SetSalesAddonsDto {
@@ -2170,6 +2252,12 @@ export interface UpdatePublicPriceListDto {
   showBaseComparison?: boolean;
 }
 
+export interface UpdateQuickReplyDto {
+  shortcut?: string;
+  title?: string;
+  body?: string;
+}
+
 export interface UpdateRoadmapItemDto {
   status?: ("IDEA" | "PLANNED" | "BUILDING" | "BETA" | "LIVE" | "DROPPED");
   notes?: string;
@@ -2295,6 +2383,12 @@ export interface UpdateVariantDto {
   durationDays?: number | null;
   active?: boolean;
   sortOrder?: number;
+}
+
+export interface UploadBotImageDto {
+  /** Nombre corto con el que el agente identifica la imagen. */
+  label?: string;
+  caption?: string;
 }
 
 export interface UploadOptsDto {
@@ -2469,7 +2563,7 @@ export interface WebChatSendMessageDto {
 
 /*
  * NOTAS
- * - 279 schemas generados desde components.schemas.
+ * - 296 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa

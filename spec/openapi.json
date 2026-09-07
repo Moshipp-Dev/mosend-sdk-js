@@ -1481,6 +1481,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRolePermissionsDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -2936,6 +2946,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurgeWabaDto"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": ""
@@ -3470,6 +3490,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurgePhoneNumberDto"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": ""
@@ -11622,6 +11652,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteContactsDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -13462,6 +13502,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestHandoffDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -13647,6 +13697,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignConversationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -13721,6 +13781,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetConversationAgentDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -13787,6 +13857,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkAssignConversationsDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -13871,6 +13951,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPinnedDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -13908,6 +13998,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddConversationTagDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -14235,6 +14335,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadBotImageDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -22940,6 +23050,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContactListDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -23789,6 +23909,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuickReplyDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -23826,6 +23956,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuickReplyDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -26237,6 +26377,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewPlanChangeDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -26440,6 +26590,16 @@
       "post": {
         "operationId": "PasskeysController_registrationVerify",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRegistrationVerifyDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -26489,6 +26649,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenamePasskeyDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -28426,6 +28596,18 @@
           "suspended"
         ]
       },
+      "SetRolePermissionsDto": {
+        "type": "object",
+        "properties": {
+          "permissions": {
+            "description": "Claves de permiso (ver GET /permissions). Reemplaza el conjunto completo.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "CreateApiKeyDto": {
         "type": "object",
         "properties": {
@@ -28782,6 +28964,15 @@
           "accessToken"
         ]
       },
+      "PurgeWabaDto": {
+        "type": "object",
+        "properties": {
+          "confirm": {
+            "type": "boolean",
+            "description": "Debe venir en true para confirmar el borrado definitivo."
+          }
+        }
+      },
       "InitiateSignupDto": {
         "type": "object",
         "properties": {
@@ -28901,6 +29092,15 @@
         "required": [
           "username"
         ]
+      },
+      "PurgePhoneNumberDto": {
+        "type": "object",
+        "properties": {
+          "confirm": {
+            "type": "boolean",
+            "description": "Debe venir en true para confirmar el borrado definitivo."
+          }
+        }
       },
       "RequestRegistrationCodeDto": {
         "type": "object",
@@ -32284,6 +32484,21 @@
           "waId"
         ]
       },
+      "BulkDeleteContactsDto": {
+        "type": "object",
+        "properties": {
+          "contactIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "contactIds"
+        ]
+      },
       "UpdateContactDto": {
         "type": "object",
         "properties": {
@@ -32460,6 +32675,69 @@
           "type"
         ]
       },
+      "RequestHandoffDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Se acepta por compatibilidad; el origen queda registrado como «api»."
+          },
+          "detail": {
+            "type": "string",
+            "description": "Texto libre para el registro y el webhook («cliente pidió hablar con ventas»)."
+          }
+        }
+      },
+      "AssignConversationDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Usuario al que se asigna; null la libera.",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "SetConversationAgentDto": {
+        "type": "object",
+        "properties": {
+          "agentId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Agente del bot que atiende; null deja decidir al enrutador.",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "agentId"
+        ]
+      },
+      "BulkAssignConversationsDto": {
+        "type": "object",
+        "properties": {
+          "conversationIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Usuario destino; null libera las conversaciones.",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "conversationIds",
+          "userId"
+        ]
+      },
       "SnoozeConversationDto": {
         "type": "object",
         "properties": {
@@ -32475,6 +32753,29 @@
             "description": "Motivo del snooze (visible al reabrirse)."
           }
         }
+      },
+      "SetPinnedDto": {
+        "type": "object",
+        "properties": {
+          "pinned": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pinned"
+        ]
+      },
+      "AddConversationTagDto": {
+        "type": "object",
+        "properties": {
+          "tagId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "tagId"
+        ]
       },
       "SendStickerDto": {
         "type": "object",
@@ -32495,6 +32796,18 @@
           "phoneNumberId",
           "to"
         ]
+      },
+      "UploadBotImageDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Nombre corto con el que el agente identifica la imagen."
+          },
+          "caption": {
+            "type": "string"
+          }
+        }
       },
       "UpdateBotImageDto": {
         "type": "object",
@@ -35465,6 +35778,24 @@
           "mensajes"
         ]
       },
+      "CreateContactListDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "description": "Color en hexadecimal (#RRGGBB)."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
       "AddMembersDto": {
         "type": "object",
         "properties": {
@@ -35605,6 +35936,41 @@
             "type": "number",
             "minimum": 1,
             "maximum": 3650
+          }
+        }
+      },
+      "CreateQuickReplyDto": {
+        "type": "object",
+        "properties": {
+          "shortcut": {
+            "type": "string",
+            "description": "Atajo con el que se invoca (p. ej. «/saludo»)."
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string",
+            "description": "Texto que se inserta en el mensaje."
+          }
+        },
+        "required": [
+          "shortcut",
+          "title",
+          "body"
+        ]
+      },
+      "UpdateQuickReplyDto": {
+        "type": "object",
+        "properties": {
+          "shortcut": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
           }
         }
       },
@@ -36110,6 +36476,21 @@
           }
         }
       },
+      "PreviewPlanChangeDto": {
+        "type": "object",
+        "properties": {
+          "toPlanSlug": {
+            "type": "string",
+            "description": "Slug del plan al que se quiere cambiar."
+          },
+          "couponCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "toPlanSlug"
+        ]
+      },
       "AddonChangeDto": {
         "type": "object",
         "properties": {
@@ -36131,6 +36512,34 @@
         "required": [
           "addonType",
           "quantity"
+        ]
+      },
+      "PasskeyRegistrationVerifyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nombre con el que el usuario reconoce la passkey («Mi iPhone»)."
+          },
+          "response": {
+            "type": "object",
+            "description": "Respuesta de WebAuthn tal como la devuelve el navegador o la app."
+          }
+        },
+        "required": [
+          "name",
+          "response"
+        ]
+      },
+      "RenamePasskeyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
         ]
       },
       "ConnectInstagramDto": {
