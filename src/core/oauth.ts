@@ -154,7 +154,15 @@ async function postToken(
     if (codigo === "invalid_grant" || codigo === "invalid_client") {
       throw new MosendAuthError(args);
     }
-    if (res.status === 429) throw new MosendRateLimitError(args);
+    if (res.status === 429) {
+      const retryAfter = Number(res.headers.get("retry-after"));
+      throw new MosendRateLimitError({
+        ...args,
+        ...(Number.isFinite(retryAfter) && retryAfter > 0
+          ? { retryAfterSec: retryAfter }
+          : {}),
+      });
+    }
     if (res.status >= 500) throw new MosendServerError(args);
     throw new MosendApiError(args);
   }
