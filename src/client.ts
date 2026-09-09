@@ -98,8 +98,11 @@ export interface MosendClientOptions {
   /**
    * Tokens obtained through Mosend's OAuth provider («Autorizar acceso»).
    * Enables auto-refresh against POST /oauth/token with rotation; the new pair
-   * is delivered through `onTokenRefresh`. `orgId` defaults to the grant's
-   * organization when you read it from GET /oauth/userinfo.
+   * is delivered through `onTokenRefresh` (including its `scope`, which the
+   * server may narrow at any time).
+   *
+   * Pass `orgId` as well: read it once from `fetchOAuthUserinfo()` — the grant
+   * is bound to a single organization and the value never changes.
    */
   oauth?: {
     clientId: string;
@@ -220,10 +223,14 @@ export class MosendClient {
             },
             refreshToken,
           );
+          // `scope` viaja con el par: sin él, el consumidor no puede
+          // reconstruir `oauth.tokens` al reiniciar, ni enterarse de que el
+          // servidor recortó lo que la aplicación puede hacer.
           return {
             accessToken: fresh.accessToken,
             refreshToken: fresh.refreshToken,
             expiresIn: fresh.expiresIn,
+            scope: fresh.scope,
           };
         },
       });

@@ -4,6 +4,12 @@ export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
+  /**
+   * Only present on OAuth refreshes: the scopes the new pair actually carries.
+   * The server can narrow them (the person re-authorized with less, staff
+   * trimmed the app, a role changed), so persist it alongside the tokens.
+   */
+  scope?: string;
 }
 
 export interface User {

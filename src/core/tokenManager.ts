@@ -79,10 +79,14 @@ export class TokenManager {
       try {
         const next = await this.opts.refresh(refreshToken);
         const stored = toStored(next, this.opts.now!);
-        this.tokens = stored;
+        // Persist BEFORE adopting: if the callback fails (disk full, DB down)
+        // we would be running on a pair that storage never saw. On restart the
+        // process would load the old, already-rotated token — which the server
+        // treats as reuse and revokes the whole grant.
         if (this.opts.onTokenRefresh) {
           await this.opts.onTokenRefresh(next);
         }
+        this.tokens = stored;
         return stored;
       } catch (err) {
         if (err instanceof MosendAuthError) {
