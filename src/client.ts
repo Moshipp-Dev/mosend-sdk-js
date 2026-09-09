@@ -2,6 +2,7 @@ import { createHttpClient, type FetchLike, type HttpClient, type RetryConfig } f
 import type { MosendAuthError} from "./core/errors.js";
 import { MosendApiError, MosendValidationError } from "./core/errors.js";
 import { TokenManager } from "./core/tokenManager.js";
+import { refreshOAuthTokens, type OAuthTokens } from "./core/oauth.js";
 import type { AuthTokens } from "./types/identity.js";
 import { AddonsResource } from "./resources/addons.js";
 import { ApiKeysResource } from "./resources/apiKeys.js";
@@ -94,6 +95,18 @@ export interface MosendClientOptions {
    * Milliseconds before expiry to trigger a proactive refresh. Default 30000.
    */
   refreshSkewMs?: number;
+  /**
+   * Tokens obtained through Mosend's OAuth provider («Autorizar acceso»).
+   * Enables auto-refresh against POST /oauth/token with rotation; the new pair
+   * is delivered through `onTokenRefresh`. `orgId` defaults to the grant's
+   * organization when you read it from GET /oauth/userinfo.
+   */
+  oauth?: {
+    clientId: string;
+    /** Confidential clients only; public clients rely on PKCE. */
+    clientSecret?: string;
+    tokens: OAuthTokens;
+  };
   orgId?: string;
   baseUrl?: string;
   timeout?: number;
@@ -186,7 +199,37 @@ export class MosendClient {
       defaultHeaders: options.defaultHeaders ?? {},
     });
 
-    if (options.tokens) {
+    if (options.oauth) {
+      const oauth = options.oauth;
+      const tm = new TokenManager({
+        initialTokens: {
+          accessToken: oauth.tokens.accessToken,
+          refreshToken: oauth.tokens.refreshToken,
+          expiresIn: oauth.tokens.expiresIn,
+        },
+        ...(options.refreshSkewMs !== undefined ? { refreshSkewMs: options.refreshSkewMs } : {}),
+        ...(options.onTokenRefresh ? { onTokenRefresh: options.onTokenRefresh } : {}),
+        ...(options.onAuthFailure ? { onAuthFailure: options.onAuthFailure } : {}),
+        refresh: async (refreshToken: string): Promise<AuthTokens> => {
+          const fresh = await refreshOAuthTokens(
+            {
+              baseUrl: options.baseUrl ?? "https://api.mosend.dev",
+              clientId: oauth.clientId,
+              ...(oauth.clientSecret ? { clientSecret: oauth.clientSecret } : {}),
+              ...(options.fetch ? { fetch: options.fetch } : {}),
+            },
+            refreshToken,
+          );
+          return {
+            accessToken: fresh.accessToken,
+            refreshToken: fresh.refreshToken,
+            expiresIn: fresh.expiresIn,
+          };
+        },
+      });
+      this.tokenManager = tm;
+      this.http.setTokenManager(tm);
+    } else if (options.tokens) {
       const tm = new TokenManager({
         initialTokens: options.tokens,
         ...(options.refreshSkewMs !== undefined ? { refreshSkewMs: options.refreshSkewMs } : {}),

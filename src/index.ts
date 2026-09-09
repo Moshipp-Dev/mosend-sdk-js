@@ -36,6 +36,19 @@ export type {
 
 export type { RetryConfig, FetchLike } from "./core/http.js";
 
+export {
+  createPkcePair,
+  createState,
+  buildAuthorizeUrl,
+  exchangeCode,
+  refreshOAuthTokens,
+  revokeOAuthToken,
+  type OAuthTokens,
+  type PkcePair,
+  type AuthorizeUrlInput,
+  type OAuthClientCredentials,
+} from "./core/oauth.js";
+
 export type * from "./types/common.js";
 export type * from "./types/identity.js";
 export type * from "./types/messaging.js";
