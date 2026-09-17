@@ -237,7 +237,7 @@ app.post("/webhooks/mosend", express.raw({ type: "application/json" }), (req, re
       req.header("x-mosend-signature"),
       process.env.MOSEND_WEBHOOK_SECRET!,
     );
-    switch (event.event) {
+    switch (event.type) {
       case "message.new":     /* ... */ break;
       case "message.status":  /* ... */ break;
       case "invoice.paid":    /* ... */ break;
@@ -250,9 +250,19 @@ app.post("/webhooks/mosend", express.raw({ type: "application/json" }), (req, re
 });
 ```
 
-**Importante**: la firma se calcula sobre el **body crudo**, no sobre el JSON serializado por tu framework. Usá `express.raw()` o equivalente. Reintentos exponenciales: hasta 8 intentos (~30 min). Deduplicá por `event.deliveryId`.
+**Importante**: la firma se calcula sobre el **body crudo**, no sobre el JSON serializado por tu framework. Usa `express.raw()` o equivalente. Reintentos exponenciales: hasta 8 intentos (~30 min).
 
-Eventos disponibles: `message.new`, `message.status`, `conversation.opened`, `conversation.closed`, `conversation.assigned`, `template.status`, `phone.quality`, `invoice.issued`, `invoice.paid`, `invoice.overdue`, `wallet.recharged`.
+El cuerpo es `{ type, organizationId, data, timestamp }`. **No hay id de entrega**: deduplica por el id del recurso dentro de `data` (`data.messageId`, `data.conversationId`, `data.invoiceId`…).
+
+Eventos disponibles (catálogo completo en https://developer.mosend.dev/webhooks-out):
+
+- **Mensajes**: `message.new`, `message.status`
+- **Conversaciones**: `conversation.handoff_requested`, `conversation.unanswered`, `conversation.closed`, `conversation.assignment_changed`
+- **Equipo**: `agent.status_changed`
+- **Canales y plantillas**: `channel.disconnected`, `channel.reconnected`, `template.status`, `quality.changed`
+- **Agenda**: `appointment.created`, `appointment.rescheduled`, `appointment.cancelled`, `appointment.reminded`
+- **Ventas de licencias**: `sale.completed`, `license.key_replaced`
+- **Cuenta y facturación**: `trial.expiring`, `trial.expired`, `invoice.issued`, `invoice.paid`, `invoice.overdue`, `invoice.payment_rejected`, `invoice.refunded`, `organization.suspended`, `organization.reactivated`, `usage.threshold_reached`
 
 ---
 

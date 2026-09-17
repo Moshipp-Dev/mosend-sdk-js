@@ -222,14 +222,15 @@ const sig = req.headers["x-mosend-signature"];
 if (!verifyWebhookSignature(rawBody, sig, process.env.MOSEND_WEBHOOK_SECRET)) {
   return res.status(401).end();
 }
-const event = JSON.parse(rawBody) as WebhookEvent;
-// event.event: "message.new" | "message.status" | "conversation.opened" | ...
+const event = JSON.parse(rawBody) as MosendWebhookEvent;
+// event.type: "message.new" | "message.status" | "conversation.closed" | ...
 ```
 
-**Eventos soportados** (typed discriminated union por `event`):
-`message.new`, `message.status`, `conversation.opened`, `conversation.closed`, `conversation.assigned`, `template.status`, `phone.quality`, `invoice.issued`, `invoice.paid`, `invoice.overdue`, `wallet.recharged`.
+**El sobre real** (verificado contra el backend, 2026-09-17): `{ type, organizationId, data, timestamp }`. Hasta esa fecha este SDK declaraba `event`, `deliveryId` y `occurredAt`, campos que el backend nunca mandó — se escribieron sin acceso al backend y `event.event` salía `undefined` en ejecución.
 
-Cada delivery trae `deliveryId` — el consumidor debe deduplicar (la verificación HMAC no implica que sea la primera entrega).
+**No hay id de entrega.** Mosend reintenta hasta 8 veces (~30 min), así que el consumidor debe deduplicar por el id del recurso dentro de `data` (`data.messageId`, `data.conversationId`, `data.invoiceId`…).
+
+**Eventos soportados** (unión discriminada por `type`, 27 eventos): los emite `outbound.enqueue` en el backend; el catálogo agrupado y el payload de cada uno están en https://developer.mosend.dev/webhooks-out. Familias: mensajes, conversaciones, equipo (`agent.status_changed`), canales y plantillas, agenda de citas, ventas de licencias, y cuenta/facturación.
 
 ---
 

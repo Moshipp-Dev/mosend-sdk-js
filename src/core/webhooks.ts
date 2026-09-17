@@ -1,26 +1,61 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { MosendWebhookSignatureError } from "./errors.js";
 
+/**
+ * El cuerpo que Mosend envía es exactamente `{ type, organizationId, data,
+ * timestamp }`. Este SDK declaraba `event` / `deliveryId` / `occurredAt`, que
+ * el backend nunca ha mandado: se escribió sin acceso al backend y quedó como
+ * ficción tipada — `event.event` era `undefined` en tiempo de ejecución.
+ * Tampoco hay id de entrega: para deduplicar se usa el id del recurso dentro
+ * de `data` (`data.messageId`, `data.conversationId`, `data.invoiceId`…).
+ */
 export interface WebhookEventBase {
-  event: string;
-  deliveryId: string;
+  type: string;
   organizationId: string;
-  occurredAt: string;
   data: unknown;
+  timestamp: string;
 }
 
-export type MosendWebhookEvent =
-  | (WebhookEventBase & { event: "message.new" })
-  | (WebhookEventBase & { event: "message.status" })
-  | (WebhookEventBase & { event: "conversation.opened" })
-  | (WebhookEventBase & { event: "conversation.closed" })
-  | (WebhookEventBase & { event: "conversation.assigned" })
-  | (WebhookEventBase & { event: "template.status" })
-  | (WebhookEventBase & { event: "phone.quality" })
-  | (WebhookEventBase & { event: "invoice.issued" })
-  | (WebhookEventBase & { event: "invoice.paid" })
-  | (WebhookEventBase & { event: "invoice.overdue" })
-  | (WebhookEventBase & { event: "wallet.recharged" });
+/** Los eventos que el backend emite hoy (`outbound.enqueue`). */
+export type MosendWebhookEventType =
+  // Mensajes
+  | "message.new"
+  | "message.status"
+  // Conversaciones
+  | "conversation.handoff_requested"
+  | "conversation.unanswered"
+  | "conversation.closed"
+  | "conversation.assignment_changed"
+  // Equipo
+  | "agent.status_changed"
+  // Canales y plantillas
+  | "channel.disconnected"
+  | "channel.reconnected"
+  | "template.status"
+  | "quality.changed"
+  // Agenda de citas
+  | "appointment.created"
+  | "appointment.rescheduled"
+  | "appointment.cancelled"
+  | "appointment.reminded"
+  // Ventas de licencias digitales
+  | "sale.completed"
+  | "license.key_replaced"
+  // Cuenta y facturación (eventos de la org, sin número)
+  | "trial.expiring"
+  | "trial.expired"
+  | "invoice.issued"
+  | "invoice.paid"
+  | "invoice.overdue"
+  | "invoice.payment_rejected"
+  | "invoice.refunded"
+  | "organization.suspended"
+  | "organization.reactivated"
+  | "usage.threshold_reached";
+
+export type MosendWebhookEvent = WebhookEventBase & {
+  type: MosendWebhookEventType;
+};
 
 const SIGNATURE_PREFIX = "sha256=";
 

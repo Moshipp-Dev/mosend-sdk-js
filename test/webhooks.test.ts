@@ -9,12 +9,13 @@ import { MosendWebhookSignatureError } from "../src/core/errors.js";
 const SECRET = "whsec_test_super_secret";
 
 describe("webhooks", () => {
+  // El sobre real que manda el backend: `{ type, organizationId, data,
+  // timestamp }`. No hay `deliveryId`: se deduplica por el id del recurso.
   const body = JSON.stringify({
-    event: "message.new",
-    deliveryId: "0d6f2c9e",
+    type: "message.new",
     organizationId: "org-1",
-    occurredAt: "2026-05-01T03:42:18.123Z",
-    data: { conversationId: "c1", message: { id: "m1" } },
+    data: { conversationId: "c1", messageId: "m1", direction: "IN" },
+    timestamp: "2026-05-01T03:42:18.123Z",
   });
 
   it("computes a stable HMAC SHA-256 signature", () => {
@@ -49,8 +50,9 @@ describe("webhooks", () => {
   it("parseWebhookEvent returns the typed event when valid", () => {
     const sig = computeWebhookSignature(body, SECRET);
     const event = parseWebhookEvent(body, sig, SECRET);
-    expect(event.event).toBe("message.new");
-    expect(event.deliveryId).toBe("0d6f2c9e");
+    expect(event.type).toBe("message.new");
+    expect(event.organizationId).toBe("org-1");
+    expect((event.data as { messageId: string }).messageId).toBe("m1");
   });
 
   it("parseWebhookEvent throws MosendWebhookSignatureError on invalid signature", () => {

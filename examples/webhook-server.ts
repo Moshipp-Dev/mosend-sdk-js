@@ -32,18 +32,18 @@ async function readRawBody(req: http.IncomingMessage): Promise<string> {
 }
 
 function handle(event: MosendWebhookEvent) {
-  switch (event.event) {
+  switch (event.type) {
     case "message.new":
-      console.warn(`[message.new] ${event.deliveryId} org=${event.organizationId}`);
+      console.warn(`[message.new] org=${event.organizationId} ${JSON.stringify(event.data)}`);
       break;
     case "message.status":
       console.warn(`[message.status] ${JSON.stringify(event.data)}`);
       break;
     case "invoice.paid":
-      console.warn(`[invoice.paid] ${event.deliveryId}`);
+      console.warn(`[invoice.paid] ${JSON.stringify(event.data)}`);
       break;
     default:
-      console.warn(`[${event.event}] ${event.deliveryId}`);
+      console.warn(`[${event.type}] ${event.timestamp}`);
   }
 }
 
