@@ -70,6 +70,8 @@ import { StoreConnectionsResource } from "./resources/storeConnections.js";
 import { StoreTemplatesResource } from "./resources/storeTemplates.js";
 import { AttendanceResource } from "./resources/attendance.js";
 import { ScheduleResource } from "./resources/schedule.js";
+import { CrmResource } from "./resources/crm.js";
+import { DealsResource } from "./resources/deals.js";
 
 export interface MosendClientOptions {
   apiKey?: string;
@@ -186,6 +188,10 @@ export class MosendClient {
   readonly storeTemplates: StoreTemplatesResource;
   readonly attendance: AttendanceResource;
   readonly schedule: ScheduleResource;
+  /** CRM: campos, dueño, empresa, etapa, línea de tiempo, empresas y duplicados. */
+  readonly crm: CrmResource;
+  /** CRM avanzado: embudos, oportunidades, cadencias y automatizaciones. */
+  readonly deals: DealsResource;
 
   private readonly http: HttpClient;
   private tokenManager: TokenManager | undefined;
@@ -326,6 +332,8 @@ export class MosendClient {
     this.storeTemplates = new StoreTemplatesResource(ctx);
     this.attendance = new AttendanceResource(ctx);
     this.schedule = new ScheduleResource(ctx);
+    this.crm = new CrmResource(ctx);
+    this.deals = new DealsResource(ctx);
   }
 
   setAccessToken(token: string | undefined): void {
@@ -377,4 +385,3 @@ export class MosendClient {
 // MosendApiError is re-exported by src/index.ts; the import above is for the
 // implementation detail above (refresh function recursion guard).
 void MosendApiError;
-

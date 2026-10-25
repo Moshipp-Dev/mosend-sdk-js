@@ -67,4 +67,5 @@ export type * from "./types/linkPages.js";
 export type * from "./types/solutions.js";
 export type * from "./types/shiftReminders.js";
 export type * from "./types/ecommerce.js";
+export type * from "./types/crm.js";
 export type * from "./types/attendance.js";
