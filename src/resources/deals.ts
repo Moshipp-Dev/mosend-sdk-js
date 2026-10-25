@@ -322,4 +322,14 @@ export class DealsResource extends Resource {
   deleteAutomation(id: string, scope: Scope = {}, options?: RequestOptions) {
     return this.pedir<{ ok: true }>("DELETE", scope, `/automatizaciones/${id}`, {}, options);
   }
+
+  // ── Reportes ──
+  /** Conversión por etapa, tasa de cierre y resultados por asesor, origen y anuncio. */
+  report(
+    params: { embudoId?: string; desde?: string; hasta?: string } & Scope = {},
+    options?: RequestOptions,
+  ) {
+    const { orgId, ...query } = params;
+    return this.pedir<Record<string, unknown>>("GET", { orgId }, "/reportes/embudo", { query }, options);
+  }
 }

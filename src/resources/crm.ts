@@ -239,4 +239,9 @@ export class CrmResource extends Resource {
       options,
     );
   }
+
+  /** Etapas, recompra, gasto promedio, los que más compran y nuevos por mes. */
+  customersReport(scope: Scope = {}, options?: RequestOptions) {
+    return this.pedir<Record<string, unknown>>("GET", scope, "/reportes/clientes", {}, options);
+  }
 }
