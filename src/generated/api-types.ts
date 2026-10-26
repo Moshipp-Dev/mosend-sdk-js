@@ -2,7 +2,7 @@
  * AUTO-GENERADO por scripts/generate-types.mjs — NO EDITAR A MANO.
  *
  * Tipos del contrato de la API derivados de spec/openapi.json
- * (OpenAPI 3.0.0 · Mosend WB API 2.32.0).
+ * (OpenAPI 3.0.0 · Mosend WB API 2.130.3).
  *
  * Son la fuente de verdad de los request DTOs del backend. Comparar los
  * `*Input` del SDK contra estos para evitar drift. Regenerar con `npm run gen`.
@@ -21,6 +21,102 @@ export interface AcceptSignupDto {
 export interface ActivateDto {
   token: string;
   password: string;
+}
+
+export interface ActualizarAnuncioDto {
+  /** En una línea: qué se vende en ese anuncio. Lo lee el bot. */
+  queOfrece?: string;
+  /** Productos del catálogo que corresponden a este anuncio. */
+  productIds?: Array<string>;
+  /** Agente del bot que atiende a quien llega por aquí. Vacío = el de siempre. */
+  botAgentId?: string;
+  /** Etiqueta para el contacto: con ella entran el ruteo y la lista de precios. */
+  tagId?: string;
+  /** Primer mensaje exacto, si se prefiere abrir con uno propio. */
+  mensajeInicial?: string;
+  /** false = el bot deja de recibir el contexto de este anuncio. */
+  activo?: boolean;
+}
+
+export interface ActualizarAutomatizacionDto {
+  nombre?: string;
+  disparador?: ("contacto.creado" | "contacto.etapa" | "contacto.etiquetado" | "oportunidad.creada" | "oportunidad.etapa" | "oportunidad.ganada" | "oportunidad.perdida");
+  condiciones?: Record<string, unknown>;
+  acciones?: Array<Record<string, unknown>>;
+  activa?: boolean;
+}
+
+export interface ActualizarCadenciaDto {
+  nombre?: string;
+  phoneNumberId?: string;
+  pasos?: Array<PasoDeCadenciaDto>;
+  detenerAlResponder?: boolean;
+  activa?: boolean;
+}
+
+export interface ActualizarCampoDto {
+  etiqueta?: string;
+  tipo?: Record<string, unknown>;
+  opciones?: Array<string>;
+  obligatorio?: boolean;
+  enTabla?: boolean;
+  enFicha?: boolean;
+  orden?: number;
+}
+
+export interface ActualizarClienteDto {
+  /** null = sin dueño. */
+  duenoUserId?: string | null;
+  /** null = sin empresa. */
+  empresaId?: string | null;
+  etapa?: Record<string, unknown>;
+  /** Valores de campos por clave. Se MEZCLAN con los que ya tiene; null o '' borra esa clave. Los campos definidos se validan por su tipo. */
+  campos?: Record<string, unknown>;
+}
+
+export interface ActualizarEmbudoDto {
+  nombre?: string;
+  porDefecto?: boolean;
+  automatico?: boolean;
+  motivosDePerdida?: Array<string>;
+  orden?: number;
+}
+
+export interface ActualizarEmpresaDto {
+  nombre?: string;
+  nit?: string;
+  sector?: string;
+  ciudad?: string;
+  sitioWeb?: string;
+  telefono?: string;
+  correo?: string;
+  /** null = sin dueño. */
+  duenoUserId?: string | null;
+  notas?: string;
+  atributos?: Record<string, unknown>;
+}
+
+export interface ActualizarEtapaDto {
+  nombre?: string;
+  probabilidad?: number;
+  tipo?: Record<string, unknown>;
+  clave?: ("NUEVO" | "CONTACTADO" | "REUNION" | "COTIZADO" | "NEGOCIACION" | null) | null;
+  color?: string;
+}
+
+export interface ActualizarOportunidadDto {
+  titulo?: string;
+  contactId?: string | null;
+  empresaId?: string | null;
+  duenoUserId?: string | null;
+  monto?: number;
+  moneda?: ("COP" | "USD" | "MXN");
+  cierreEsperadoAt?: string | null;
+}
+
+export interface ActualizarRecursoDto {
+  nombre?: string;
+  cantidad?: number;
 }
 
 export interface AddByFilterDto {
@@ -54,6 +150,11 @@ export interface AddConversationTagDto {
 export interface AddExceptionDto {
   /** Día local de la org, formato YYYY-MM-DD. */
   date: string;
+  /** Último día de un rango (vacaciones), inclusive. Vacío = solo `date`. */
+  dateTo?: string;
+  /** Franja bloqueada en minutos locales (almuerzo 13:00-14:00 = 780-840). Sin ellos se bloquea el día completo. */
+  startMinute?: number;
+  endMinute?: number;
   reason?: string;
 }
 
@@ -79,6 +180,13 @@ export interface AddonChangeDto {
   addonType: ("SEAT" | "WABA" | "STORAGE_BLOCK" | "ORGANIZATION");
   /** Cantidad OBJETIVO (absoluta), no el delta. 0 = quitar todos. */
   quantity: number;
+}
+
+export interface AdjuntoDeNotaDto {
+  mediaId: string;
+  nombre: string;
+  tipo: string;
+  tamano: number;
 }
 
 export interface AdjustBalanceDto {
@@ -134,6 +242,40 @@ export interface AdminSetUserEmailDto {
 
 export interface AdminSuspendOrgDto {
   reason: string;
+  /** Cuándo (ISO). Vacío o en el pasado = ya mismo. En el futuro = suspensión programada (p. ej. al terminar la prueba): la aplica un cron con este mismo motivo. */
+  at?: string;
+}
+
+export interface AdminTransferOwnershipDto {
+  /** Usuario que pasa a ser dueño. Tiene que ser YA miembro de la organización. */
+  newOwnerUserId: string;
+  reason: string;
+}
+
+export interface AgregarAListaDeEsperaDto {
+  contactId: string;
+  typeId: string;
+  /** Persona pedida. Vacío = con quien esté libre. */
+  staffUserId?: string;
+  /** Rango de fechas en el que le sirve la cita. */
+  desde: string;
+  hasta: string;
+  notas?: string;
+  conversationId?: string;
+  phoneNumberId?: string;
+}
+
+export interface AnularCobroAgrupadoDto {
+  motivo?: string;
+}
+
+export interface AplicarPresetDto {
+  tipo: ("salon" | "spa" | "consultorio" | "asesoria" | "clases");
+}
+
+export interface AsignacionDto {
+  agentIds: Array<string>;
+  compartido: boolean;
 }
 
 export interface AssignConversationDto {
@@ -141,10 +283,28 @@ export interface AssignConversationDto {
   userId: string | null;
 }
 
+export interface AudienciaDto {
+  /** Estados de organización que reciben. Vacío = ninguno por estado. */
+  statuses?: Array<("ACTIVE" | "SUSPENDED" | "PENDING_DELETION" | "DELETED" | "TRIAL_EXPIRED")>;
+  /** Planes que reciben. Vacío = cualquier plan. */
+  planIds?: Array<string>;
+  /** Organizaciones elegidas a mano. Se SUMAN a las de los filtros. */
+  orgIds?: Array<string>;
+}
+
 export interface AvailabilityRuleDto {
   weekday: number;
   startMinute: number;
   endMinute: number;
+}
+
+export interface BloqueDto {
+  tipo: ("parrafo" | "titulo" | "subtitulo" | "lista" | "separador");
+  alineacion?: ("izquierda" | "centro" | "derecha");
+  tamano?: ("pequeno" | "normal" | "grande");
+  fragmentos?: Array<FragmentoDto>;
+  /** Cada elemento de la lista es su propia línea de fragmentos. */
+  items?: Array<LineaDeListaDto>;
 }
 
 export interface BookAppointmentDto {
@@ -157,6 +317,24 @@ export interface BookAppointmentDto {
   notes?: string;
   /** Profesional con el que se reserva. Vacío = agenda general. */
   staffUserId?: string;
+  /** Personas de la reserva (servicios con cupos). Default 1. */
+  seats?: number;
+  /** Cobrar el anticipo del servicio (desde el panel hay que pedirlo; el bot y la página lo cobran solos cuando el servicio lo tiene). */
+  cobrarAnticipo?: boolean;
+  /** Respuestas al formulario del servicio, por id de pregunta. */
+  respuestas?: Record<string, unknown>;
+  /** Dirección del cliente (servicios a domicilio). */
+  direccion?: string;
+  /** No usar el paquete de sesiones del cliente aunque tenga uno vigente. */
+  sinPaquete?: boolean;
+  /** Cita recurrente: cada `cadaDias` días, `veces` citas en total. */
+  repetir?: unknown;
+  /** Enlace de la reunión (Meet, Zoom, Teams…), pegado a mano. */
+  meetingUrl?: string;
+  /** Correo del cliente para mandarle la invitación. */
+  inviteEmail?: string;
+  /** Sin correo: pedírselo al cliente por el chat para mandarle la invitación. */
+  pedirCorreo?: boolean;
 }
 
 export interface BulkAssignConversationsDto {
@@ -172,12 +350,73 @@ export interface BulkDeleteContactsDto {
 export interface BulkImportProductsDto {
   /** Productos a crear en lote (import Excel/CSV desde la UI). */
   products: Array<CreateDigitalProductDto>;
+  /** Si un producto ya existe (por SKU o nombre), actualizarlo con lo que trae la fila en vez de saltarlo. Cierra el ciclo exportar → editar en hoja de cálculo → importar. */
+  actualizarExistentes?: boolean;
 }
 
 export interface BulkInvitationDto {
   emails: Array<string>;
   roleId: string;
   wabaIds?: Array<string>;
+}
+
+export interface BulkPriceListItemsDto {
+  productIds: Array<string>;
+  /** PORCENTAJE_DEL_BASE: valor = descuento (15 = 15 % menos). FIJO: centavos. */
+  modo: ("PORCENTAJE_DEL_BASE" | "COPIAR_BASE" | "FIJO" | "QUITAR");
+  valor?: number;
+  redondeo?: ("PESO" | "CIEN" | "MIL");
+  incluirVariantes?: boolean;
+}
+
+export interface BulkPriceProductsDto {
+  /** PORCENTAJE: valor = +10 / -15. MONTO: centavos a sumar o restar. FIJO: precio en centavos. */
+  modo: ("PORCENTAJE" | "MONTO" | "FIJO");
+  valor: number;
+  redondeo?: ("PESO" | "CIEN" | "MIL");
+  /** Aplicar también a las variantes de esos productos. */
+  incluirVariantes?: boolean;
+  /** Solo calcular el antes/después, sin guardar. */
+  soloVistaPrevia?: boolean;
+  productIds: Array<string>;
+}
+
+export interface BulkProductIdsDto {
+  productIds: Array<string>;
+}
+
+export interface BulkProductPatchDto {
+  active?: boolean;
+  entregaModo?: ("AUTOMATICA" | "ASISTIDA" | "CONSULTAR");
+  /** null = quitar la categoría. */
+  category?: string | null;
+  renewalNoticeEnabled?: boolean;
+  /** null = no vence. */
+  durationDays?: number | null;
+  datoAdicionalLabel?: string | null;
+  datoAdicionalRequerido?: boolean;
+}
+
+export interface BulkUpdateProductsDto {
+  patch: BulkProductPatchDto;
+  productIds: Array<string>;
+}
+
+export interface BuzonDeAvisosDto {
+  /** Servidor IMAP (solo el dominio). */
+  host?: string;
+  port?: number;
+  /** Usuario: la dirección del correo. */
+  user?: string;
+  /** Contraseña. Al editar, vacía = se conserva la guardada. */
+  password?: string | null;
+  tls?: boolean;
+  /** Carpeta a la que mover los avisos ya registrados. */
+  processedFolder?: string | null;
+  /** Borrar los avisos ya registrados. */
+  deleteAfterRead?: boolean;
+  /** Llaves que avisan a este correo (reemplaza la lista). Una llave avisa a un solo correo. */
+  llaveIds?: Array<string>;
 }
 
 export interface CallbackDto {
@@ -190,8 +429,23 @@ export interface CallbackDto {
   coexistence?: boolean;
 }
 
+export interface CambiarEstadoDto {
+  estado: ("ACEPTADA" | "RECHAZADA");
+}
+
+export interface CambiarMedioDelPedidoDto {
+  /** llave | transferencia | tarjeta | nequi | nequi_app | daviplata | binance | cuenta:<id> */
+  medio: string;
+  /** Número de la app de Nequi (10 dígitos) para `nequi_app`. */
+  nequiPhone?: string;
+  /** Mandarle al cliente los datos nuevos por el chat. */
+  avisarCliente?: boolean;
+}
+
 export interface CancelAppointmentDto {
   reason?: string;
+  /** Cancelar también las que siguen de la serie (citas recurrentes). */
+  serie?: boolean;
 }
 
 export interface CarouselCardDto {
@@ -209,6 +463,8 @@ export interface CartItemDto {
   quantity?: number;
   /** Precio unitario (centavos) fijado a mano; reemplaza el de lista. */
   unitPriceCents?: number;
+  /** Dato adicional que pide el producto (ej. el correo de la cuenta). */
+  datoAdicional?: string;
 }
 
 export interface CelebrationEnabledDto {
@@ -245,6 +501,13 @@ export interface ChannelsDto {
   email?: boolean;
 }
 
+export interface ClientesMasivoDto {
+  contactIds: Array<string>;
+  duenoUserId?: string | null;
+  empresaId?: string | null;
+  etapa?: Record<string, unknown>;
+}
+
 export interface CommerceSettingsDto {
   /** Habilitar el carrito de compras en las conversaciones. */
   isCartEnabled?: boolean;
@@ -252,8 +515,17 @@ export interface CommerceSettingsDto {
   isCatalogVisible?: boolean;
 }
 
+export interface CompletarDatoAdicionalDto {
+  valor: string;
+}
+
 export interface CompletarEntregaDto {
+  /** Llaves que el asesor entrega a mano (una por elemento o por línea). Se registran en la venta como licencias ENTREGADAS y se envían con la plantilla de entrega e instrucciones. Sin `llaves`, se marca entregada con el `mensaje` libre (comportamiento histórico). */
+  llaves?: Array<string>;
+  /** Nota adicional para el cliente, después de la entrega. */
   mensaje?: string;
+  /** false = registrar la llave sin escribirle al cliente. Default true. */
+  notificar?: boolean;
 }
 
 export interface CompleteImportDto {
@@ -265,8 +537,20 @@ export interface CompleteTaskDto {
   completed: boolean;
 }
 
+export interface ConciliarCobroDto {
+  cobroId: string;
+}
+
 export interface ConciliarPagoDto {
   orderId: string;
+}
+
+export interface ConfiguracionCrmDto {
+  /** 0 = nunca marcar inactivos. */
+  diasParaInactivo?: number;
+  diasSinActividad?: number;
+  asignacionDeDueno?: ("NINGUNO" | "ROTATIVO" | "PRIMERO_QUE_RESPONDE");
+  asignarEntre?: Array<string>;
 }
 
 export interface ConfiguradorDto {
@@ -275,11 +559,18 @@ export interface ConfiguradorDto {
   instrucciones?: string;
 }
 
+export interface ConfirmarPagoManualDto {
+  /** Por dónde entró el dinero: `llave:<id>` o `cuenta:<id>`. El pedido pasa a ese medio; sin el dato se queda con el que tenía. */
+  medio?: string;
+  /** Captura del pago (id de un archivo subido a la organización). Queda como comprobante aprobado. */
+  comprobanteMediaId?: string;
+}
+
 export interface ConnectInstagramDto {
   /** `code` devuelto por el OAuth de Instagram al volver del redirect. */
   code: string;
-  /** `state` que devolvimos en `initiate` (CSRF / routing). */
-  state?: string;
+  /** `state` que devolvimos en `initiate`. Obligatorio: se consume una sola vez y sin él la conexión se rechaza. */
+  state: string;
 }
 
 export interface ConnectTestNumberDto {
@@ -287,6 +578,10 @@ export interface ConnectTestNumberDto {
   phoneNumberId: string;
   accessToken: string;
   wabaName?: string;
+}
+
+export interface ConsultarNitDto {
+  nit: string;
 }
 
 export interface ContactEntity {
@@ -314,6 +609,36 @@ export interface ContactEntity {
   avatarUrl?: string | null;
 }
 
+export interface ContactosDeEmpresaDto {
+  contactIds: Array<string>;
+}
+
+export interface ContenidoDto {
+  /** Asunto del correo. */
+  subject: string;
+  /** Titular dentro del correo. */
+  title: string;
+  /** Párrafo de entrada. Admite <strong> y <a>; el resto de etiquetas se escapa. */
+  lead: string;
+  /** Lista de cambios, uno por elemento. */
+  bullets?: Array<string>;
+  /** Enlace del botón. */
+  ctaUrl?: string;
+  /** Texto del botón. */
+  ctaText?: string;
+  /** Nota al pie, en letra pequeña. */
+  footnote?: string;
+  /** Versión de novedades de la que se precargó. Solo trazabilidad. */
+  fromVersion?: string;
+  /** Clave de la cabecera del catálogo. */
+  headerStyle?: string;
+  /** Título dentro de la banda de la cabecera. */
+  headerTitle?: string;
+  headerSubtitle?: string;
+  /** Cuerpo con formato. Cuando viene, sustituye a `lead` y `bullets`. */
+  bodyBlocks?: Array<BloqueDto>;
+}
+
 export interface ConversationToolsDto {
   /** Preguntas frecuentes (máx 4) que IG muestra a usuarios nuevos. */
   iceBreakers?: Array<string>;
@@ -321,9 +646,135 @@ export interface ConversationToolsDto {
   persistentMenu?: Array<PersistentMenuItemDto>;
 }
 
+export interface CopiarPlantillaDto {
+  wabaId: string;
+}
+
 export interface CorrectSessionDto {
   /** Nuevo instante de cierre (epoch en milisegundos). */
   endedAt: number;
+}
+
+export interface CrearAutomatizacionDto {
+  nombre: string;
+  disparador: ("contacto.creado" | "contacto.etapa" | "contacto.etiquetado" | "oportunidad.creada" | "oportunidad.etapa" | "oportunidad.ganada" | "oportunidad.perdida");
+  /** { etapa?, tagId?, embudoId?, etapaId?, origen? } */
+  condiciones?: Record<string, unknown>;
+  /** [{ tipo, … }]: asignar_dueno, crear_tarea, agregar_etiqueta, quitar_etiqueta, cambiar_etapa_cliente, mover_oportunidad, crear_oportunidad, inscribir_cadencia, enviar_plantilla, notificar. */
+  acciones: Array<Record<string, unknown>>;
+  activa?: boolean;
+}
+
+export interface CrearCadenciaDto {
+  nombre: string;
+  phoneNumberId: string;
+  pasos: Array<PasoDeCadenciaDto>;
+  detenerAlResponder?: boolean;
+  activa?: boolean;
+}
+
+export interface CrearCampoDto {
+  etiqueta: string;
+  /** Opcional: si no viene, sale de la etiqueta («Segmento» → «segmento»). */
+  clave?: string;
+  tipo?: Record<string, unknown>;
+  opciones?: Array<string>;
+  obligatorio?: boolean;
+  enTabla?: boolean;
+  enFicha?: boolean;
+  orden?: number;
+}
+
+export interface CrearCobroAgrupadoDto {
+  /** Contacto al que se le cobra. */
+  contactId: string;
+  /** Pedidos a incluir. Vacío = todos los que el cliente debe (fiados y esperando pago). */
+  orderIds?: Array<string>;
+  /** Chat por el que se envía el cobro. */
+  conversationId?: string;
+  /** A dónde paga: `llave:<id>` o `cuenta:<id>`. Vacío = la llave de la marca del número. */
+  medio?: string;
+}
+
+export interface CrearCobroLibreDto {
+  /** Contacto al que se le cobra. */
+  contactId: string;
+  /** Chat por el que se envía el cobro. */
+  conversationId?: string;
+  /** Qué se cobra («Hosting 12 meses midominio.com»). Con factura de Mosend puede ir vacío. */
+  concepto?: string;
+  /** Monto en centavos de peso colombiano. Con factura de Mosend, vacío = su saldo. */
+  montoCents?: number;
+  /** Factura de la plataforma Mosend que abona (solo la organización que opera Mosend). */
+  invoiceId?: string;
+  /** Marca que cobra, por encima de la del número (en un número que atiende varias marcas). Vacío = la del número. */
+  perfilDeCobroId?: string;
+}
+
+export interface CrearEmbudoDto {
+  nombre: string;
+  porDefecto?: boolean;
+  automatico?: boolean;
+  motivosDePerdida?: Array<string>;
+  /** Copia las etapas por defecto (Nuevo… Ganado, Perdido). */
+  conEtapasPorDefecto?: boolean;
+}
+
+export interface CrearEmpresaDto {
+  nombre: string;
+  /** Con o sin dígito de verificación. */
+  nit?: string;
+  sector?: string;
+  ciudad?: string;
+  sitioWeb?: string;
+  telefono?: string;
+  correo?: string;
+  duenoUserId?: string;
+  notas?: string;
+  atributos?: Record<string, unknown>;
+}
+
+export interface CrearEnvioDto {
+  contenido: ContenidoDto;
+  audiencia: AudienciaDto;
+  /** Número de destinatarios que mostró la previsualización. Si ya no coincide, el envío se rechaza. */
+  esperados: number;
+}
+
+export interface CrearGrupoDto {
+  /** Número de la empresa que crea el grupo y desde el que se le escribe. */
+  phoneNumberId: string;
+  subject: string;
+  description?: string;
+  /** `auto_approve` (entra quien tenga el enlace) o `approval_required` (cada solicitud hay que aprobarla). Por defecto, el de Meta: auto_approve. */
+  joinApprovalMode?: ("auto_approve" | "approval_required");
+}
+
+export interface CrearOportunidadDto {
+  titulo: string;
+  /** Vacío = el embudo por defecto. */
+  embudoId?: string;
+  /** Vacío = la primera etapa abierta. */
+  etapaId?: string;
+  contactId?: string;
+  empresaId?: string;
+  /** Vacío = el dueño del contacto, o quien la crea. */
+  duenoUserId?: string;
+  monto?: number;
+  moneda?: ("COP" | "USD" | "MXN");
+  cierreEsperadoAt?: string;
+  conversationId?: string;
+}
+
+export interface CrearPaqueteDto {
+  contactId: string;
+  /** Para qué servicio sirve. Vacío = cualquiera. */
+  appointmentTypeId?: string;
+  nombre: string;
+  sesiones: number;
+  /** Sesiones que ya usó (al cargar un paquete que venía de antes). */
+  usadas?: number;
+  venceAt?: string;
 }
 
 export interface CreateApiKeyDto {
@@ -331,13 +782,42 @@ export interface CreateApiKeyDto {
   scopes?: Array<string>;
   /** Restricción opcional a un subconjunto de phone-numbers de la org. Vacío o ausente = la key opera sobre TODOS los phone-numbers (default). Si trae UUIDs, la key SOLO puede enviar/leer de esos números. */
   phoneNumberIds?: Array<string>;
+  /** Caducidad opcional (ISO 8601). Pasada esa fecha la key deja de resolver. Sin valor = no caduca (comportamiento anterior). */
+  expiresAt?: string;
 }
 
 export interface CreateAppointmentTypeDto {
   name: string;
-  description?: string;
   durationMin: number;
+  /** Quién atiende (forma anterior a `staffUserIds`, un solo profesional). */
+  staffUserId?: string;
+  description?: string | null;
   bufferMin?: number;
+  bufferBeforeMin?: number;
+  /** Cada cuánto se ofrece un horario. null = duración + márgenes. */
+  slotIntervalMin?: (5 | 10 | 15 | 20 | 30 | 45 | 60 | 90 | 120) | null;
+  price?: number | null;
+  /** ISO 4217 (COP, USD…). null = la moneda de la organización. */
+  currency?: string | null;
+  color?: string | null;
+  modality?: ("PRESENCIAL" | "VIRTUAL" | "DOMICILIO");
+  location?: string | null;
+  meetingUrl?: string | null;
+  category?: string | null;
+  sortOrder?: number;
+  /** Cupos por horario (1 = una cita a la vez). Más de 1 requiere agenda_avanzada. */
+  capacity?: number;
+  /** Anticipo al reservar: PORCENTAJE del precio o valor FIJO (en la moneda del servicio; solo se cobra en COP). null = sin anticipo. Requiere agenda_avanzada. */
+  anticipoTipo?: ("PORCENTAJE" | "FIJO") | null;
+  anticipoValor?: number | null;
+  /** Formulario del servicio (máximo 8 preguntas). null o [] = sin formulario. */
+  preguntas?: Array<PreguntaDelServicioDto> | null;
+  /** «Agenda tu próxima»: invitar a volver a los N días de atendida. */
+  volverEnDias?: number | null;
+  /** Recurso compartido que ocupa cada cita (sala, silla). null = ninguno. */
+  recursoId?: string | null;
+  /** Quiénes atienden (miembros de la org). Vacío = agenda general. Requiere la función de plan `agenda_avanzada`. Reemplaza la lista completa. */
+  staffUserIds?: Array<string>;
 }
 
 export interface CreateAutoReplyDto {
@@ -381,24 +861,35 @@ export interface CreateBillingProfileDto {
 export interface CreateBotAgentDto {
   /** Canales (ids de número, reales o virtuales de web chat / Instagram) en los que atiende el agente. Vacío = todos los canales de la organización. */
   phoneNumberIds?: Array<string>;
-  /** Documentos de la memoria que este agente consulta (ids). Vacío = toda la biblioteca. */
+  /** La memoria propia del agente: documentos que consulta (ids). Además lee los documentos marcados como compartidos. Vacío = solo los compartidos. */
   knowledgeDocIds?: Array<string>;
   /** Atajo legado de un solo canal; usa phoneNumberIds. */
   phoneNumberId?: string;
+  /** Marca (perfil de cobro) con la que cobra el agente. Manda sobre la del número cuando un número atiende varias marcas. null = la del número. */
+  perfilDeCobroId?: string | null;
+  /** Sin efecto: la memoria del agente son sus documentos (knowledgeDocIds) y los compartidos. */
+  knowledgeTags?: Array<string>;
   name: string;
   description?: string;
   isDefault?: boolean;
+  /** Anula el ritmo de respuesta de la organización para este agente. Sin valor = hereda. Ventas y soporte no llevan el mismo pulso. */
+  ritmoDeRespuesta?: ("INSTANTANEO" | "NATURAL" | "PAUSADO");
   enabled?: boolean;
   sortOrder?: number;
-  provider?: ("anthropic" | "openai" | "openrouter" | "groq" | "meta");
+  provider?: ("anthropic" | "openai" | "openrouter" | "groq" | "meta" | "gemini" | "xai");
   model?: string;
   systemPrompt?: string;
   temperature?: number;
   maxTokens?: number;
-  enabledTools?: Array<("transfer_to_human" | "set_contact_attribute" | "end_conversation" | "enviar_botones")>;
-  enabledCapabilities?: Array<("sell_licenses" | "book_appointment" | "crear_pedido" | "whmcs_support" | "buscar_dominios" | "send_images")>;
+  enabledTools?: Array<("transfer_to_human" | "set_contact_attribute" | "end_conversation" | "enviar_botones" | "enviar_lista" | "enviar_boton_enlace")>;
+  /** «Botones y listas». Apagado, el agente no manda botones, listas ni botón de enlace: las opciones y los enlaces van en el texto. Por defecto encendido. */
+  interactiveMessages?: boolean;
+  /** Imágenes de la librería por cliente y por día (zona horaria de la organización). Solo cuentan las que manda la IA. 0 = ninguna. */
+  maxImagesPerDay?: number;
+  /** Documentos de la librería por cliente y por día. 0 = ninguno. */
+  maxDocumentsPerDay?: number;
+  enabledCapabilities?: Array<("mosend_planes" | "mosend_cuenta" | "sell_licenses" | "cobro_libre" | "book_appointment" | "crear_pedido" | "pedidos_web" | "whmcs_support" | "buscar_dominios" | "catalogo_servicios" | "cotizar" | "send_images")>;
   routeTags?: Array<string>;
-  knowledgeTags?: Array<string>;
   knowledgeTopK?: number;
   knowledgeMinSimilarity?: number;
 }
@@ -437,9 +928,11 @@ export interface CreateCheckoutDto {
   /** Cantidad de licencias a vender (1 a 50). Por defecto 1. */
   quantity?: number;
   /** Método de cobro. Por defecto NEQUI. TRANSFERENCIA = el cliente transfiere el monto exacto a la llave y el pago se confirma aparte; no pasa por pasarela. */
-  method?: ("NEQUI" | "DAVIPLATA" | "TRANSFERENCIA");
+  method?: ("NEQUI" | "DAVIPLATA" | "TRANSFERENCIA" | "BINANCE" | "TARJETA");
   /** Teléfono Nequi del cliente (10 dígitos CO) — requerido para NEQUI. */
   nequiPhone?: string;
+  /** A qué cuenta de banco transfiere. Vacío = la llave, si la hay. */
+  transferAccountId?: string;
   /** Cédula del cliente — requerida para DAVIPLATA. */
   userLegalId?: string;
   userLegalIdType?: ("CC" | "CE" | "NIT" | "PP" | "TI");
@@ -451,10 +944,12 @@ export interface CreateCheckoutDto {
   phoneNumberId?: string;
   /** WhatsApp destino (waId, sin '+'). Por defecto 57 + Nequi. */
   recipientWaId?: string;
+  /** Moneda con la que se le cobra a este cliente. */
+  currency?: ("COP" | "USD" | "MXN");
 }
 
 export interface CreateConectorDto {
-  type: ("WHMCS" | "PLESK" | "CPANEL" | "WORDPRESS" | "WOOCOMMERCE" | "HTTP");
+  type: ("WHMCS" | "PLESK" | "CPANEL" | "WORDPRESS" | "WOOCOMMERCE" | "MS365" | "HTTP");
   name: string;
   baseUrl: string;
   /** Identifier de la API Credential de WHMCS (permisos mínimos de lectura). */
@@ -462,6 +957,12 @@ export interface CreateConectorDto {
   authSecret?: string;
   enabled?: boolean;
   enabledActions?: Array<string>;
+  /** Canales donde el bot puede usarlo (ids de número). Vacío = todos. */
+  phoneNumberIds?: Array<string>;
+  /** Cómo pagar una factura de este sistema; el bot lo manda con la factura pendiente. */
+  paymentInstructions?: string;
+  /** WHMCS: método de pago (nombre de sistema, p. ej. banktransfer) con el que el bot registra transferencias. */
+  paymentGateway?: string;
   /** Solo type HTTP: acciones curadas por el dueño (el servicio las valida). */
   customActions?: Array<Record<string, unknown>>;
 }
@@ -471,6 +972,8 @@ export interface CreateContactListDto {
   description?: string;
   /** Color en hexadecimal (#RRGGBB). */
   color?: string;
+  /** Lista inteligente: el filtro de contactos (los mismos campos del listado: etapa, duenoUserId, empresaId, tagId, campos, compraEnDias, sinCompraDias, gastoMin, puntajeMin, lastActivityDaysGt…). Sus miembros se calculan al usarla. */
+  smartFilter?: Record<string, unknown>;
 }
 
 export interface CreateCouponDto {
@@ -523,7 +1026,7 @@ export interface CreateDigitalProductDto {
   /** Si entra en el aviso de renovación. Hay cosas que se venden una vez. */
   renewalNoticeEnabled?: boolean;
   /** Moneda ISO-4217 (3 letras mayúsculas). Por defecto COP. */
-  currency?: string;
+  currency?: ("COP" | "USD" | "MXN");
   instructionsUrl?: string;
   /** Modo de entrega: AUTOMATICA (entrega una llave del inventario), ASISTIDA (venta automática, la entrega un asesor; no usa inventario) o CONSULTAR (si no hay stock no dice "agotado": deriva a un asesor para reconfirmar). */
   entregaModo?: ("AUTOMATICA" | "ASISTIDA" | "CONSULTAR");
@@ -532,6 +1035,9 @@ export interface CreateDigitalProductDto {
   /** Si ese dato es obligatorio antes de cerrar la venta. */
   datoAdicionalRequerido?: boolean;
   active?: boolean;
+  /** IVA en las cotizaciones: si está activo se suma al precio. No cambia lo que se cobra al vender. */
+  ivaActivo?: boolean;
+  ivaPorcentaje?: number;
 }
 
 export interface CreateFlowDto {
@@ -652,6 +1158,27 @@ export interface CreateNequiQrDto {
 export interface CreateNoteDto {
   body: string;
   pinned?: boolean;
+  /** Usuarios mencionados con @: se les avisa. */
+  menciones?: Array<string>;
+  /** Archivos subidos antes con POST …/notes/adjuntos. */
+  adjuntos?: Array<AdjuntoDeNotaDto>;
+}
+
+export interface CreateOAuthClientDto {
+  name: string;
+  description?: string;
+  /** `CONFIDENTIAL` (servidor con secreto) o `PUBLIC` (escritorio/CLI, solo PKCE). */
+  kind: ("CONFIDENTIAL" | "PUBLIC");
+  logoUrl?: string;
+  homepageUrl?: string;
+  /** URIs de retorno exactas. Se permite http solo para localhost. */
+  redirectUris: Array<string>;
+  /** Alcances que la aplicación puede pedir (claves del catálogo de permisos). */
+  allowedScopes: Array<string>;
+  /** Organización dueña cuando la app es de un cliente (futuro). */
+  ownerOrganizationId?: string;
+  /** Slug de la integración del marketplace que representa esta app (p. ej. `zapier`). */
+  integrationSlug?: string;
 }
 
 export interface CreateOrganizationDto {
@@ -759,7 +1286,7 @@ export interface CreateSalesOrderDto {
   /** Cliente de la venta (perfil de facturación). Se preselecciona al facturar. */
   billingProfileId?: string;
   channel?: ("WHATSAPP" | "WEB" | "INSTAGRAM" | "STORE" | "MANUAL");
-  currency?: string;
+  currency?: ("COP" | "USD" | "MXN");
   notes?: string;
   items: Array<CreateSalesOrderItemDto>;
 }
@@ -784,7 +1311,7 @@ export interface CreateSalesProductDto {
   /** Precio unitario en centavos (evita floats). */
   priceCents: number;
   /** Moneda ISO-4217 (3 letras mayúsculas). Por defecto COP. */
-  currency?: string;
+  currency?: ("COP" | "USD" | "MXN");
   /** IVA en porcentaje entero (0–100; típicamente 19, 5 o 0). */
   taxRate?: number;
   /** Código de unidad de medida DIAN (ej. "94"=unidad). */
@@ -795,7 +1322,10 @@ export interface CreateSalesProductDto {
 
 export interface CreateSessionDto {
   visitorId: string;
-  mode: ("anonymous" | "identified" | "verify-otp" | "host-identified");
+  /** Sitio que contiene el iframe del chat (ver `origenAValidar`). */
+  sitio?: string;
+  /** `login`: «Inicia sesión» — solo el correo; manda un código y se sigue con `verify-otp`, que retoma la conversación anterior si la hay. */
+  mode: ("anonymous" | "identified" | "verify-otp" | "host-identified" | "login");
   name?: string;
   email?: string;
   phone?: string;
@@ -854,6 +1384,8 @@ export interface CreateSystemNoticeDto {
   linkLabel?: string;
   active?: boolean;
   dismissible?: boolean;
+  /** Solo dueños y administradores lo ven. */
+  adminsOnly?: boolean;
   startsAt?: string;
   endsAt?: string;
 }
@@ -870,6 +1402,13 @@ export interface CreateTaskDto {
   title: string;
   description?: string;
   dueAt: string;
+  /** CRM: llamar, escribir, reunión… (por defecto, tarea). */
+  tipo?: Record<string, unknown>;
+  /** CRM: la oportunidad a la que pertenece. */
+  oportunidadId?: string;
+  /** Al completarla se crea la siguiente. */
+  repetir?: ("DIARIA" | "SEMANAL" | "MENSUAL");
+  repetirHasta?: string;
 }
 
 export interface CreateTemplateDto {
@@ -893,6 +1432,49 @@ export interface CtaUrlDto {
   url: string;
 }
 
+export interface CuentaDeTransferenciaDto {
+  /** Cómo la ve el cliente en la lista. */
+  label: string;
+  /** Banco o entidad. */
+  bankName?: string | null;
+  /** Tipo de cuenta. */
+  accountKind?: ("AHORROS" | "CORRIENTE" | "NEQUI" | "LLAVE" | "OTRO");
+  /** Número de cuenta, llave Bre-B o celular de Nequi. */
+  accountNumber: string;
+  /** Titular de la cuenta. */
+  holder?: string | null;
+  /** Documento del titular. */
+  holderDoc?: string | null;
+  /** Texto que acompaña a esta cuenta. */
+  instructions?: string | null;
+  /** MediaAsset del QR de esta cuenta. */
+  qrMediaId?: string | null;
+  /** Dominio que firma los correos de aviso de este banco, para conciliar (ej. notificacionesbancolombia.com). */
+  senderDomain?: string | null;
+  /** En qué moneda recibe esta cuenta (ISO 4217). Vacío = cualquiera. Solo se le ofrece a quien paga en esa moneda. */
+  currency?: string | null;
+  /** Si se le ofrece al cliente. */
+  enabled?: boolean;
+  /** Marcas (perfiles de cobro) que ofrecen esta cuenta. Vacío = todas: cuenta compartida. Sin enviar al crear = la marca principal. */
+  perfilIds?: Array<string>;
+  /** Llave cuyos avisos de pago confirman también los pagos a esta cuenta (la cuenta de banco que está detrás de la llave). null = se confirma con comprobante. */
+  llaveAvisoId?: string | null;
+}
+
+export interface DarseDeBajaDto {
+  /** Token firmado que venía en el enlace del correo. */
+  token: string;
+  /** false para volver a suscribirse. */
+  baja?: boolean;
+}
+
+export interface DescartarEnMasaDto {
+  /** Qué descartar. Hasta 100 por llamada. */
+  items: Array<Record<string, unknown>>;
+  /** Por qué. En los comprobantes lo lee el cliente. */
+  reason: string;
+}
+
 export interface DisableDto {
   token: string;
 }
@@ -909,6 +1491,56 @@ export interface EditMessageDto {
   body: string;
 }
 
+export interface EditarCuentaDeTransferenciaDto {
+  /** Cómo la ve el cliente en la lista. */
+  label?: string;
+  /** Banco o entidad. */
+  bankName?: string | null;
+  /** Tipo de cuenta. */
+  accountKind?: ("AHORROS" | "CORRIENTE" | "NEQUI" | "LLAVE" | "OTRO");
+  /** Número de cuenta, llave Bre-B o celular de Nequi. */
+  accountNumber?: string;
+  /** Titular de la cuenta. */
+  holder?: string | null;
+  /** Documento del titular. */
+  holderDoc?: string | null;
+  /** Texto que acompaña a esta cuenta. */
+  instructions?: string | null;
+  /** MediaAsset del QR de esta cuenta. */
+  qrMediaId?: string | null;
+  /** Dominio que firma los correos de aviso de este banco, para conciliar (ej. notificacionesbancolombia.com). */
+  senderDomain?: string | null;
+  /** En qué moneda recibe esta cuenta (ISO 4217). Vacío = cualquiera. Solo se le ofrece a quien paga en esa moneda. */
+  currency?: string | null;
+  /** Si se le ofrece al cliente. */
+  enabled?: boolean;
+  /** Marcas (perfiles de cobro) que ofrecen esta cuenta. Vacío = todas: cuenta compartida. Sin enviar al crear = la marca principal. */
+  perfilIds?: Array<string>;
+  /** Llave cuyos avisos de pago confirman también los pagos a esta cuenta (la cuenta de banco que está detrás de la llave). null = se confirma con comprobante. */
+  llaveAvisoId?: string | null;
+}
+
+export interface EditarLlaveDeCobroDto {
+  /** Cómo se ve en el panel. */
+  label?: string;
+  /** Entidad de la llave: decide cómo se lee su aviso de pago. */
+  entity?: ("NEQUI" | "BANCOLOMBIA");
+  /** La llave que se le da al cliente (@usuario, celular, correo). */
+  key?: string;
+  /** Titular que ve el cliente. */
+  holder?: string | null;
+  /** Texto que acompaña a la llave. */
+  instructions?: string | null;
+  /** Dominio que firma los avisos de pago de esta llave. Vacío = el de la entidad. */
+  senderDomain?: string | null;
+  /** Buzón de confianza que reenvía los avisos, si el intermediario rompe la firma del banco. */
+  forwarderAddress?: string | null;
+  /** Con la bandeja en «aprobar solo», si los pagos de esta llave se aprueban solos. Una llave nueva empieza en false (solo sugerir). */
+  autoApprove?: boolean;
+  /** Correo (buzón de avisos) al que llegan los avisos de pago de esta llave. null = ninguno: sus pagos no se confirman solos. */
+  buzonId?: string | null;
+}
+
 export interface EjecutarAccionDto {
   actionKey: string;
   /** Parámetros de la acción; el servidor valida contra el catálogo. */
@@ -918,10 +1550,32 @@ export interface EjecutarAccionDto {
 export interface EnableNumberDto {
   waId: string;
   note?: string;
+  /** Habilitarlo con una lista de precios (p. ej. «Revendedores»): se crea el contacto y se le pone la etiqueta de esa lista. Sin esto ve precio de cliente final, porque un número habilitado no tiene etiquetas. */
+  priceListId?: string;
 }
 
 export interface EndJornadaDto {
   note?: string;
+}
+
+export interface EnviarCotizacionDto {
+  /** Texto que acompaña al PDF; si no, uno con el número y el total. */
+  mensaje?: string;
+}
+
+export interface EnvioDePruebaDto {
+  contenido: ContenidoDto;
+  /** A dónde mandar la prueba. */
+  email: string;
+}
+
+export interface EtapaDto {
+  nombre: string;
+  probabilidad?: number;
+  tipo?: Record<string, unknown>;
+  clave?: ("NUEVO" | "CONTACTADO" | "REUNION" | "COTIZADO" | "NEGOCIACION" | null) | null;
+  color?: string;
+  orden?: number;
 }
 
 export interface EventsDto {
@@ -931,13 +1585,48 @@ export interface EventsDto {
   shiftEnd?: boolean;
 }
 
+export interface FijarPrecioPactadoDto {
+  interval: ("MONTHLY" | "YEARLY");
+  amount: number;
+}
+
 export interface ForgotPasswordDto {
   email: string;
   captchaToken?: string;
 }
 
+export interface FragmentoDto {
+  texto: string;
+  marcas?: Array<("negrita" | "cursiva" | "subrayado")>;
+  /** Hex de 3 o 6 dígitos. */
+  color?: string;
+  /** Solo http(s). */
+  enlace?: string;
+}
+
+export interface FusionarContactosDto {
+  /** El que se queda. */
+  principalId: string;
+  /** El que se junta con el principal y desaparece. */
+  duplicadoId: string;
+}
+
+export interface GanarOportunidadDto {
+  /** Monto final, si cambió. */
+  monto?: number;
+}
+
 export interface GenerateInvoiceDto {
-  orderId: string;
+  orderId?: string;
+  /** Líneas de la factura directa. Excluyente con `orderId`. */
+  items?: Array<CreateSalesOrderItemDto>;
+  /** Contacto/conversación de origen, para poder rastrear de dónde salió. */
+  contactId?: string;
+  conversationId?: string;
+  /** Nota que va en el documento. */
+  notes?: string;
+  /** Clave de idempotencia de la emisión directa. Sin pedido no hay nada a lo que atar «una factura activa por X», y un consecutivo de la DIAN quemado dos veces solo se deshace con nota crédito. Dos envíos con la misma clave son la misma factura. */
+  idempotencyKey?: string;
   /** Empresa emisora desde la que se factura. Sin esto, la predeterminada. */
   configId?: string;
   /** A quién facturar (opcional: si no, el perfil por defecto del contacto). */
@@ -945,6 +1634,59 @@ export interface GenerateInvoiceDto {
   /** Override de forma/medio de pago para ESTA factura (si no, el de la config). */
   paymentFormId?: number;
   paymentMethodId?: number;
+}
+
+export interface GuardarBorradorDto {
+  contenido: ContenidoDto;
+  audiencia: AudienciaDto;
+  /** Id del borrador a actualizar. Sin él se crea uno nuevo. */
+  borradorId?: string;
+}
+
+export interface GuardarCotizacionDto {
+  contactId?: string;
+  conversationId?: string;
+  /** Perfil de facturación del cliente («facturar a»), si lo hay. */
+  billingProfileId?: string;
+  /** Empresa que emite (una marca de la organización). `null` = los datos de la organización. Sin el campo: al crear, la marca del número de la conversación; al editar, la que ya tenía. */
+  perfilDeCobroId?: string | null;
+  /** Empresa que emite (Configuración → Empresas). Manda sobre `perfilDeCobroId`. `null` = los datos de la organización. Sin ninguno de los dos: al crear, la de la marca del número o la predeterminada; al editar, la que ya tenía. */
+  empresaId?: string | null;
+  moneda?: ("COP" | "USD" | "MXN");
+  /** Días de vigencia; null o 0 = sin vigencia. */
+  vigenciaDias?: number | null;
+  clienteNombre?: string;
+  clienteDocumento?: string;
+  clienteCorreo?: string;
+  clienteTelefono?: string;
+  clienteDireccion?: string;
+  formasDePago?: string;
+  condiciones?: string;
+  notas?: string;
+  lineas: Array<LineaDeCotizacionDto>;
+}
+
+export interface GuardarEncuestaDto {
+  /** Si se le pregunta o no. Nace apagada. */
+  active?: boolean;
+  /** Minutos a esperar desde el cierre. 120 por defecto. */
+  delayMinutes?: number;
+  /** A quién: ALL toda conversación cerrada, HUMAN solo las que contestó una persona, BOT solo las que atendió el bot. */
+  audience?: ("ALL" | "HUMAN" | "BOT");
+  /** Días sin volver a preguntarle al mismo contacto. */
+  cooldownDays?: number;
+  /** Las preguntas, hasta 3: [{ text, options[] }]. La PRIMERA admite 3 respuestas (es la única que podría salir como plantilla, y una plantilla no acepta listas); de la segunda en adelante, hasta 10. En cada una, la primera opción es la mejor nota. Máximo 20 caracteres por respuesta. */
+  questions?: Array<Record<string, unknown>>;
+  /** Si además se le pide un comentario. */
+  askComment?: boolean;
+  /** La segunda pregunta, abierta. */
+  commentQuestion?: string;
+  /** Con qué se despide. */
+  thanksMessage?: string;
+  /** Horas que se espera una respuesta antes de darla por perdida. */
+  answerTimeoutHours?: number;
+  /** Solo para estos números. Vacío = todos. */
+  phoneNumberIds?: Array<string>;
 }
 
 export interface HolidayItemDto {
@@ -970,6 +1712,11 @@ export interface IngestEventDto {
 
 export interface InitiateSignupDto {
   organizationId: string;
+}
+
+export interface InscribirEnCadenciaDto {
+  contactIds: Array<string>;
+  oportunidadId?: string;
 }
 
 export interface InstallIntegrationDto {
@@ -1007,6 +1754,8 @@ export interface InviteStaffDto {
 export interface InvoiceLicenseOrderDto {
   /** Venta de licencia ya PAGADA/ENTREGADA a facturar. */
   customerOrderId: string;
+  /** Empresa desde la que se factura. Sin esto, la de la marca de la venta (o la predeterminada) que facture electrónicamente. */
+  configId?: string;
   /** A quién facturar. Si no viene, se usan los datos fiscales de abajo. */
   billingProfileId?: string;
   /** Datos fiscales que dio el cliente al pedir la factura. */
@@ -1025,6 +1774,25 @@ export interface InvoiceLicenseOrderDto {
   items?: Array<CreateSalesOrderItemDto>;
   /** Notas/observaciones de la factura (opcional). */
   notes?: string;
+}
+
+export interface LineaDeCotizacionDto {
+  origen: ("PRODUCTO" | "LICENCIA" | "SERVICIO" | "LIBRE");
+  /** Producto, licencia o servicio de origen (no en las libres). */
+  origenId?: string;
+  /** Variante de la licencia, si la tiene. */
+  varianteId?: string;
+  descripcion: string;
+  detalle?: string;
+  cantidad: number;
+  /** Precio unitario SIN IVA, en centavos. */
+  precioUnitarioCents: number;
+  descuentoPorcentaje?: number;
+  ivaPorcentaje?: number;
+}
+
+export interface LineaDeListaDto {
+  fragmentos: Array<FragmentoDto>;
 }
 
 export interface LinkBillingGroupDto {
@@ -1047,6 +1815,27 @@ export interface ListSectionDto {
   rows: Array<ListRowDto>;
 }
 
+export interface LlaveDeCobroDto {
+  /** Cómo se ve en el panel. */
+  label: string;
+  /** Entidad de la llave: decide cómo se lee su aviso de pago. */
+  entity?: ("NEQUI" | "BANCOLOMBIA");
+  /** La llave que se le da al cliente (@usuario, celular, correo). */
+  key: string;
+  /** Titular que ve el cliente. */
+  holder?: string | null;
+  /** Texto que acompaña a la llave. */
+  instructions?: string | null;
+  /** Dominio que firma los avisos de pago de esta llave. Vacío = el de la entidad. */
+  senderDomain?: string | null;
+  /** Buzón de confianza que reenvía los avisos, si el intermediario rompe la firma del banco. */
+  forwarderAddress?: string | null;
+  /** Con la bandeja en «aprobar solo», si los pagos de esta llave se aprueban solos. Una llave nueva empieza en false (solo sugerir). */
+  autoApprove?: boolean;
+  /** Correo (buzón de avisos) al que llegan los avisos de pago de esta llave. null = ninguno: sus pagos no se confirman solos. */
+  buzonId?: string | null;
+}
+
 export interface LoginDto {
   email: string;
   password: string;
@@ -1063,6 +1852,8 @@ export interface ManualCartItemDto {
   variantId?: string | null;
   quantity?: number;
   unitPriceCents?: number;
+  /** Dato adicional que pide el producto (ej. el correo de la cuenta). */
+  datoAdicional?: string;
 }
 
 export interface ManualInvoiceLineDto {
@@ -1084,6 +1875,15 @@ export interface ManualInvoicePlanCoverageDto {
   applyToOrg?: boolean;
 }
 
+export interface MarcarCobroPagadoDto {
+  /** Pedidos que pagó. Vacío = todos. Si son algunos, se saldan esos, el cobro se anula y los demás quedan por cobrar. */
+  orderIds?: Array<string>;
+  /** Por dónde entró el dinero: `llave:<id>` o `cuenta:<id>`. Vacío = la llave del cobro. */
+  medio?: string;
+  /** Confirmarle al cliente «Recibimos tu pago». Por defecto sí. */
+  avisar?: boolean;
+}
+
 export interface MarkInvoicePaidDto {
   amount: number;
   description?: string;
@@ -1093,21 +1893,77 @@ export interface MoveDocumentDto {
   folderId: string | null;
 }
 
+export interface MoverOportunidadDto {
+  etapaId: string;
+  /** Obligatorio si la etapa es de pérdida. */
+  motivoDePerdida?: string;
+}
+
 export interface NoteDto {
   title?: string;
   content?: string;
   tags?: Array<string>;
   /** Clave de la pregunta sin respuesta que esta nota cubre (viene de insights). */
   resolvesQuestionKey?: string;
+  agentIds?: Array<string>;
+  compartido?: boolean;
+}
+
+export interface OAuthDecisionDto {
+  /** `true` permite; `false` devuelve `access_denied` a la aplicación. */
+  approve: boolean;
+  /** Organización sobre la que se concede el acceso (obligatoria al aprobar). */
+  organizationId?: string;
 }
 
 export type Object = Record<string, unknown>;
+
+export interface OrdenDeEtapasDto {
+  etapaIds: Array<string>;
+}
+
+export interface PasoDeCadenciaDto {
+  dias: number;
+  plantilla: string;
+  idioma?: string;
+  variables?: Array<string>;
+}
 
 export interface PasskeyRegistrationVerifyDto {
   /** Nombre con el que el usuario reconoce la passkey («Mi iPhone»). */
   name: string;
   /** Respuesta de WebAuthn tal como la devuelve el navegador o la app. */
   response: Record<string, unknown>;
+}
+
+export interface PerderOportunidadDto {
+  motivo: string;
+}
+
+export interface PerfilDeCobroDto {
+  /** Nombre de la marca («Moshipp»). */
+  nombre?: string;
+  /** Llave con la que cobra la marca. null = no cobra por llave. La marca principal cobra con la llave activa de la organización. */
+  llaveId?: string | null;
+  /** Qué pasa cuando se paga un cobro libre: TAREA (tarea para el equipo) o FACTURA_MOSEND (abona a la factura de la plataforma; solo la organización que opera Mosend). */
+  alPagar?: ("TAREA" | "FACTURA_MOSEND");
+  /** Si la marca ofrece la pasarela (Wompi). */
+  aceptaWompi?: boolean;
+  /** Si la marca ofrece Binance. */
+  aceptaBinance?: boolean;
+  /** Números que atiende la marca (reemplaza la lista). Los que se quitan vuelven a la principal. */
+  phoneNumberIds?: Array<string>;
+  /** Orden en que el asistente ofrece los medios cuando el cliente no pide uno: `llave`, `cuenta:<id>`, `wompi`, `tarjeta`, `binance`. Lo que falte va al final. */
+  ordenDeMedios?: Array<string>;
+  wompiEnv?: ("test" | "prod");
+  /** Wompi propio: llave pública. */
+  wompiPublicKey?: string | null;
+  /** Wompi propio: llave privada. */
+  wompiPrivateKey?: string | null;
+  /** Wompi propio: secreto de eventos. */
+  wompiEventsSecret?: string | null;
+  /** Wompi propio: secreto de integridad. */
+  wompiIntegritySecret?: string | null;
 }
 
 export interface PersistentMenuItemDto {
@@ -1128,6 +1984,21 @@ export interface PrecioDto {
   valorCents: number;
 }
 
+export interface PrecioEnMonedaDto {
+  currency: ("COP" | "USD" | "MXN");
+  priceCents: number;
+  /** null / omitido = el precio del producto; con valor, el de esa variante. */
+  variantId?: string | null;
+}
+
+export interface PreguntaDelServicioDto {
+  id: string;
+  texto: string;
+  tipo: ("TEXTO" | "OPCION" | "SI_NO");
+  opciones?: Array<string>;
+  obligatoria: boolean;
+}
+
 export interface PreregisterDto {
   members: Array<PreregisterMemberDto>;
   roleId: string;
@@ -1140,10 +2011,20 @@ export interface PreregisterMemberDto {
   name?: string;
 }
 
+export interface PreviewCarritoDto {
+  items: Array<CartItemDto>;
+  currency?: ("COP" | "USD" | "MXN");
+}
+
 export interface PreviewPlanChangeDto {
   /** Slug del plan al que se quiere cambiar. */
   toPlanSlug: string;
   couponCode?: string;
+}
+
+export interface PrevisualizarEnvioDto {
+  contenido: ContenidoDto;
+  audiencia: AudienciaDto;
 }
 
 export interface ProbarDto {
@@ -1190,9 +2071,21 @@ export interface ReactivateDto {
   notify?: boolean;
 }
 
+export interface ReasignarPagoDto {
+  /** Pedido que se queda con el pago. */
+  orderId: string;
+  /** Por qué se movió; queda en el pago y en la auditoría. */
+  nota?: string;
+}
+
 export interface RechargePackDto {
   amountUsd: number;
   bonusUsd: number;
+}
+
+export interface RechazarComprobanteDto {
+  /** Por qué se rechaza. El cliente lo va a leer. */
+  reason: string;
 }
 
 export interface RecordOptInDto {
@@ -1200,6 +2093,11 @@ export interface RecordOptInDto {
   source?: string;
   channel?: string;
   payload?: Record<string, unknown>;
+}
+
+export interface RecursoDto {
+  nombre: string;
+  cantidad?: number;
 }
 
 export interface RedeemCouponDto {
@@ -1227,6 +2125,17 @@ export interface RegisterDto {
   pin: string;
 }
 
+export interface RegistrarPagoConjuntoDto {
+  /** Pedidos que pagó (al menos dos). */
+  orderIds: Array<string>;
+  /** Por dónde pagó: `llave:<id>` o `cuenta:<id>`. Vacío = la llave de la marca. */
+  medio?: string;
+  /** Confirmarle al cliente «Recibimos tu pago». Por defecto no. */
+  avisar?: boolean;
+  contactId: string;
+  conversationId?: string;
+}
+
 export interface RegistrarVentaManualDto {
   productId: string;
   variantId?: string;
@@ -1237,8 +2146,16 @@ export interface RegistrarVentaManualDto {
   pagado: boolean;
   /** Precio unitario a facturar en centavos (override del asesor: descuento u otro acuerdo). Si se omite, se usa el de la lista. */
   unitPriceCents?: number;
+  /** Dato adicional que pide el producto (ej. el correo de la cuenta). */
+  datoAdicional?: string;
+  /** «Lo pido después»: deja pendiente el dato obligatorio que falte. */
+  datoAdicionalDespues?: boolean;
   /** ¿Enviar al cliente el mensaje "gracias por tu compra"? Por defecto sí. */
   notify?: boolean;
+  /** Moneda con la que se le cobra a este cliente. */
+  currency?: ("COP" | "USD" | "MXN");
+  /** Ya pagó: por dónde entró el dinero. `llave` (la de la marca del número), `llave:<id>` o `cuenta:<id>`. */
+  medio?: string;
 }
 
 export interface RejectDeletionDto {
@@ -1271,9 +2188,19 @@ export interface RenamePasskeyDto {
   name: string;
 }
 
+export interface ReordenarCuentasDto {
+  /** Todas las cuentas de la organización, en el orden deseado. */
+  ids: Array<string>;
+}
+
 export interface ReorderItemsDto {
   /** Ids de los items en el nuevo orden. */
   itemIds: Array<string>;
+}
+
+export interface RepetirCitaDto {
+  cadaDias: (7 | 14 | 21 | 28 | 30);
+  veces: number;
 }
 
 export interface ReplaceLicenseKeyDto {
@@ -1321,6 +2248,19 @@ export interface RescheduleAppointmentDto {
 
 export interface ResendOtpDto {
   email: string;
+  /** Sitio que contiene el iframe del chat (ver `origenAValidar`). */
+  sitio?: string;
+}
+
+export interface ReservarEnLaPaginaDto {
+  typeId: string;
+  startAt: string;
+  staffUserId?: string;
+  nombre: string;
+  notas?: string;
+  seats?: number;
+  respuestas?: Record<string, unknown>;
+  direccion?: string;
 }
 
 export interface ResetPasswordDto {
@@ -1328,11 +2268,26 @@ export interface ResetPasswordDto {
   password: string;
 }
 
+export interface ResolverSolicitudesDto {
+  joinRequestIds: Array<string>;
+  accion: ("aprobar" | "rechazar");
+}
+
+export interface RevisarComprobanteDto {
+  /** Nota interna de quien revisa. */
+  note?: string | null;
+}
+
 export interface RotateDto {
   oldEndpoint: string;
   endpoint: string;
   p256dh: string;
   auth: string;
+}
+
+export interface SacarParticipantesDto {
+  /** Teléfonos o identificadores de WhatsApp. Un grupo admite 8 participantes, así que no tiene sentido aceptar listas mayores. */
+  waIds: Array<string>;
 }
 
 export interface SdkSessionInfoDto {
@@ -1349,17 +2304,27 @@ export interface SearchKnowledgeDto {
   tags?: Array<string>;
   /** Umbral de similitud coseno 0-1 (default 0.3). */
   minSimilarity?: number;
+  /** Buscar como este agente: solo su memoria (sus documentos + compartidos). */
+  agentId?: string;
 }
 
 export interface SellCartToConversationDto {
   items: Array<CartItemDto>;
+  /** «Lo pido después»: deja pendiente el dato obligatorio que falte. */
+  datoAdicionalDespues?: boolean;
   method?: ("NEQUI" | "TRANSFERENCIA");
   nequiPhone?: string;
+  /** A qué cuenta de banco transfiere. Vacío = la llave, si la hay. */
+  transferAccountId?: string;
   customerEmail?: string;
   /** Solo Bre-B: entrega ya (fiado) y concilia el cobro después. */
   entregarYa?: boolean;
+  /** Fiado: ¿enviarle ya cómo pagar? Por defecto sí. */
+  enviarCobro?: boolean;
   /** ¿Enviar el mensaje "gracias por tu compra"? Por defecto sí. */
   notify?: boolean;
+  /** Moneda con la que se le cobra a este cliente. */
+  currency?: ("COP" | "USD" | "MXN");
 }
 
 export interface SellToConversationDto {
@@ -1368,18 +2333,28 @@ export interface SellToConversationDto {
   variantId?: string;
   /** Cantidad de licencias a vender (1 a 50). Por defecto 1. */
   quantity?: number;
-  method?: ("NEQUI" | "DAVIPLATA" | "TRANSFERENCIA");
+  method?: ("NEQUI" | "DAVIPLATA" | "TRANSFERENCIA" | "BINANCE" | "TARJETA");
   nequiPhone?: string;
+  /** A qué cuenta de banco transfiere. Vacío = la llave, si la hay. */
+  transferAccountId?: string;
   userLegalId?: string;
   userLegalIdType?: ("CC" | "CE" | "NIT" | "PP" | "TI");
   customerEmail?: string;
   couponCode?: string;
+  /** Dato adicional que pide el producto (ej. el correo de la cuenta). */
+  datoAdicional?: string;
+  /** «Lo pido después»: deja pendiente el dato obligatorio que falte. */
+  datoAdicionalDespues?: boolean;
   /** Solo Bre-B (TRANSFERENCIA): entrega la licencia YA (fiado) y deja el cobro pendiente; el conciliador lo marca pagado cuando entra la transferencia. */
   entregarYa?: boolean;
+  /** Fiado: ¿enviarle ya cómo pagar (llave o cuenta y monto)? Por defecto sí. Con `false` solo recibe la licencia y se le cobra después. */
+  enviarCobro?: boolean;
   /** ¿Enviar al cliente el mensaje "gracias por tu compra"? Por defecto sí. */
   notify?: boolean;
   /** Precio unitario (centavos) fijado a mano por el asesor: reemplaza el de lista/etiqueta y es lo que se cobra. Omitir = precio de lista. */
   unitPriceCents?: number;
+  /** Moneda con la que se le cobra a este cliente. Omitir = la que toque por el contacto o por la organización. */
+  currency?: ("COP" | "USD" | "MXN");
 }
 
 export interface SendBookingFlowDto {
@@ -1492,6 +2467,13 @@ export interface ServicioDto {
   precios?: Array<PrecioDto>;
 }
 
+export interface SetAiLimitsDto {
+  /** Tope diario en USD. null = sin tope. */
+  dailyUsd?: number | null;
+  /** Tope mensual en USD. null = sin tope. */
+  monthlyUsd?: number | null;
+}
+
 export interface SetAppointmentStatusDto {
   status: ("NO_SHOW" | "COMPLETED");
 }
@@ -1540,6 +2522,10 @@ export interface SetPriceListItemDto {
   productId: string;
   variantId?: string | null;
   priceCents?: number | null;
+}
+
+export interface SetProductPricesDto {
+  precios: Array<PrecioEnMonedaDto>;
 }
 
 export interface SetReactionDto {
@@ -1696,6 +2682,13 @@ export interface TurnoDto {
   texto: string;
 }
 
+export interface UnificarClavesDto {
+  /** Claves de atributos a juntar («Numero», «Número»). */
+  de: Array<string>;
+  /** Clave final (un campo definido o una clave nueva). */
+  a: string;
+}
+
 export interface UnregisterDeviceDto {
   token: string;
 }
@@ -1708,14 +2701,56 @@ export interface UpdateAgendaSettingsDto {
   enabled?: boolean;
   minNoticeMin?: number;
   maxAdvanceDays?: number;
-  /** Plantilla aprobada para el recordatorio. Convención de variables: {{1}} = nombre del contacto, {{2}} = fecha y hora local de la cita. */
+  /** Plantilla aprobada para el recordatorio. Convención de variables: {{1}} = nombre del contacto, {{2}} = fecha y hora local de la cita y, si la plantilla lo tiene, {{3}} = enlace de la reunión. */
   reminderTemplateName?: string | null;
   reminderTemplateLang?: string | null;
+  /** Plantillas para avisar fuera de la ventana de 24 h (confirmación, cambio de hora, cancelación). Mismas variables que el recordatorio. null = sin. */
+  confirmTemplateName?: string | null;
+  confirmTemplateLang?: string | null;
+  rescheduleTemplateName?: string | null;
+  rescheduleTemplateLang?: string | null;
+  cancelTemplateName?: string | null;
+  cancelTemplateLang?: string | null;
   /** Horas antes de la cita (0 = sin recordatorio, máx 72). */
   reminderHoursBefore?: number;
   reminderPhoneNumberId?: string | null;
   /** WhatsAppFlow (local) publicado para reserva con date-picker nativo. */
   bookingFlowId?: string | null;
+  /** Bloquear solos los festivos del país (hoy solo Colombia). */
+  bloquearFestivos?: boolean;
+  paisFestivos?: ("CO");
+  /** Página pública de reservas. */
+  paginaPublica?: boolean;
+  /** Dirección de la página: app.mosend.dev/reservar/<paginaSlug>. */
+  paginaSlug?: string;
+  /** Número al que el cliente escribe para confirmar la reserva. */
+  paginaPhoneNumberId?: string | null;
+  paginaMensaje?: string | null;
+  /** Recordatorios 2 y 3 (agenda avanzada). 0 o null = apagado. */
+  reminder2HoursBefore?: number | null;
+  reminder2TemplateName?: string | null;
+  reminder2TemplateLang?: string | null;
+  reminder3HoursBefore?: number | null;
+  reminder3TemplateName?: string | null;
+  reminder3TemplateLang?: string | null;
+  /** Hasta cuántas horas antes puede el cliente cancelar o reprogramar solo. */
+  cancelarHastaHoras?: number | null;
+  /** Horas tras el fin para marcar sola la inasistencia. null = nunca. */
+  noShowAutoHoras?: number | null;
+  /** Minutos para pagar el anticipo antes de liberar el horario. */
+  anticipoMinutos?: number;
+  /** Pedir anticipo a quien ya faltó tantas veces. null = no. */
+  anticipoTrasInasistencias?: number | null;
+  /** Plantilla para ofrecer un horario liberado a la lista de espera. */
+  esperaTemplateName?: string | null;
+  esperaTemplateLang?: string | null;
+  /** Minutos que se aparta un horario ofrecido a la lista de espera. */
+  esperaMinutos?: number;
+  /** Encuesta de satisfacción al marcar la cita como atendida. */
+  encuestaTrasCita?: boolean;
+  /** Plantilla de «agenda tu próxima». */
+  volverTemplateName?: string | null;
+  volverTemplateLang?: string | null;
 }
 
 export interface UpdateAiProviderDto {
@@ -1745,14 +2780,50 @@ export interface UpdateApiKeyDto {
   name?: string;
   scopes?: Array<string>;
   phoneNumberIds?: Array<string>;
+  expiresAt?: string | null;
+}
+
+export interface UpdateAppointmentDetailsDto {
+  /** Enlace de la reunión. Cadena vacía = quitarlo. */
+  meetingUrl?: string;
+  /** Correo de la invitación. Cadena vacía = quitarlo. */
+  inviteEmail?: string;
+  notes?: string;
 }
 
 export interface UpdateAppointmentTypeDto {
   name?: string;
-  description?: string | null;
   durationMin?: number;
-  bufferMin?: number;
   active?: boolean;
+  /** Quién atiende (forma anterior). `null` lo devuelve a la agenda general. */
+  staffUserId?: string | null;
+  description?: string | null;
+  bufferMin?: number;
+  bufferBeforeMin?: number;
+  /** Cada cuánto se ofrece un horario. null = duración + márgenes. */
+  slotIntervalMin?: (5 | 10 | 15 | 20 | 30 | 45 | 60 | 90 | 120) | null;
+  price?: number | null;
+  /** ISO 4217 (COP, USD…). null = la moneda de la organización. */
+  currency?: string | null;
+  color?: string | null;
+  modality?: ("PRESENCIAL" | "VIRTUAL" | "DOMICILIO");
+  location?: string | null;
+  meetingUrl?: string | null;
+  category?: string | null;
+  sortOrder?: number;
+  /** Cupos por horario (1 = una cita a la vez). Más de 1 requiere agenda_avanzada. */
+  capacity?: number;
+  /** Anticipo al reservar: PORCENTAJE del precio o valor FIJO (en la moneda del servicio; solo se cobra en COP). null = sin anticipo. Requiere agenda_avanzada. */
+  anticipoTipo?: ("PORCENTAJE" | "FIJO") | null;
+  anticipoValor?: number | null;
+  /** Formulario del servicio (máximo 8 preguntas). null o [] = sin formulario. */
+  preguntas?: Array<PreguntaDelServicioDto> | null;
+  /** «Agenda tu próxima»: invitar a volver a los N días de atendida. */
+  volverEnDias?: number | null;
+  /** Recurso compartido que ocupa cada cita (sala, silla). null = ninguno. */
+  recursoId?: string | null;
+  /** Quiénes atienden (miembros de la org). Vacío = agenda general. Requiere la función de plan `agenda_avanzada`. Reemplaza la lista completa. */
+  staffUserIds?: Array<string>;
 }
 
 export interface UpdateAttendanceSettingsDto {
@@ -1840,24 +2911,35 @@ export interface UpdateBillingProfileDto {
 export interface UpdateBotAgentDto {
   /** Canales (ids de número, reales o virtuales de web chat / Instagram) en los que atiende el agente. Vacío = todos los canales de la organización. */
   phoneNumberIds?: Array<string>;
-  /** Documentos de la memoria que este agente consulta (ids). Vacío = toda la biblioteca. */
+  /** La memoria propia del agente: documentos que consulta (ids). Además lee los documentos marcados como compartidos. Vacío = solo los compartidos. */
   knowledgeDocIds?: Array<string>;
   /** Atajo legado de un solo canal; usa phoneNumberIds. */
   phoneNumberId?: string;
+  /** Marca (perfil de cobro) con la que cobra el agente. Manda sobre la del número cuando un número atiende varias marcas. null = la del número. */
+  perfilDeCobroId?: string | null;
+  /** Sin efecto: la memoria del agente son sus documentos (knowledgeDocIds) y los compartidos. */
+  knowledgeTags?: Array<string>;
   name?: string;
   description?: string;
   isDefault?: boolean;
+  /** Anula el ritmo de respuesta de la organización para este agente. Sin valor = hereda. Ventas y soporte no llevan el mismo pulso. */
+  ritmoDeRespuesta?: ("INSTANTANEO" | "NATURAL" | "PAUSADO");
   enabled?: boolean;
   sortOrder?: number;
-  provider?: ("anthropic" | "openai" | "openrouter" | "groq" | "meta");
+  provider?: ("anthropic" | "openai" | "openrouter" | "groq" | "meta" | "gemini" | "xai");
   model?: string;
   systemPrompt?: string;
   temperature?: number;
   maxTokens?: number;
-  enabledTools?: Array<("transfer_to_human" | "set_contact_attribute" | "end_conversation" | "enviar_botones")>;
-  enabledCapabilities?: Array<("sell_licenses" | "book_appointment" | "crear_pedido" | "whmcs_support" | "buscar_dominios" | "send_images")>;
+  enabledTools?: Array<("transfer_to_human" | "set_contact_attribute" | "end_conversation" | "enviar_botones" | "enviar_lista" | "enviar_boton_enlace")>;
+  /** «Botones y listas». Apagado, el agente no manda botones, listas ni botón de enlace: las opciones y los enlaces van en el texto. Por defecto encendido. */
+  interactiveMessages?: boolean;
+  /** Imágenes de la librería por cliente y por día (zona horaria de la organización). Solo cuentan las que manda la IA. 0 = ninguna. */
+  maxImagesPerDay?: number;
+  /** Documentos de la librería por cliente y por día. 0 = ninguno. */
+  maxDocumentsPerDay?: number;
+  enabledCapabilities?: Array<("mosend_planes" | "mosend_cuenta" | "sell_licenses" | "cobro_libre" | "book_appointment" | "crear_pedido" | "pedidos_web" | "whmcs_support" | "buscar_dominios" | "catalogo_servicios" | "cotizar" | "send_images")>;
   routeTags?: Array<string>;
-  knowledgeTags?: Array<string>;
   knowledgeTopK?: number;
   knowledgeMinSimilarity?: number;
 }
@@ -1882,6 +2964,8 @@ export interface UpdateChannelDto {
   botEnabled?: boolean;
   /** Aviso por correo al visitante cuando el agente responde estando él offline. */
   offlineReplyEmailEnabled?: boolean;
+  /** WhatsApp de la marca (id de un número real) que el bot ofrece para seguir la conversación. null = no ofrecer ninguno. */
+  whatsappPhoneNumberId?: string | null;
   enabled?: boolean;
   /** Si true, exige firma HMAC al recibir identidad pasada por el host site. */
   identityRequired?: boolean;
@@ -1932,16 +3016,32 @@ export interface UpdateConectorDto {
   authSecret?: string;
   enabled?: boolean;
   enabledActions?: Array<string>;
+  /** Canales donde el bot puede usarlo (ids de número). Vacío = todos. */
+  phoneNumberIds?: Array<string>;
+  /** Cómo pagar una factura de este sistema; el bot lo manda con la factura pendiente. */
+  paymentInstructions?: string;
+  /** WHMCS: método de pago (nombre de sistema, p. ej. banktransfer) con el que el bot registra transferencias. */
+  paymentGateway?: string;
   customActions?: Array<Record<string, unknown>>;
 }
 
 export interface UpdateContactDto {
   name?: string;
   language?: string;
+  /** Moneda con la que se le cobra a este cliente. Cadena vacía = volver a la de la organización (JSON no distingue «no lo mandes» de «bórralo»). */
+  currency?: ("COP" | "USD" | "MXN" | "");
   attributes?: Record<string, unknown>;
   optInStatus?: Record<string, unknown>;
   /** Si true, el bot no le responde nada (exclusión total, solo conversacional). */
   botExcluded?: boolean;
+}
+
+export interface UpdateContactListDto {
+  name?: string;
+  description?: string | null;
+  color?: string;
+  /** null = deja de ser inteligente. */
+  smartFilter?: Record<string, unknown> | null;
 }
 
 export interface UpdateCouponDto {
@@ -1970,17 +3070,22 @@ export interface UpdateDigitalProductDto {
   durationDays?: number | null;
   /** Si entra en el aviso de renovación. */
   renewalNoticeEnabled?: boolean;
-  currency?: string;
+  currency?: ("COP" | "USD" | "MXN");
   instructionsUrl?: string | null;
   entregaModo?: ("AUTOMATICA" | "ASISTIDA" | "CONSULTAR");
   datoAdicionalLabel?: string | null;
   datoAdicionalRequerido?: boolean;
   active?: boolean;
+  /** IVA en las cotizaciones: si está activo se suma al precio. No cambia lo que se cobra al vender. */
+  ivaActivo?: boolean;
+  ivaPorcentaje?: number;
 }
 
 export interface UpdateEInvoicingConfigDto {
   /** Empresa emisora a editar. Sin esto se edita la predeterminada, o se crea la primera — que es el flujo de una org con una sola empresa. */
   configId?: string;
+  /** Crear una empresa nueva. Sin esto y sin `configId` se edita la predeterminada: el panel creía estar agregando y la sobrescribía. */
+  nueva?: boolean;
   /** Nombre visible de la emisora ("Mosend SAS"). */
   name?: string;
   /** Convierte esta emisora en la predeterminada de la org. */
@@ -2007,9 +3112,33 @@ export interface UpdateEInvoicingConfigDto {
   /** Medio de pago DIAN por defecto (10=Efectivo, 42=Consignación, …). */
   paymentMethodId?: number;
   sendByEmail?: boolean;
+  /** Mandar la factura por WhatsApp en cuanto la DIAN la acepta. */
+  autoSendOnIssue?: boolean;
+  /** Mandar también la nota crédito al aceptarse. Interruptor aparte. */
+  autoSendCreditNotes?: boolean;
+  /** Plantilla aprobada con cabecera de DOCUMENTO, para fuera de la ventana de 24 h. */
+  sendTemplateName?: string | null;
+  sendTemplateLang?: string | null;
   enabled?: boolean;
   /** Prefijo de la resolución de Nota Crédito en el proveedor (default "NC"). '' vuelve al default. */
   creditNotePrefix?: string;
+  razonSocial?: string;
+  /** Contacto de la empresa en sus documentos (no el establecimiento DIAN). */
+  direccion?: string;
+  telefono?: string;
+  correo?: string;
+  ciudad?: string;
+  sitioWeb?: string;
+  /** Logo (MediaAsset de la org, PNG o JPG); null lo quita. */
+  logoMediaId?: string | null;
+  /** Lo que se propone al cotizar con esta empresa. */
+  cotFormasDePago?: string;
+  cotCondiciones?: string;
+  cotNotas?: string;
+  /** Vigencia sugerida de la cotización en días; null = sin vigencia. */
+  cotVigenciaDias?: number | null;
+  /** Marcas que trabajan con esta empresa (reemplaza la lista). */
+  marcaIds?: Array<string>;
 }
 
 export interface UpdateFlowDto {
@@ -2036,6 +3165,8 @@ export interface UpdateGoogleSyncDto {
   pushEnabled?: boolean;
   /** "Ocupado" en Google bloquea horarios. */
   blockBusyEnabled?: boolean;
+  /** Crear un enlace de Google Meet para las citas virtuales sin enlace. */
+  crearMeet?: boolean;
 }
 
 export interface UpdateInstallationDto {
@@ -2078,6 +3209,10 @@ export interface UpdateLicenseDeliverySettingsDto {
   replacementMessage?: string | null;
   /** Cobrar por transferencia a una llave (Bre-B / Nequi), sin pasarela. */
   transferEnabled?: boolean;
+  /** Cobro por pasarela (Nequi push y Daviplata). Apagarlo no borra las credenciales: se conservan para cuando se vuelva a encender. */
+  wompiEnabled?: boolean;
+  /** Ofrece el pago con tarjeta por el enlace de Wompi (Web Checkout). Requiere el secreto de integridad. */
+  wompiTarjetaEnabled?: boolean;
   /** Llave Bre-B (@usuario, correo, celular) o número Nequi que recibe. */
   transferKey?: string | null;
   /** Titular de la cuenta; se le muestra al cliente antes de que transfiera. */
@@ -2086,10 +3221,29 @@ export interface UpdateLicenseDeliverySettingsDto {
   transferInstructions?: string | null;
   /** Código de control para identificar la orden cuando hay colisión: se cobra el neto si está libre, y si no, se baja de a un peso. */
   transferAmountCode?: boolean;
+  /** Reenvíos de licencia que el bot puede hacer al mismo cliente por día. 0 = solo una persona. */
+  resendLimitPerDay?: number;
+  /** MANUAL = los revisa una persona. AUTO = se aprueba si el monto declarado coincide. IA = la IA lee la captura (monto, fecha, banco, destino, referencia) y se aprueba al instante si todo cuadra; si no, una persona. */
+  receiptMode?: ("MANUAL" | "AUTO" | "IA");
+  /** Con qué IA se leen los comprobantes en modo IA. MOSEND = Gemini Flash con la clave de Mosend (se cobra cada lectura). PROPIA = uno de los proveedores de IA que configuró el cliente (su clave, sin costo de Mosend). */
+  receiptAiSource?: ("MOSEND" | "PROPIA");
+  /** Solo PROPIA: proveedor configurado por el cliente (gemini, openai…). */
+  receiptAiProvider?: string | null;
+  /** Solo PROPIA: modelo. Vacío = el predeterminado de ese proveedor. */
+  receiptAiModel?: string | null;
+  /** Modo IA: desde este monto (centavos) el comprobante lo revisa una persona cuando el banco no puede confirmarlo. `null` = sin tope. */
+  receiptAiMaxCents?: number | null;
   /** Horas que la orden espera la transferencia antes de expirar (1 a 168). */
   transferExpiryHours?: number;
+  /** Plantilla aprobada para enviar un cobro agrupado con la ventana de 24 h cerrada. Variables: {{1}} nombre, {{2}} pedidos, {{3}} total, {{4}} llave. null la quita. */
+  cobroTemplateName?: string | null;
+  cobroTemplateLang?: string | null;
   /** Vender también lo que no tiene existencias (lo cierra un asesor). */
   transferSellWithoutStock?: boolean;
+  /** Moneda con la que la organización le vende a SUS clientes. */
+  sellingCurrency?: ("COP" | "USD" | "MXN");
+  /** Margen sobre la tasa oficial al convertir a otra moneda, en porcentaje. */
+  fxMarginPercent?: number;
   /** Bandeja donde caen las notificaciones del banco. */
   inboxHost?: string | null;
   inboxPort?: number;
@@ -2109,6 +3263,23 @@ export interface UpdateLicenseDeliverySettingsDto {
   inboxMode?: ("OFF" | "SUGGEST" | "AUTO");
   /** Horas hacia atrás en las que se busca un pago para una orden (1 a 168). */
   matchWindowHours?: number;
+  binanceEnabled?: boolean;
+  /** Alias o correo de Binance Pay que se le muestra al cliente. No es secreto. */
+  binancePayId?: string | null;
+  /** Clave y secreto de API. Se envían solo al cambiarlos; vacío = conservar el guardado. Nunca se devuelven. DEBEN ser de SOLO LECTURA. */
+  binanceApiKey?: string | null;
+  binanceApiSecret?: string | null;
+  /** Moneda del cobro (la estable en dólares, por defecto). */
+  binanceAsset?: string;
+  /** Horas que el pedido espera el pago antes de liberar las llaves (1 a 168). */
+  binanceExpiryHours?: number;
+  /** Nombre de los medios sin cuenta propia en reportes y webhooks. Vacío o null = el de siempre («Binance», «Nequi», «Daviplata», «Tarjeta»). */
+  nombreBinance?: string | null;
+  nombreNequiPasarela?: string | null;
+  nombreDaviplataPasarela?: string | null;
+  nombreTarjetaPasarela?: string | null;
+  /** OFF = no se lee · SUGGEST = propone · AUTO = confirma y entrega. */
+  binanceMode?: ("OFF" | "SUGGEST" | "AUTO");
   /** Umbral de stock bajo (0 = sin alerta). */
   lowStockThreshold?: number;
   /** Máximo de licencias por cliente en la ventana (0 = sin límite). */
@@ -2156,6 +3327,21 @@ export interface UpdateMyPreferencesDto {
 export interface UpdateNoteDto {
   body?: string;
   pinned?: boolean;
+  menciones?: Array<string>;
+  adjuntos?: Array<AdjuntoDeNotaDto>;
+}
+
+export interface UpdateOAuthClientDto {
+  name?: string;
+  description?: string;
+  logoUrl?: string;
+  homepageUrl?: string;
+  redirectUris?: Array<string>;
+  allowedScopes?: Array<string>;
+  /** `false` suspende la app: sus tokens dejan de servir al instante. */
+  active?: boolean;
+  /** Slug de la integración del marketplace; `null` desvincula. */
+  integrationSlug?: string | null;
 }
 
 export interface UpdateOrderStatusDto {
@@ -2180,6 +3366,11 @@ export interface UpdateOutboundDto {
   unansweredThresholdMinutes?: number;
   phoneNumberIds?: Array<string>;
   agentStatuses?: Array<("ONLINE" | "LUNCH" | "BREAK" | "MEETING" | "TRAINING" | "ENDED")>;
+}
+
+export interface UpdatePhoneNumberDto {
+  /** Clave de la paleta, o null para volver al color automático. */
+  color?: ("emerald" | "sky" | "violet" | "amber" | "rose" | "indigo" | "teal" | "fuchsia" | "orange" | "lime" | "cyan" | "pink" | "slate") | null;
 }
 
 export interface UpdatePlanDto {
@@ -2250,6 +3441,10 @@ export interface UpdatePublicPriceListDto {
   fixedPriceListId?: string | null;
   /** Mostrar el precio base tachado junto al de la lista (el "otro precio"). */
   showBaseComparison?: boolean;
+  /** Mostrar el botón «Pedir» (abre WhatsApp con el producto). */
+  ordersEnabled?: boolean;
+  /** Número de la org que recibe los pedidos; null = el emisor del código. */
+  orderPhoneNumberId?: string | null;
 }
 
 export interface UpdateQuickReplyDto {
@@ -2274,7 +3469,7 @@ export interface UpdateSalesProductDto {
   sku?: string | null;
   description?: string | null;
   priceCents?: number;
-  currency?: string;
+  currency?: ("COP" | "USD" | "MXN");
   taxRate?: number;
   unitCode?: string | null;
   imageMediaId?: string | null;
@@ -2333,6 +3528,8 @@ export interface UpdateSystemNoticeDto {
   linkLabel?: string;
   active?: boolean;
   dismissible?: boolean;
+  /** Solo dueños y administradores lo ven. */
+  adminsOnly?: boolean;
   startsAt?: string;
   endsAt?: string;
 }
@@ -2351,6 +3548,11 @@ export interface UpdateTaskDto {
   description?: string | null;
   dueAt?: string;
   assignedToUserId?: string | null;
+  tipo?: Record<string, unknown>;
+  oportunidadId?: string | null;
+  /** null = deja de repetirse. */
+  repetir?: ("DIARIA" | "SEMANAL" | "MENSUAL") | null;
+  repetirHasta?: string | null;
 }
 
 export interface UpdateTeamGoalsDto {
@@ -2395,6 +3597,10 @@ export interface UploadOptsDto {
   title?: string;
   /** Lista de tags separados por coma (viene como string en multipart). */
   tags?: string;
+  /** Multipart: ids de agentes separados por coma. */
+  agentIds?: string;
+  /** Multipart: 'true' para que lo lean todos los agentes. */
+  compartido?: string;
 }
 
 export interface UpsertBotConfigDto {
@@ -2404,6 +3610,10 @@ export interface UpsertBotConfigDto {
   cooldownSeconds?: number;
   /** Segundos de silencio antes de responder, para agrupar los mensajes seguidos de una persona en un solo turno. 0 = responder de inmediato. */
   debounceSeconds?: number;
+  /** Ritmo con el que contesta el bot. INSTANTANEO = como siempre (todo de un tirón y en cuanto está listo). NATURAL y PAUSADO parten la respuesta en mensajes cortos y esperan entre ellos lo que tardaría una persona escribiéndolos. Lo que ya tardó la IA se descuenta. */
+  ritmoDeRespuesta?: ("INSTANTANEO" | "NATURAL" | "PAUSADO");
+  /** Caracteres por segundo, para afinar por encima del preajuste. */
+  velocidadTecleoCps?: number;
   /** Tope de respuestas del bot a un mismo contacto dentro de la ventana; al superarlo pasa a humano. 0 = sin tope. */
   maxRepliesPerWindow?: number;
   replyWindowMinutes?: number;
@@ -2413,9 +3623,7 @@ export interface UpsertBotConfigDto {
   humanHandoffKeywords?: Array<string>;
   /** Texto que el bot envía al cliente cuando dispara handoff (tool del agente, keyword, regla o flujo). String vacío = no enviar nada. */
   handoffMessage?: string;
-  aiEnabled?: boolean;
-  /** Cuál proveedor IA usa el agente conversacional. Null = anthropic (compat con configs previas). */
-  aiProvider?: ("anthropic" | "openai" | "openrouter" | "groq" | "meta");
+  aiProvider?: ("anthropic" | "openai" | "openrouter" | "groq" | "meta" | "gemini" | "xai");
   aiModel?: string;
   aiSystemPrompt?: string;
   aiTemperature?: number;
@@ -2439,6 +3647,8 @@ export interface UpsertBotConfigDto {
   followUpMessage?: string;
   /** Vacío = cerrar sin despedida. */
   followUpCloseMessage?: string;
+  /** Cuentas y números que el bot conoce pero nunca envía. */
+  protectedValues?: Array<string>;
 }
 
 export interface UpsertContactDto {
@@ -2478,6 +3688,8 @@ export interface UpsertPlanPriceDto {
   /** Precio promocional. Si se envía (≥0), ES el precio que se cobra; `amount` queda como precio de lista. Enviar `null` para limpiar la promo. */
   promoAmount?: number | null;
   promoLabel?: string | null;
+  /** Si el precio que se cobra cambia: `true` se lo cambia también a quienes ya tienen el plan; `false` (por defecto) les respeta el que tenían y el nuevo solo vale para los que entren desde ahora. */
+  aplicarAClientesActuales?: boolean;
 }
 
 export interface UpsertProfileDto {
@@ -2495,6 +3707,8 @@ export interface UpsertScheduleDto {
   days: Record<string, unknown>;
   /** Almuerzo fijo por día (informativo): { "mon": "13:00-14:00", ... }. */
   lunch?: Record<string, unknown>;
+  /** Pausas programadas por día; ninguna se paga y se restan del turno: { "mon": [{ "desde": "13:00", "hasta": "14:00", "tipo": "pausa" }], ... }. Si llega, reemplaza a `lunch` (el primer almuerzo de cada día se copia ahí). */
+  pausas?: Record<string, unknown>;
   /** Copiar el mismo horario a las próximas N semanas (turnos estables). */
   copyToWeeks?: number;
 }
@@ -2505,9 +3719,13 @@ export interface UrlSourceDto {
   tags?: Array<string>;
   /** Cada cuántas horas volver a leer la página; sin valor = solo a mano. */
   syncEveryHours?: number;
+  agentIds?: Array<string>;
+  compartido?: boolean;
 }
 
 export interface ValidateEInvoicingDto {
+  /** Empresa que se está conectando: su token guardado y su NIT para comparar. Sin esto, la predeterminada. */
+  configId?: string;
   /** Token en claro a probar; si se omite, usa el guardado. */
   apiKey?: string;
   idSoftware?: string;
@@ -2516,12 +3734,18 @@ export interface ValidateEInvoicingDto {
 
 export interface VentaManualCarritoDto {
   items: Array<ManualCartItemDto>;
+  /** «Lo pido después»: deja pendiente el dato obligatorio que falte. */
+  datoAdicionalDespues?: boolean;
   /** ¿Entregar ya las licencias? */
   entregar: boolean;
   /** ¿El cliente ya pagó? (false = fiado / por cobrar). */
   pagado: boolean;
   /** ¿Enviar el mensaje "gracias por tu compra"? Por defecto sí. */
   notify?: boolean;
+  /** Moneda con la que se le cobra a este cliente. */
+  currency?: ("COP" | "USD" | "MXN");
+  /** Ya pagó: por dónde entró el dinero. `llave` (la de la marca del número), `llave:<id>` o `cuenta:<id>`. */
+  medio?: string;
 }
 
 export interface VerifyCodeDto {
@@ -2563,7 +3787,7 @@ export interface WebChatSendMessageDto {
 
 /*
  * NOTAS
- * - 296 schemas generados desde components.schemas.
+ * - 390 schemas generados desde components.schemas.
  * - El export OpenAPI no incluye schemas de respuesta ni los `@Body() {...}`
  *   inline; esos tipos siguen escritos a mano en src/types/.
  * - SendMessageDto existe en dos módulos (messages y web-chat); Swagger colapsa
