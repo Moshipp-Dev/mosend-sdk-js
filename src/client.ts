@@ -72,6 +72,30 @@ import { AttendanceResource } from "./resources/attendance.js";
 import { ScheduleResource } from "./resources/schedule.js";
 import { CrmResource } from "./resources/crm.js";
 import { DealsResource } from "./resources/deals.js";
+import { LicenseDeliveryResource } from "./resources/licenseDelivery.js";
+import { AgendaResource } from "./resources/agenda.js";
+import { SalesResource } from "./resources/sales.js";
+import { QuotesResource } from "./resources/quotes.js";
+import { OrdersResource } from "./resources/orders.js";
+import { CatalogsResource } from "./resources/catalogs.js";
+import { NequiPaymentsResource } from "./resources/nequiPayments.js";
+import { PaymentReportsResource } from "./resources/paymentReports.js";
+import { WompiResource } from "./resources/wompi.js";
+import { AccountDeletionResource } from "./resources/accountDeletion.js";
+import { AdCampaignsResource } from "./resources/adCampaigns.js";
+import { BotAgentsResource } from "./resources/botAgents.js";
+import { BotImagesResource } from "./resources/botImages.js";
+import { BotServicesResource } from "./resources/botServices.js";
+import { BotSummaryResource } from "./resources/botSummary.js";
+import { ConnectorsResource } from "./resources/connectors.js";
+import { DayOffResource } from "./resources/dayOff.js";
+import { MessagingLimitResource } from "./resources/messagingLimit.js";
+import { ConnectionTestResource } from "./resources/connectionTest.js";
+import { SurveysResource } from "./resources/surveys.js";
+import { WabaUsageResource } from "./resources/wabaUsage.js";
+import { OAuthResource } from "./resources/oauth.js";
+import { WhatsappFlowsResource } from "./resources/whatsappFlows.js";
+import { WhatsappGroupsResource } from "./resources/whatsappGroups.js";
 
 export interface MosendClientOptions {
   apiKey?: string;
@@ -192,6 +216,36 @@ export class MosendClient {
   readonly crm: CrmResource;
   /** CRM avanzado: embudos, oportunidades, cadencias y automatizaciones. */
   readonly deals: DealsResource;
+  /** Licencias digitales: productos, llaves, pedidos, cobros y cuentas de transferencia. */
+  readonly licenseDelivery: LicenseDeliveryResource;
+  /** Agenda de citas, Google Calendar y la página de reservas. */
+  readonly agenda: AgendaResource;
+  /** Ventas y facturación electrónica. */
+  readonly sales: SalesResource;
+  /** Cotizaciones en PDF. */
+  readonly quotes: QuotesResource;
+  readonly orders: OrdersResource;
+  readonly catalogs: CatalogsResource;
+  readonly nequiPayments: NequiPaymentsResource;
+  readonly paymentReports: PaymentReportsResource;
+  readonly wompi: WompiResource;
+  readonly accountDeletion: AccountDeletionResource;
+  readonly adCampaigns: AdCampaignsResource;
+  /** Agentes del bot (incluye configurador y probador). */
+  readonly botAgents: BotAgentsResource;
+  readonly botImages: BotImagesResource;
+  readonly botServices: BotServicesResource;
+  readonly botSummary: BotSummaryResource;
+  readonly connectors: ConnectorsResource;
+  readonly dayOff: DayOffResource;
+  readonly messagingLimit: MessagingLimitResource;
+  readonly connectionTest: ConnectionTestResource;
+  readonly surveys: SurveysResource;
+  readonly wabaUsage: WabaUsageResource;
+  /** Mosend como proveedor OAuth: consentimiento, apps con acceso y endpoints públicos. */
+  readonly oauth: OAuthResource;
+  readonly whatsappFlows: WhatsappFlowsResource;
+  readonly whatsappGroups: WhatsappGroupsResource;
 
   private readonly http: HttpClient;
   private tokenManager: TokenManager | undefined;
@@ -334,6 +388,30 @@ export class MosendClient {
     this.schedule = new ScheduleResource(ctx);
     this.crm = new CrmResource(ctx);
     this.deals = new DealsResource(ctx);
+    this.licenseDelivery = new LicenseDeliveryResource(ctx);
+    this.agenda = new AgendaResource(ctx);
+    this.sales = new SalesResource(ctx);
+    this.quotes = new QuotesResource(ctx);
+    this.orders = new OrdersResource(ctx);
+    this.catalogs = new CatalogsResource(ctx);
+    this.nequiPayments = new NequiPaymentsResource(ctx);
+    this.paymentReports = new PaymentReportsResource(ctx);
+    this.wompi = new WompiResource(ctx);
+    this.accountDeletion = new AccountDeletionResource(ctx);
+    this.adCampaigns = new AdCampaignsResource(ctx);
+    this.botAgents = new BotAgentsResource(ctx);
+    this.botImages = new BotImagesResource(ctx);
+    this.botServices = new BotServicesResource(ctx);
+    this.botSummary = new BotSummaryResource(ctx);
+    this.connectors = new ConnectorsResource(ctx);
+    this.dayOff = new DayOffResource(ctx);
+    this.messagingLimit = new MessagingLimitResource(ctx);
+    this.connectionTest = new ConnectionTestResource(ctx);
+    this.surveys = new SurveysResource(ctx);
+    this.wabaUsage = new WabaUsageResource(ctx);
+    this.oauth = new OAuthResource(ctx);
+    this.whatsappFlows = new WhatsappFlowsResource(ctx);
+    this.whatsappGroups = new WhatsappGroupsResource(ctx);
   }
 
   setAccessToken(token: string | undefined): void {

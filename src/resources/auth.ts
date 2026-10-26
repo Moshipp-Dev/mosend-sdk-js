@@ -1,6 +1,12 @@
 import type { LoginInput, LoginResponse, SignupInput, AuthTokens } from "../types/identity.js";
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
+import type {
+  AuthSession,
+  SignupRequestCodeInput,
+  SignupResendCodeInput,
+  SignupVerifyCodeInput,
+} from "../types/account.js";
 
 export class AuthResource extends Resource {
   async login(input: LoginInput, options?: RequestOptions): Promise<LoginResponse> {
@@ -142,6 +148,82 @@ export class AuthResource extends Resource {
       method: "POST",
       path: `/auth/step-up/passkey/verify`,
       body: input,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Sesiones activas del usuario (una por dispositivo), marcando la actual. Requiere sesión JWT del panel. */
+  async listSessions(options?: RequestOptions): Promise<{ sessions: AuthSession[] }> {
+    const res = await this.http.request<{ sessions: AuthSession[] }>({
+      method: "GET",
+      path: `/auth/me/sessions`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Cierra las demás sesiones del usuario y conserva la actual. Requiere sesión JWT del panel. */
+  async closeOtherSessions(options?: RequestOptions): Promise<{ closed: number }> {
+    const res = await this.http.request<{ closed: number }>({
+      method: "DELETE",
+      path: `/auth/me/sessions`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Cierra una sesión propia (revoca toda su cadena de refresh). Requiere sesión JWT del panel. */
+  async closeSession(id: string, options?: RequestOptions): Promise<unknown> {
+    const res = await this.http.request<unknown>({
+      method: "DELETE",
+      path: `/auth/me/sessions/${id}`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Flags públicos del registro (verificación de teléfono / correo). */
+  async signupConfig(options?: RequestOptions): Promise<Record<string, unknown>> {
+    const res = await this.http.request<Record<string, unknown>>({
+      method: "GET",
+      path: `/auth/signup/config`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Registro con teléfono verificado, paso 1: envía el código OTP por WhatsApp. */
+  async signupRequestCode(input: SignupRequestCodeInput, options?: RequestOptions): Promise<unknown> {
+    const res = await this.http.request<unknown>({
+      method: "POST",
+      path: `/auth/signup/request-code`,
+      body: input,
+      skipAuth: true,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Reenvía el código OTP del registro pendiente. */
+  async signupResendCode(input: SignupResendCodeInput, options?: RequestOptions): Promise<unknown> {
+    const res = await this.http.request<unknown>({
+      method: "POST",
+      path: `/auth/signup/resend-code`,
+      body: input,
+      skipAuth: true,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Registro, paso 2: verifica el código, crea la cuenta y emite tokens. */
+  async signupVerifyCode(input: SignupVerifyCodeInput, options?: RequestOptions): Promise<LoginResponse> {
+    const res = await this.http.request<LoginResponse>({
+      method: "POST",
+      path: `/auth/signup/verify-code`,
+      body: input,
+      skipAuth: true,
       ...(options ? { options } : {}),
     });
     return res.data;

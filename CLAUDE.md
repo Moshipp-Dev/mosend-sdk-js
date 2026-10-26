@@ -8,7 +8,7 @@
 
 Estamos construyendo **`@moshipp/mosend-sdk`**: el SDK oficial en TypeScript para la **API REST de Mosend** (`https://api.mosend.dev`, v0.9), distribuible vía npm.
 
-Mosend es la plataforma de **Moshipp SAS** que orquesta WhatsApp Business Cloud, Web Chat, bot con IA, billing y webhooks. La API expone **258 endpoints en 55 módulos** documentados en https://developer.mosend.dev.
+Mosend es la plataforma de **Moshipp SAS** que orquesta WhatsApp Business Cloud, Web Chat, bot con IA, billing y webhooks. La API expone **819 operaciones públicas en 101 módulos** documentadas en https://developer.mosend.dev (v2.131.0, oct-2026).
 
 El paquete debe:
 
@@ -58,7 +58,7 @@ El paquete debe:
 │   │   ├── webhooks.ts      ← verifyWebhookSignature(body, signature, secret)
 │   │   ├── types.ts         ← ApiEnvelope<T>, ApiTimestamp, common DTO primitives
 │   │   └── auth.ts          ← detección JWT vs API key (mk_live_/mk_test_)
-│   ├── resources/           ← un archivo por módulo (55 archivos)
+│   ├── resources/           ← un archivo por módulo (92 resources)
 │   │   ├── auth.ts          ← /auth/* (signup, login, refresh, logout, passwords, impersonate)
 │   │   ├── users.ts
 │   │   ├── organizations.ts
@@ -313,7 +313,7 @@ const event = JSON.parse(rawBody) as MosendWebhookEvent;
 | `invoices` | `/organizations/:orgId/invoices` | 3 |
 | `wallet` | `/organizations/:orgId/wallet` | 2 | transactions con paginación cursor |
 | `walletAlerts` | `/organizations/:orgId/billing/alert-settings` | 2 | **NO** `/wallet-alerts` — sidebar engañoso |
-| `mercadoPago` | rutas dispersas: `/wallet/recharge`, `/billing/invoices/:id/pay`, `/webhooks/mercado-pago` | 3 | webhook MP es público; el SDK solo expone recharge y payInvoice |
+| `mercadoPago` | rutas dispersas: `/wallet/recharge`, `/billing/invoices/:id/pay`, `/webhooks/mercado-pago` | 3 | también `webhook` (lo llama Mercado Pago; sirve para reenviar eventos) |
 | `paymentMethods` | `/organizations/:orgId/billing/*` | 6 | payment-methods + preferences + auto-pay en el mismo controller |
 | `creditNotes` | `/admin/credit-notes` | 6 | **staff-only**, sin scope de org |
 | `pricing` | `/pricing` | 1 | requiere bearer |
@@ -418,8 +418,8 @@ await mosend.broadcasts.send(bc.id);
 
 ✅ **Scaffold** (`package.json`, `tsconfig`, `tsup`, `vitest`, ESLint+Prettier).
 ✅ **Core** (`src/core/`): `http.ts` (con soporte multipart), `errors.ts`, `auth.ts`, `pagination.ts`, `webhooks.ts`, `types.ts`. Tests dedicados.
-✅ **Cliente raíz** (`src/client.ts` + `src/index.ts`): 55 resources expuestos.
-✅ **55 resources** cubriendo los 258 endpoints documentados (todos los base paths verificados contra developer.mosend.dev).
+✅ **Cliente raíz** (`src/client.ts` + `src/index.ts`): 92 resources expuestos.
+✅ **92 resources** cubriendo las 819 operaciones del portal (v2.131.0: CRM, agenda, licencias, ventas, cotizaciones, OAuth, conectores, grupos y Flows de WhatsApp…), con pruebas de método y ruta por operación.
 ✅ **Examples**: `send-template.ts`, `broadcast.ts`, `webhook-server.ts`.
 ✅ **README** orientado al usuario final.
 ✅ **Tests**: 55 tests en 5 archivos, todos verdes. typecheck + build verdes.

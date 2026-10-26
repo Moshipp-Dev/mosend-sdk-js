@@ -1,6 +1,7 @@
 import type { PushConfig, PushSubscriptionInput, PushSubscriptionRecord } from "../types/misc.js";
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
+import type { RegisterDeviceInput } from "../types/account.js";
 
 export class PushResource extends Resource {
   async config(options?: RequestOptions): Promise<PushConfig> {
@@ -82,6 +83,28 @@ export class PushResource extends Resource {
     const res = await this.http.request<{ sent: boolean }>({
       method: "POST",
       path: `/push/test`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Registra el token de push nativo del dispositivo (FCM en Android / APNs en iOS). Lo usa la app móvil. */
+  async registerDevice(input: RegisterDeviceInput, options?: RequestOptions): Promise<unknown> {
+    const res = await this.http.request<unknown>({
+      method: "POST",
+      path: `/push/device`,
+      body: input,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Da de baja un token de push nativo (logout en el dispositivo). */
+  async unregisterDevice(input: { token: string }, options?: RequestOptions): Promise<unknown> {
+    const res = await this.http.request<unknown>({
+      method: "DELETE",
+      path: `/push/device`,
+      body: input,
       ...(options ? { options } : {}),
     });
     return res.data;

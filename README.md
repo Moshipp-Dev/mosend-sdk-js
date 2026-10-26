@@ -6,7 +6,7 @@
 [![types](https://img.shields.io/badge/types-TypeScript-blue.svg)](#)
 [![runtime](https://img.shields.io/badge/node-%E2%89%A518.17-brightgreen.svg)](#)
 
-- **Más de 300 endpoints en 65 resources** organizados como resource clients (`mosend.messages.send(...)`), verificados 1:1 contra el OpenAPI del backend.
+- **Las 819 operaciones públicas de la API en 92 resources** organizados como resource clients (`mosend.messages.send(...)`), verificados 1:1 contra el OpenAPI del backend.
 - **Isomorfo**: corre en Node 18+ y navegadores modernos sobre `fetch` nativo.
 - **Cero dependencias** en runtime.
 - **Tipado estricto** end-to-end (request, response, errores tipados por código HTTP).

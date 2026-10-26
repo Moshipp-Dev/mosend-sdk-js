@@ -45,6 +45,11 @@ export interface RequestArgs {
    * header, no 401-retry). Used by /auth/refresh itself to avoid recursion.
    */
   skipAuth?: boolean;
+  /**
+   * Rutas que no responden JSON (PDF, iCalendar, texto cifrado de Flows):
+   * `"text"` o `"arrayBuffer"` devuelven el cuerpo tal cual, sin envelope.
+   */
+  responseType?: "json" | "text" | "arrayBuffer";
 }
 
 export interface ResolvedResponse<T> {
@@ -153,6 +158,12 @@ export class HttpClient {
 
       const raw = readRawMetadata(response);
       if (response.ok) {
+        if (args.responseType === "text") {
+          return { data: (await response.text()) as unknown as T, raw };
+        }
+        if (args.responseType === "arrayBuffer") {
+          return { data: (await response.arrayBuffer()) as unknown as T, raw };
+        }
         return await parseEnvelope<T>(response, raw);
       }
 

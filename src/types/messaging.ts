@@ -176,33 +176,135 @@ export interface UpdateContactInput {
   attributes?: Record<string, unknown>;
 }
 
+/** Archivo adjunto a una nota (lo devuelve `contacts.uploadNoteAttachment`). */
+export interface NoteAttachment {
+  mediaId: UUID;
+  nombre: string;
+  tipo: string;
+  tamano: number;
+}
+
 export interface ContactNote {
   id: UUID;
   contactId: UUID;
   body: string;
   pinned: boolean;
   authorUserId?: UUID;
+  /** Usuarios mencionados con @. */
+  menciones?: UUID[];
+  adjuntos?: NoteAttachment[];
   createdAt: ISODateString;
   updatedAt: ISODateString;
 }
 
 export interface CreateContactNoteInput {
+  /** 1-5000 caracteres. */
   body: string;
   pinned?: boolean;
+  /** Usuarios mencionados con @ (máx. 20): se les avisa. */
+  menciones?: UUID[];
+  /** Archivos subidos antes con `uploadNoteAttachment` (máx. 10). */
+  adjuntos?: NoteAttachment[];
 }
 
 export interface UpdateContactNoteInput {
   body?: string;
   pinned?: boolean;
+  menciones?: UUID[];
+  adjuntos?: NoteAttachment[];
 }
+
+/**
+ * Filtro de contactos: el mismo del listado (`contacts.list`), de la
+ * exportación, de `contactLists.addByFilter` y de las listas inteligentes.
+ */
+export interface ContactFilter {
+  q?: string;
+  channel?: "whatsapp" | "web" | "all";
+  identifiedOnly?: boolean;
+  tagId?: string;
+  optInStatus?: "OPTED_IN" | "OPTED_OUT" | "UNKNOWN";
+  country?: string;
+  language?: string;
+  hasConversations?: boolean;
+  lastActivityDaysGt?: number;
+}
+
+/** Filtros del CRM sobre contactos (listado, exportación y listas inteligentes). */
+export interface ContactCrmFilter {
+  /** Id del dueño, o `"ninguno"` para los que no tienen. */
+  duenoUserId?: string;
+  /** Id de la empresa, o `"ninguna"`. */
+  empresaId?: string;
+  etapa?: "PROSPECTO" | "CLIENTE" | "RECURRENTE" | "INACTIVO";
+  /** Valor exacto de campos definidos: `{ clave: valor }`. */
+  campos?: Record<string, string | number>;
+  /** Compró en los últimos N días. */
+  compraEnDias?: number;
+  /** No compra hace más de N días (o nunca). */
+  sinCompraDias?: number;
+  gastoMin?: number;
+  puntajeMin?: number;
+}
+
+/** Filtro guardado de una lista inteligente: sus miembros se calculan al usarla. */
+export type ContactListSmartFilter = ContactFilter & ContactCrmFilter & Record<string, unknown>;
 
 export interface ContactList {
   id: UUID;
   name: string;
   description?: string;
+  color?: string;
   memberCount?: number;
+  /** Presente si es lista inteligente. */
+  smartFilter?: ContactListSmartFilter | null;
   createdAt: ISODateString;
   updatedAt: ISODateString;
+}
+
+/**
+ * Destino de una columna al importar un CSV: `phone`, `name`, `email`,
+ * `language`, `opt_in`, `empresa`, `empresa_nit`, `dueno` (correo del asesor),
+ * `etapa`, `ignorar` o `campo:<clave>`.
+ */
+export type ImportColumnTarget =
+  | "phone"
+  | "name"
+  | "email"
+  | "language"
+  | "opt_in"
+  | "empresa"
+  | "empresa_nit"
+  | "dueno"
+  | "etapa"
+  | "ignorar"
+  | `campo:${string}`;
+
+export interface ImportContactsCsvInput {
+  file: Blob | File;
+  filename?: string;
+  /** País por defecto para números sin indicativo (p. ej. `"CO"`). */
+  defaultCountry?: string;
+  defaultOptIn?: boolean;
+  /** `{ "<columna del CSV>": destino }`. Una columna sin destino entra como atributo suelto. */
+  mapeo?: Record<string, ImportColumnTarget>;
+}
+
+export interface ImportContactsResult {
+  total: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  errors: Array<{ row: number; phone: string; reason: string }>;
+  [key: string]: unknown;
+}
+
+export interface ImportPreview {
+  total: number;
+  columnas: string[];
+  muestra: Array<Record<string, string>>;
+  sugerido: Record<string, ImportColumnTarget>;
+  campos: Array<{ clave: string; etiqueta: string }>;
 }
 
 export type BroadcastStatus = "DRAFT" | "SCHEDULED" | "SENDING" | "COMPLETED" | "FAILED" | "CANCELLED";
@@ -274,6 +376,42 @@ export interface MessagingSettings {
 export interface UpdateMessagingSettingsInput {
   sendReadReceipts?: boolean;
   sendTypingIndicator?: boolean;
+  autoOpenContactPanel?: boolean;
+  requireOwnershipToReply?: boolean;
+  /** Pedir clasificación al cerrar una conversación. */
+  askCategoryOnClose?: boolean;
+  /** Cuándo se marca como vista: al abrirla o al empezar a responderla. */
+  markReadOn?: "ABRIR" | "ATENDER";
+  contactPanelDefaultTab?: "info" | "notes" | "tasks" | "seguimiento" | "gallery";
+  contactPanelTabs?: string[];
+  contactPanelOpenTab?: string | null;
+  contactPanelOpenSubTab?: string | null;
+  /** Pestañas visibles del inbox (orden + visibilidad, máx. 3). */
+  inboxTabs?: string[];
+  unreadScope?: "open" | "all";
+}
+
+/** Correos de aviso por retraso de conversación y demás correos de la org. */
+export interface NotificationSettings {
+  conversationDelayEmail?: {
+    enabled?: boolean;
+    toAdmins?: boolean;
+    toAssignedAgent?: boolean;
+    thresholdMin?: number;
+  };
+  emails?: Record<string, boolean>;
+  [key: string]: unknown;
+}
+
+export interface UpdateNotificationSettingsInput {
+  conversationDelayEmail?: {
+    enabled?: boolean;
+    toAdmins?: boolean;
+    toAssignedAgent?: boolean;
+    thresholdMin?: number;
+  };
+  /** Interruptores por tipo de correo: `{ <clave>: true|false }`. */
+  emails?: Partial<Record<string, boolean>>;
 }
 
 export interface WorkloadSettings {
@@ -285,6 +423,12 @@ export interface WorkloadSettings {
 export interface UpdateWorkloadSettingsInput {
   slaResponseThresholdMin?: number;
   staleConversationThresholdHours?: number;
+  autoCloseAfterAgentLastMin?: number | null;
+  autoCloseAfterClientLastMin?: number | null;
+  autoCloseRespectBusinessHours?: boolean;
+  botMemoryResetHours?: number;
+  volverAlUltimoAsesor?: boolean;
+  siElAsesorNoEstaTrabajando?: "bot" | "otro_asesor";
 }
 
 export interface ConversationWorkload {
@@ -339,6 +483,89 @@ export interface Tag {
 export interface CreateTagInput {
   name: string;
   color?: string;
+}
+
+export type UpdateTagInput = Partial<CreateTagInput>;
+
+// ── Mensajes interactivos (POST /messages/interactive|product|flow|carousel) ──
+
+interface InteractiveBase {
+  phoneNumberId: UUID;
+  /** waId del destinatario. */
+  to: string;
+  replyToMessageId?: string;
+}
+
+export interface ListRow {
+  id: string;
+  /** Máx. 24 caracteres. */
+  title: string;
+  /** Máx. 72 caracteres. */
+  description?: string;
+}
+
+export interface ListSection {
+  title?: string;
+  rows: ListRow[];
+}
+
+export interface SendInteractiveInput extends InteractiveBase {
+  kind: "list" | "cta_url" | "location_request" | "request_contact_info";
+  bodyText?: string;
+  headerText?: string;
+  footerText?: string;
+  /** Texto del botón que abre la lista (`kind: "list"`). */
+  buttonText?: string;
+  sections?: ListSection[];
+  /** Texto del botón (`kind: "cta_url"`). */
+  displayText?: string;
+  url?: string;
+}
+
+export interface ProductSection {
+  title: string;
+  productRetailerIds: string[];
+}
+
+export interface SendProductInput extends InteractiveBase {
+  catalogId: string;
+  bodyText?: string;
+  footerText?: string;
+  headerText?: string;
+  /** Producto único. */
+  productRetailerId?: string;
+  products?: string[];
+  sections?: ProductSection[];
+  /** Mensaje de catálogo completo. */
+  catalogMessage?: boolean;
+  thumbnailProductRetailerId?: string;
+}
+
+export interface SendFlowInput extends InteractiveBase {
+  /** Id del Flow en Meta. */
+  flowId: string;
+  bodyText: string;
+  ctaText: string;
+  headerText?: string;
+  footerText?: string;
+  screen?: string;
+  data?: Record<string, unknown>;
+  flowAction?: "navigate" | "data_exchange";
+}
+
+export interface CarouselCard {
+  headerType: "image" | "video";
+  headerLink: string;
+  /** Máx. 160 caracteres. */
+  bodyText?: string;
+  ctaUrl?: { displayText: string; url: string };
+  quickReplies?: Array<{ id: string; title: string }>;
+}
+
+export interface SendCarouselInput extends InteractiveBase {
+  bodyText: string;
+  /** Hasta 10 tarjetas. */
+  cards: CarouselCard[];
 }
 
 export interface OptIn {

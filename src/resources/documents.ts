@@ -33,6 +33,26 @@ export class DocumentsResource extends Resource {
     return res.data;
   }
 
+  /**
+   * Configuración para abrir el documento en el editor en línea (ONLYOFFICE).
+   * `mode: "view"` lo abre de solo lectura; por defecto, edición.
+   */
+  async editorConfig(
+    docId: string,
+    query: { mode?: "edit" | "view"; orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<Record<string, unknown>> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<Record<string, unknown>>({
+      method: "GET",
+      path: `/organizations/${orgId}/documents/${docId}/editor-config`,
+      query: rest,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
   // ─── Carpetas ──────────────────────────────────────────────────────────
 
   async listFolders(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<DocumentFolder[]> {

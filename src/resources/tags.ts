@@ -1,4 +1,4 @@
-import type { CreateTagInput, Tag } from "../types/messaging.js";
+import type { CreateTagInput, Tag, UpdateTagInput } from "../types/messaging.js";
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 
@@ -22,6 +22,22 @@ export class TagsResource extends Resource {
     const res = await this.http.request<Tag>({
       method: "POST",
       path: `/organizations/${orgId}/tags`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async update(
+    id: string,
+    input: UpdateTagInput & { orgId?: string },
+    options?: RequestOptions,
+  ): Promise<Tag> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<Tag>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/tags/${id}`,
       body,
       ...(options ? { options } : {}),
     });

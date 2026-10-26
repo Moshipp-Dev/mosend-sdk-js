@@ -201,4 +201,33 @@ export class LinkPagesResource extends Resource {
       ...(options ? { options } : {}),
     });
   }
+
+  // ─── Público (sin auth) ────────────────────────────────────────────────
+
+  /** Perfil público de una página publicada (lo que pinta mosend.link/<handle>). */
+  async publicProfile(handle: string, options?: RequestOptions): Promise<LinkPage> {
+    const res = await this.http.request<LinkPage>({
+      method: "GET",
+      path: `/link-pages/p/${encodeURIComponent(handle)}`,
+      skipAuth: true,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /**
+   * Ruta (relativa a la URL base de la API) de la portada o el avatar
+   * públicos. Responden la imagen, no JSON: úsala en un `<img src>`.
+   */
+  publicImagePath(handle: string, slot: "cover" | "avatar"): string {
+    return `/link-pages/p/${encodeURIComponent(handle)}/${slot}`;
+  }
+
+  /**
+   * Ruta (relativa a la URL base de la API) que registra el clic de un enlace
+   * y redirige (302) a su destino. Úsala como `href`.
+   */
+  publicItemPath(handle: string, itemId: string): string {
+    return `/link-pages/p/${encodeURIComponent(handle)}/go/${itemId}`;
+  }
 }

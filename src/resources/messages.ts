@@ -1,4 +1,12 @@
-import type { Message, EditMessageInput, SendMessageInput } from "../types/messaging.js";
+import type {
+  EditMessageInput,
+  Message,
+  SendCarouselInput,
+  SendFlowInput,
+  SendInteractiveInput,
+  SendMessageInput,
+  SendProductInput,
+} from "../types/messaging.js";
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 import { MosendValidationError } from "../core/errors.js";
@@ -90,6 +98,69 @@ export class MessagesResource extends Resource {
       path: `/organizations/${orgId}/messages/upload`,
       query: { phoneNumberId: input.phoneNumberId },
       body: form,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  private async post<T>(
+    ruta: string,
+    input: { orgId?: string } & object,
+    options?: RequestOptions,
+  ): Promise<T> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<T>({
+      method: "POST",
+      path: `/organizations/${orgId}/messages${ruta}`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Mensaje de servicio interactivo: lista, botón CTA URL, pedir ubicación o datos de contacto. */
+  sendInteractive(input: SendInteractiveInput & MessageScope, options?: RequestOptions): Promise<Message> {
+    return this.post<Message>("/interactive", input, options);
+  }
+
+  /** Mensaje de producto de WhatsApp Commerce (uno, varios o el catálogo). */
+  sendProduct(input: SendProductInput & MessageScope, options?: RequestOptions): Promise<Message> {
+    return this.post<Message>("/product", input, options);
+  }
+
+  /** Mensaje de WhatsApp Flow (formulario nativo). */
+  sendFlow(input: SendFlowInput & MessageScope, options?: RequestOptions): Promise<Message> {
+    return this.post<Message>("/flow", input, options);
+  }
+
+  /** Carrusel multimedia interactivo (hasta 10 tarjetas). */
+  sendCarousel(input: SendCarouselInput & MessageScope, options?: RequestOptions): Promise<Message> {
+    return this.post<Message>("/carousel", input, options);
+  }
+
+  /** Muestra el contenido de un mensaje que el cliente eliminó. */
+  async reveal(
+    messageId: string,
+    scope: MessageScope = {},
+    options?: RequestOptions,
+  ): Promise<{
+    id: string;
+    type: string;
+    payload: unknown;
+    transcript?: string | null;
+    deletedAt?: string | null;
+  }> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<{
+      id: string;
+      type: string;
+      payload: unknown;
+      transcript?: string | null;
+      deletedAt?: string | null;
+    }>({
+      method: "POST",
+      path: `/organizations/${orgId}/messages/${messageId}/revelar`,
       ...(options ? { options } : {}),
     });
     return res.data;

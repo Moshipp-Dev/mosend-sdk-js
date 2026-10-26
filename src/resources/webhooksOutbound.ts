@@ -88,4 +88,15 @@ export class WebhooksOutboundResource extends Resource {
     });
     return toPaginated<WebhookDelivery>(res.data);
   }
+
+  /** Envía un evento de prueba (`webhook.test`) para verificar que el endpoint lo recibe. */
+  async sendTest(webhookId: string, scope: { orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<unknown>({
+      method: "POST",
+      path: `/organizations/${orgId}/webhooks-outbound/${webhookId}/test`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
 }

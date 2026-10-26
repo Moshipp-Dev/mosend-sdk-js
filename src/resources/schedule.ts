@@ -78,4 +78,17 @@ export class ScheduleResource extends Resource {
     });
     return res.data;
   }
+
+  /** Horario del agente autenticado día por día. `semana` (0 actual, 1 próxima, -1 anterior) o `dias` desde hoy (14 por defecto, máx. 42). */
+  async myUpcoming(query: { dias?: number; semana?: number; orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "GET",
+      path: `/organizations/${orgId}/attendance/my-schedule/proximos`,
+      query: rest,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
 }

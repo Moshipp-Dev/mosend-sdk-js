@@ -8,6 +8,8 @@ import type {
 import type { Paginated, RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 import { toPaginated } from "../core/http.js";
+import type { SalesReportQuery, TeamSeriesQuery } from "../types/account.js";
+import type { DateRangeQuery } from "../types/botAgents.js";
 
 export class ReportsResource extends Resource {
   async summary(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<ReportSummary> {
@@ -133,6 +135,56 @@ export class ReportsResource extends Resource {
       method: "PATCH",
       path: `/organizations/${orgId}/reports/team/goals`,
       body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Canales conectados (WhatsApp, Instagram, Web Chat), para onboarding y estados vacíos. */
+  async channelsSummary(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<unknown>({
+      method: "GET",
+      path: `/organizations/${orgId}/reports/channels-summary`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Portada del panel: qué espera ahora y cómo va la atención por día, contra el período anterior. */
+  async portada(query: DateRangeQuery & { orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "GET",
+      path: `/organizations/${orgId}/reports/portada`,
+      query: rest,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Serie del equipo por día/semana/mes, con comparación, canal y SLA. */
+  async teamSeries(query: TeamSeriesQuery & { orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "GET",
+      path: `/organizations/${orgId}/reports/team/series`,
+      query: rest,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Reporte de ventas de licencias. Solo propietarios y administradores. */
+  async ventas(query: SalesReportQuery & { orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "GET",
+      path: `/organizations/${orgId}/reports/ventas`,
+      query: rest,
       ...(options ? { options } : {}),
     });
     return res.data;

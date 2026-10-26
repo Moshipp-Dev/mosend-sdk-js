@@ -32,4 +32,15 @@ export class ShiftRemindersResource extends Resource {
     });
     return res.data;
   }
+
+  /** Envía un recordatorio de jornada de PRUEBA al usuario actual por los canales habilitados. */
+  async test(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<unknown>({
+      method: "POST",
+      path: `/organizations/${orgId}/shift-reminders/test`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
 }

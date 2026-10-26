@@ -7,6 +7,7 @@ import type {
 } from "../types/attendance.js";
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
+import type { WorkMode } from "../types/account.js";
 
 export class AttendanceResource extends Resource {
   /** Estado de jornada del agente autenticado (null = sin jornada en curso). */
@@ -227,5 +228,40 @@ export class AttendanceResource extends Resource {
       path: `/organizations/${orgId}/attendance/sessions/${sessionId}`,
       ...(options ? { options } : {}),
     });
+  }
+
+  /** Atajos de período (quincena, últimos 15/30, mes) en la TZ y forma de nómina de la org. */
+  async periodPresets(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<unknown>({
+      method: "GET",
+      path: `/organizations/${orgId}/attendance/period-presets`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Forma de trabajo de cada miembro: turno fijo o por horas (admin). */
+  async listWorkModes(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<unknown[]> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<unknown[]>({
+      method: "GET",
+      path: `/organizations/${orgId}/attendance/work-modes`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Cambia la forma de trabajo de una persona; recalcula también su histórico. */
+  async setWorkMode(agentId: string, input: { workMode: WorkMode } & { orgId?: string }, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/attendance/work-modes/${agentId}`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
   }
 }

@@ -89,4 +89,19 @@ export class BroadcastsResource extends Resource {
     });
     return toPaginated<Record<string, unknown>>(res.data);
   }
+
+  /** Reintenta los destinatarios que fallaron en una difusión ya enviada. */
+  async retryFailed(
+    broadcastId: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<{ sent: number; failed: number; [key: string]: unknown }> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<{ sent: number; failed: number; [key: string]: unknown }>({
+      method: "POST",
+      path: `/organizations/${orgId}/broadcasts/${broadcastId}/retry-failed`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
 }

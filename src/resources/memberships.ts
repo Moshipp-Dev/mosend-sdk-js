@@ -1,6 +1,7 @@
 import type { Membership, SetRoleInput, SetWabaScopeInput } from "../types/identity.js";
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
+import type { SetSuspensionInput, UpdateMyPreferencesInput } from "../types/account.js";
 
 export class MembershipsResource extends Resource {
   async list(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<Membership[]> {
@@ -62,5 +63,31 @@ export class MembershipsResource extends Resource {
       path: `/organizations/${orgId}/memberships/${id}`,
       ...(options ? { options } : {}),
     });
+  }
+
+  /** Preferencias de UI del usuario actual en la organización (merge superficial). */
+  async updateMyPreferences(input: UpdateMyPreferencesInput & { orgId?: string }, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/memberships/me/preferences`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Suspende o reactiva el acceso de un miembro sin eliminarlo. */
+  async setSuspension(id: string, input: SetSuspensionInput & { orgId?: string }, options?: RequestOptions): Promise<Membership> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<Membership>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/memberships/${id}/suspension`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
   }
 }

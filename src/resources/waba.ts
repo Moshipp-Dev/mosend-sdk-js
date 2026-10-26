@@ -72,4 +72,19 @@ export class WabaResource extends Resource {
       ...(options ? { options } : {}),
     });
   }
+
+  /** Vuelve a suscribir la app a los webhooks de la WABA en Meta. */
+  async resubscribeWebhooks(
+    id: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<{ subscribed: boolean }> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<{ subscribed: boolean }>({
+      method: "POST",
+      path: `/organizations/${orgId}/waba/${id}/webhooks/resubscribe`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
 }

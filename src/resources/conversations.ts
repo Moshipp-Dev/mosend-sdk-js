@@ -2,8 +2,10 @@ import type {
   Conversation,
   ConversationWorkload,
   MessagingSettings,
+  NotificationSettings,
   UnreadCounts,
   UpdateMessagingSettingsInput,
+  UpdateNotificationSettingsInput,
   UpdateWorkloadSettingsInput,
   WorkloadSettings,
 } from "../types/messaging.js";
@@ -33,6 +35,8 @@ export interface SearchConversationsQuery {
   direction?: "IN" | "OUT";
   hasAttachment?: boolean;
   sentByMe?: boolean;
+  /** Buscar solo dentro de una conversación. */
+  conversationId?: string;
 }
 
 export class ConversationsResource extends Resource {
@@ -80,13 +84,15 @@ export class ConversationsResource extends Resource {
   }
 
   async unreadCounts(
-    scope: { orgId?: string } = {},
+    scope: { orgId?: string; phoneNumberId?: string } = {},
     options?: RequestOptions,
   ): Promise<UnreadCounts> {
-    const orgId = this.requireOrgId(scope.orgId);
+    const { orgId: scopedOrgId, ...rest } = scope;
+    const orgId = this.requireOrgId(scopedOrgId);
     const res = await this.http.request<UnreadCounts>({
       method: "GET",
       path: `/organizations/${orgId}/conversations/unread-counts`,
+      query: rest,
       ...(options ? { options } : {}),
     });
     return res.data;
@@ -147,20 +153,22 @@ export class ConversationsResource extends Resource {
 
   async workloadByAgent(
     userId: string,
-    scope: { orgId?: string } = {},
+    scope: { orgId?: string; days?: number; from?: string; to?: string } = {},
     options?: RequestOptions,
   ): Promise<{ userId: string; openCount: number; capacity?: number }> {
-    const orgId = this.requireOrgId(scope.orgId);
+    const { orgId: scopedOrgId, ...rest } = scope;
+    const orgId = this.requireOrgId(scopedOrgId);
     const res = await this.http.request<{ userId: string; openCount: number; capacity?: number }>({
       method: "GET",
       path: `/organizations/${orgId}/conversations/workload/agent/${userId}`,
+      query: rest,
       ...(options ? { options } : {}),
     });
     return res.data;
   }
 
   async activityTrends(
-    query: { orgId?: string; days?: number; metric?: string } = {},
+    query: { orgId?: string; days?: number; desde?: string; hasta?: string } = {},
     options?: RequestOptions,
   ): Promise<Array<{ day: string; value: number }>> {
     const { orgId: scopedOrgId, ...rest } = query;
@@ -175,7 +183,13 @@ export class ConversationsResource extends Resource {
   }
 
   async activityHeatmap(
-    query: { orgId?: string; days?: number; metric?: "volume" | "late" | "avgResponse" } = {},
+    query: {
+      orgId?: string;
+      days?: number;
+      metric?: "volume" | "late" | "avgResponse";
+      desde?: string;
+      hasta?: string;
+    } = {},
     options?: RequestOptions,
   ): Promise<Array<{ dayOfWeek: number; hour: number; value: number }>> {
     const { orgId: scopedOrgId, ...rest } = query;
@@ -216,7 +230,7 @@ export class ConversationsResource extends Resource {
 
   async listMessages(
     id: string,
-    query: { orgId?: string; limit?: number; before?: string } = {},
+    query: { orgId?: string; limit?: number; before?: string; around?: string } = {},
     options?: RequestOptions,
   ): Promise<Paginated<Record<string, unknown>>> {
     const { orgId: scopedOrgId, ...rest } = query;
@@ -234,8 +248,10 @@ export class ConversationsResource extends Resource {
     id: string,
     input: {
       status: "open" | "closed" | "snoozed";
-      category?: string;
-      resolutionOutcome?: string;
+      category?: "INQUIRY" | "SALE" | "SUPPORT" | "COMPLAINT" | "OTHER";
+      resolutionOutcome?: "RESOLVED" | "UNRESOLVED" | "PENDING_FOLLOWUP" | "AUTO_CLOSED";
+      /** Fecha ISO de seguimiento (solo con `resolutionOutcome: "PENDING_FOLLOWUP"`). */
+      followUpAt?: string | null;
       orgId?: string;
     },
     options?: RequestOptions,
@@ -367,13 +383,15 @@ export class ConversationsResource extends Resource {
 
   async requestHandoff(
     id: string,
-    scope: { orgId?: string } = {},
+    input: { reason?: string; detail?: string; orgId?: string } = {},
     options?: RequestOptions,
   ): Promise<Conversation> {
-    const orgId = this.requireOrgId(scope.orgId);
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
     const res = await this.http.request<Conversation>({
       method: "POST",
       path: `/organizations/${orgId}/conversations/${id}/request-handoff`,
+      body,
       ...(options ? { options } : {}),
     });
     return res.data;
@@ -391,7 +409,7 @@ export class ConversationsResource extends Resource {
 
   async snooze(
     id: string,
-    input: { until: string | null; orgId?: string },
+    input: { until: string | null; note?: string; orgId?: string },
     options?: RequestOptions,
   ): Promise<Conversation> {
     const { orgId: scopedOrgId, ...body } = input;
@@ -449,5 +467,76 @@ export class ConversationsResource extends Resource {
       path: `/organizations/${orgId}/conversations/${id}/tags/${tagId}`,
       ...(options ? { options } : {}),
     });
+  }
+
+  /** Correos de aviso por retraso de conversación (y demás correos de la org). */
+  async getNotificationSettings(
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<NotificationSettings> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<NotificationSettings>({
+      method: "GET",
+      path: `/organizations/${orgId}/conversations/notification-settings`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  async updateNotificationSettings(
+    input: UpdateNotificationSettingsInput & { orgId?: string },
+    options?: RequestOptions,
+  ): Promise<NotificationSettings> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<NotificationSettings>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/conversations/notification-settings`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Fija qué agente del bot atiende la conversación (`agentId: null` = que decida el enrutador). */
+  async setAgent(
+    id: string,
+    input: { agentId: string | null; orgId?: string },
+    options?: RequestOptions,
+  ): Promise<Conversation> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<Conversation>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/conversations/${id}/agent`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Devuelve la conversación al bot (lo reactiva conservando el contexto). */
+  async returnToBot(id: string, scope: { orgId?: string } = {}, options?: RequestOptions): Promise<Conversation> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<Conversation>({
+      method: "POST",
+      path: `/organizations/${orgId}/conversations/${id}/devolver-al-bot`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /**
+   * Toma el hilo de una conversación que atiende otra app (enrutamiento de
+   * conversaciones de Meta).
+   */
+  async takeThread(id: string, scope: { orgId?: string } = {}, options?: RequestOptions): Promise<{ ok: true }> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<{ ok: true }>({
+      method: "POST",
+      path: `/organizations/${orgId}/conversations/${id}/tomar-hilo`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
   }
 }

@@ -53,6 +53,42 @@ export class WebChatResource extends Resource {
     return res.data;
   }
 
+  /** Sube el avatar del canal (multipart, campo `file`, máx. 8 MB). */
+  async uploadAvatar(
+    id: string,
+    input: { file: Blob | File; filename?: string; orgId?: string },
+    options?: RequestOptions,
+  ): Promise<WebChatChannel> {
+    if (typeof FormData === "undefined") {
+      throw new MosendValidationError("FormData is not available in this runtime.");
+    }
+    const orgId = this.requireOrgId(input.orgId);
+    const form = new FormData();
+    form.append("file", input.file, input.filename ?? (input.file as File).name ?? "avatar.png");
+    const res = await this.http.request<WebChatChannel>({
+      method: "POST",
+      path: `/organizations/${orgId}/web-chat/channels/${id}/avatar`,
+      body: form,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Quita el avatar del canal. */
+  async deleteAvatar(
+    id: string,
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<WebChatChannel> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<WebChatChannel>({
+      method: "DELETE",
+      path: `/organizations/${orgId}/web-chat/channels/${id}/avatar`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
   async deleteChannel(id: string, scope: { orgId?: string } = {}, options?: RequestOptions): Promise<void> {
     const orgId = this.requireOrgId(scope.orgId);
     await this.http.request<unknown>({

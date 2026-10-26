@@ -71,4 +71,17 @@ export class BillingResource extends Resource {
     });
     return res.data;
   }
+
+  /** Cambia el intervalo de facturación. Aplica al próximo cierre; anual cobra el año desde esta fecha. */
+  async setInterval(input: { interval: "MONTHLY" | "YEARLY" } & { orgId?: string }, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/billing/interval`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
 }

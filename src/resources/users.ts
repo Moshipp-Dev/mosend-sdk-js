@@ -30,4 +30,25 @@ export class UsersResource extends Resource {
       ...(options ? { options } : {}),
     });
   }
+
+  /** Envía un código OTP por WhatsApp para verificar el teléfono del usuario. Requiere sesión JWT. */
+  async requestPhoneCode(options?: RequestOptions): Promise<unknown> {
+    const res = await this.http.request<unknown>({
+      method: "POST",
+      path: `/users/me/phone/request-code`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Confirma el código OTP y marca el teléfono como verificado. Requiere sesión JWT. */
+  async verifyPhoneCode(input: { code: string }, options?: RequestOptions): Promise<unknown> {
+    const res = await this.http.request<unknown>({
+      method: "POST",
+      path: `/users/me/phone/verify-code`,
+      body: input,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
 }

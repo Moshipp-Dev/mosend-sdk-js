@@ -121,4 +121,18 @@ export class FlowsResource extends Resource {
     });
     return res.data;
   }
+
+  /** Plantillas de flujo listas para usar (catálogo fijo). */
+  async templates(
+    scope: { orgId?: string } = {},
+    options?: RequestOptions,
+  ): Promise<Array<Record<string, unknown>>> {
+    const orgId = this.requireOrgId(scope.orgId);
+    const res = await this.http.request<Array<Record<string, unknown>>>({
+      method: "GET",
+      path: `/organizations/${orgId}/bot/flows/plantillas`,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
 }

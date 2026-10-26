@@ -7,6 +7,13 @@ import type {
 import type { RequestOptions } from "../core/types.js";
 import { Resource } from "./base.js";
 import { MosendValidationError } from "../core/errors.js";
+import type {
+  DateRangeQuery,
+  KnowledgeAssignmentInput,
+  KnowledgeNoteInput,
+  KnowledgeSearchInput,
+  KnowledgeUrlSourceInput,
+} from "../types/botAgents.js";
 
 export class KnowledgeResource extends Resource {
   async list(scope: { orgId?: string } = {}, options?: RequestOptions): Promise<KnowledgeDocument[]> {
@@ -111,5 +118,83 @@ export class KnowledgeResource extends Resource {
       path: `/organizations/${orgId}/bot/knowledge/${id}`,
       ...(options ? { options } : {}),
     });
+  }
+
+  /** Qué buscó el bot en la memoria: consultas, tasa de respuesta, preguntas sin respuesta, uso por agente y documento. */
+  async insights(query: DateRangeQuery & { orgId?: string } = {}, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...rest } = query;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "GET",
+      path: `/organizations/${orgId}/bot/knowledge/insights`,
+      query: rest,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Búsqueda semántica (RAG): el mismo retrieval que usa el bot IA. */
+  async search(input: KnowledgeSearchInput & { orgId?: string }, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "POST",
+      path: `/organizations/${orgId}/bot/knowledge/search`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Crea una nota escrita en el panel; se procesa como un documento. */
+  async createNote(input: KnowledgeNoteInput & { orgId?: string }, options?: RequestOptions): Promise<KnowledgeDocument> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<KnowledgeDocument>({
+      method: "POST",
+      path: `/organizations/${orgId}/bot/knowledge/notes`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Edita una nota; si cambia el texto se vuelve a procesar. */
+  async updateNote(id: string, input: KnowledgeNoteInput & { orgId?: string }, options?: RequestOptions): Promise<KnowledgeDocument> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<KnowledgeDocument>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/bot/knowledge/notes/${id}`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Importa una página web pública; con `syncEveryHours` se vuelve a leer periódicamente. */
+  async createFromUrl(input: KnowledgeUrlSourceInput & { orgId?: string }, options?: RequestOptions): Promise<KnowledgeDocument> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<KnowledgeDocument>({
+      method: "POST",
+      path: `/organizations/${orgId}/bot/knowledge/url`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
+  }
+
+  /** Qué agentes leen el documento, o si lo leen todos (`compartido`). */
+  async updateAgents(id: string, input: KnowledgeAssignmentInput & { orgId?: string }, options?: RequestOptions): Promise<unknown> {
+    const { orgId: scopedOrgId, ...body } = input;
+    const orgId = this.requireOrgId(scopedOrgId);
+    const res = await this.http.request<unknown>({
+      method: "PATCH",
+      path: `/organizations/${orgId}/bot/knowledge/${id}/agentes`,
+      body,
+      ...(options ? { options } : {}),
+    });
+    return res.data;
   }
 }
